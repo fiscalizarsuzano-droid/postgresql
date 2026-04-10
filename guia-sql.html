@@ -62,6 +62,7 @@ h2 {
   font-size:13px;
   overflow:auto;
   margin-top:10px;
+  line-height:1.6;
 }
 
 .note {
@@ -104,13 +105,13 @@ h2 {
 <p>Primeiro passo: descobrir o que existe no banco.</p>
 
 <div class="code">
-<pre><code>
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-AND table_type = 'BASE TABLE'
-ORDER BY table_name;
-</code></pre>
+  <pre><code>
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+    AND table_type = 'BASE TABLE'
+    ORDER BY table_name;
+  </code></pre>
 </div>
 
 <div class="note">
@@ -124,18 +125,18 @@ information_schema é o catálogo interno do PostgreSQL — ele mostra toda a es
 <p>Agora escolha uma tabela e entenda sua estrutura.
 
 <div class="code">
-<code><pre>
-SELECT
-  ordinal_position AS ordem,
-  column_name AS coluna,
-  data_type AS tipo,
-  character_maximum_length AS tamanho,
-  is_nullable AS aceita_nulo,
-  column_default AS valor_padrao
-FROM information_schema.columns
-WHERE table_name = 'servidor'
-ORDER BY ordinal_position;
-</code></pre>
+  <code><pre>
+    SELECT
+      ordinal_position AS ordem,
+      column_name AS coluna,
+      data_type AS tipo,
+      character_maximum_length AS tamanho,
+      is_nullable AS aceita_nulo,
+      column_default AS valor_padrao
+    FROM information_schema.columns
+    WHERE table_name = 'servidor'
+    ORDER BY ordinal_position;
+  </code></pre>
 </div>
 
 <div class="note">
@@ -147,17 +148,18 @@ USER-DEFINED geralmente significa ENUM (tipo personalizado).
 <div class="card">
 <h2>3. Como são os dados?</h2>
 
-<div class="code"><code><pre>
--- Ver dados
-SELECT * FROM servidor LIMIT 5;
-
--- Contagem
-SELECT COUNT(*) FROM servidor;
-
--- Valores únicos
-SELECT DISTINCT situacao FROM servidor;
-
-</code></pre>
+<div class="code">
+  <code><pre>
+    -- Ver dados
+    SELECT * FROM servidor LIMIT 5;
+    
+    -- Contagem
+    SELECT COUNT(*) FROM servidor;
+    
+    -- Valores únicos
+    SELECT DISTINCT situacao FROM servidor;
+  
+  </code></pre>
 </div>
 
 <div class="warning">
