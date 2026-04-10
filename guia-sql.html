@@ -104,11 +104,11 @@ h2 {
 <p>Primeiro passo: descobrir o que existe no banco.</p>
 
 <div class="code">
-SELECT table_name<hr>
-FROM information_schema.tables<hr>
-WHERE table_schema = 'public'<hr>
-AND table_type = 'BASE TABLE'<hr>
-ORDER BY table_name;<hr>
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+AND table_type = 'BASE TABLE'
+ORDER BY table_name;
 </div>
 
 <div class="note">
@@ -164,6 +164,7 @@ Sempre use LIMIT no início. Em produção, tabelas podem ter milhões de regist
 <h2>4. Como as tabelas se conectam?</h2>
 
 <div class="code">
+<pre><code>
 SELECT
   tc.table_name,
   kcu.column_name,
@@ -175,6 +176,7 @@ ON tc.constraint_name = kcu.constraint_name
 JOIN information_schema.constraint_column_usage ccu
 ON ccu.constraint_name = tc.constraint_name
 WHERE tc.constraint_type = 'FOREIGN KEY';
+</code></pre>
 </div>
 
 <div class="note">
@@ -187,6 +189,7 @@ Isso mostra exatamente como fazer JOIN entre tabelas.
 <h2>5. Estatísticas rápidas</h2>
 
 <div class="code">
+<pre><code>
 SELECT
   COUNT(*) AS total,
   COUNT(salario_atual) AS preenchidos,
@@ -195,6 +198,7 @@ SELECT
   MAX(salario_atual),
   ROUND(AVG(salario_atual),2)
 FROM servidor;
+</code></pre>
 </div>
 
 <div class="code">
