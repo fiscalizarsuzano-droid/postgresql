@@ -104,11 +104,11 @@ h2 {
 <p>Primeiro passo: descobrir o que existe no banco.</p>
 
 <div class="code">
-SELECT table_name<br>
-FROM information_schema.tables<br>
-WHERE table_schema = 'public'<br>
-AND table_type = 'BASE TABLE'<br>
-ORDER BY table_name;<br>
+SELECT table_name<hr>
+FROM information_schema.tables<hr>
+WHERE table_schema = 'public'<hr>
+AND table_type = 'BASE TABLE'<hr>
+ORDER BY table_name;<hr>
 </div>
 
 <div class="note">
@@ -118,20 +118,20 @@ information_schema é o catálogo interno do PostgreSQL — ele mostra toda a es
 
 <!-- PASSO 2 -->
 <div class="card">
-<h2>2. Quais colunas existem na tabela?</h2>
-<p>Agora escolha uma tabela e entenda sua estrutura.</p>
+<h2>2. Quais colunas existem na tabela?
+<p>Agora escolha uma tabela e entenda sua estrutura.
 
 <div class="code">
-SELECT<br>
-  ordinal_position AS ordem,<br>
-  column_name AS coluna,<br>
-  data_type AS tipo,<br>
-  character_maximum_length AS tamanho,<br>
-  is_nullable AS aceita_nulo,<br>
-  column_default AS valor_padrao<br>
-FROM information_schema.columns<br>
-WHERE table_name = 'servidor'<br>
-ORDER BY ordinal_position;<br>
+SELECT
+  ordinal_position AS ordem,
+  column_name AS coluna,
+  data_type AS tipo,
+  character_maximum_length AS tamanho,
+  is_nullable AS aceita_nulo,
+  column_default AS valor_padrao
+FROM information_schema.columns
+WHERE table_name = 'servidor'
+ORDER BY ordinal_position;
 </div>
 
 <div class="note">
@@ -145,10 +145,10 @@ USER-DEFINED geralmente significa ENUM (tipo personalizado).
 
 <div class="code">
 -- Ver dados
-SELECT * FROM servidor LIMIT 5;<br>
+SELECT * FROM servidor LIMIT 5;
 
 -- Contagem
-SELECT COUNT(*) FROM servidor;<br>
+SELECT COUNT(*) FROM servidor;
 
 -- Valores únicos
 SELECT DISTINCT situacao FROM servidor;
