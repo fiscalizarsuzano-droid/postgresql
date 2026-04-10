@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostgreSQL — Referência Completa</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --border: #21262d;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #22c55e;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --keyword: #ff7b72;
+    --func: #d2a8ff;
+    --string: #a5d6ff;
+    --comment: #588157;
+    --type: #ffa657;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* TOP GLOW */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0 0 40px 0;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 10;
+  }
+
+  .sidebar-logo .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-logo .logo-text span {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 13px;
+  }
+
+  .elephant {
+    font-size: 24px;
+    filter: drop-shadow(0 0 8px var(--accent));
+  }
+
+  .nav-section {
+    padding: 6px 12px 2px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    color: var(--text);
+    background: rgba(0,229,255,0.05);
+    border-left-color: var(--accent);
+  }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .nav-item:hover .nav-dot { background: var(--accent); }
+
+  /* MAIN */
+  .main {
+    margin-left: 260px;
+    padding: 60px 48px 80px;
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+  }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 60px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .hero h1 {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 14px;
+  }
+
+  .hero h1 .pg { color: var(--accent); }
+  .hero h1 .sql { color: var(--text); }
+
+  .hero-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 64px;
+    scroll-margin-top: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .section-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .section-title small {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0;
+    margin-top: 2px;
+  }
+
+  /* CARDS */
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: rgba(0,229,255,0.25);
+    transform: translateX(3px);
+  }
+
+  .card-header {
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .cmd-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+
+  .cmd-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .cmd-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tag-ddl  { background: rgba(239,68,68,0.12); color: var(--accent5); border: 1px solid rgba(239,68,68,0.2); }
+  .tag-dml  { background: rgba(34,197,94,0.12); color: var(--accent3); border: 1px solid rgba(34,197,94,0.2); }
+  .tag-dql  { background: rgba(0,229,255,0.10); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+  .tag-dcl  { background: rgba(245,158,11,0.12); color: var(--accent4); border: 1px solid rgba(245,158,11,0.2); }
+  .tag-tcl  { background: rgba(124,58,237,0.12); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
+  .tag-func { background: rgba(210,168,255,0.10); color: var(--func); border: 1px solid rgba(210,168,255,0.2); }
+  .tag-trig { background: rgba(255,123,114,0.10); color: var(--keyword); border: 1px solid rgba(255,123,114,0.2); }
+  .tag-idx  { background: rgba(165,214,255,0.10); color: var(--string); border: 1px solid rgba(165,214,255,0.2); }
+  .tag-adm  { background: rgba(88,129,87,0.20); color: #86efac; border: 1px solid rgba(88,129,87,0.3); }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #0a0e14;
+    border-top: 1px solid var(--border);
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .code-block::-webkit-scrollbar { height: 4px; }
+  .code-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .kw  { color: var(--keyword); font-weight: 700; }
+  .fn  { color: var(--func); }
+  .str { color: var(--string); }
+  .cmt { color: var(--comment); font-style: italic; }
+  .tp  { color: var(--type); }
+  .nm  { color: #79c0ff; }
+  .op  { color: #ff7b72; }
+
+  /* GRID 2 COL */
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* NOTE */
+  .note {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: #fcd34d;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0.2;
+    margin: 8px 0 20px;
+  }
+
+  /* TABLE */
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .ref-table th {
+    background: var(--surface2);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ref-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .ref-table td:first-child { color: var(--accent); font-weight: 600; }
+  .ref-table td:last-child { color: var(--muted); }
+
+  /* SCROLL TRACKER */
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    z-index: 999;
+    transition: width 0.1s;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    padding: 12px 16px;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px 8px 32px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+
+  .search-wrap-inner {
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  .search-input:focus { border-color: rgba(0,229,255,0.4); }
+  .search-input::placeholder { color: var(--muted); }
+
+  /* HIGHLIGHT SEARCH */
+  .highlight { background: rgba(0,229,255,0.2); border-radius: 2px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 30px 20px 60px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 36px; }
+  }
+
+  /* SECTION COLORS */
+  .s-dql  .section-icon { background: rgba(0,229,255,0.1); }
+  .s-dml  .section-icon { background: rgba(34,197,94,0.1); }
+  .s-ddl  .section-icon { background: rgba(239,68,68,0.1); }
+  .s-tcl  .section-icon { background: rgba(124,58,237,0.1); }
+  .s-func .section-icon { background: rgba(210,168,255,0.1); }
+  .s-trig .section-icon { background: rgba(255,123,114,0.1); }
+  .s-idx  .section-icon { background: rgba(165,214,255,0.1); }
+  .s-dcl  .section-icon { background: rgba(245,158,11,0.1); }
+  .s-adm  .section-icon { background: rgba(88,129,87,0.15); }
+  .s-json .section-icon { background: rgba(124,58,237,0.1); }
+  .s-win  .section-icon { background: rgba(0,229,255,0.08); }
+  .s-cte  .section-icon { background: rgba(34,197,94,0.08); }
+
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">
+      <span class="elephant">🐘</span>
+      PostgreSQL
+    </div>
+    <div style="color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;margin-top:4px;">Referência Completa</div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-wrap-inner">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="Buscar comando..." autocomplete="off">
+    </div>
+  </div>
+
+  <div class="nav-section">Consulta</div>
+  <a class="nav-item" href="#dql"><span class="nav-dot"></span>SELECT / DQL</a>
+  <a class="nav-item" href="#joins"><span class="nav-dot"></span>JOINs</a>
+  <a class="nav-item" href="#subquery"><span class="nav-dot"></span>Subqueries</a>
+  <a class="nav-item" href="#cte"><span class="nav-dot"></span>CTEs (WITH)</a>
+  <a class="nav-item" href="#window"><span class="nav-dot"></span>Window Functions</a>
+
+  <div class="nav-section">Manipulação</div>
+  <a class="nav-item" href="#dml"><span class="nav-dot"></span>INSERT / UPDATE / DELETE</a>
+  <a class="nav-item" href="#ddl"><span class="nav-dot"></span>CREATE / ALTER / DROP</a>
+  <a class="nav-item" href="#tcl"><span class="nav-dot"></span>Transações</a>
+
+  <div class="nav-section">Avançado</div>
+  <a class="nav-item" href="#triggers"><span class="nav-dot"></span>Triggers</a>
+  <a class="nav-item" href="#functions"><span class="nav-dot"></span>Functions / Procedures</a>
+  <a class="nav-item" href="#indexes"><span class="nav-dot"></span>Índices</a>
+  <a class="nav-item" href="#json"><span class="nav-dot"></span>JSON / JSONB</a>
+  <a class="nav-item" href="#views"><span class="nav-dot"></span>Views / Materialized</a>
+
+  <div class="nav-section">Administração</div>
+  <a class="nav-item" href="#dcl"><span class="nav-dot"></span>Permissões (DCL)</a>
+  <a class="nav-item" href="#admin"><span class="nav-dot"></span>Manutenção</a>
+  <a class="nav-item" href="#types"><span class="nav-dot"></span>Tipos de Dados</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">⚡ v16+ compatível</div>
+    <h1><span class="pg">Post</span><span class="sql">greSQL</span><br>Referência Completa</h1>
+    <p class="hero-sub">Todos os comandos essenciais — DDL, DML, DQL, DCL, TCL, Triggers, Functions, Indexes, JSON, Window Functions e administração do banco.</p>
+  </div>
+
+  <!-- ───── DQL ───── -->
+  <section class="section s-dql" id="dql">
+    <div class="section-header">
+      <div class="section-icon">🔍</div>
+      <div class="section-title">
+        SELECT — Consultas (DQL)
+        <small>Data Query Language</small>
+      </div>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">SELECT básico</div>
+            <div class="cmd-desc">Recupera linhas de uma ou mais tabelas com filtros, ordenação e limite</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="nm">coluna1</span>, <span class="nm">coluna2</span>, <span class="nm">coluna3</span>
+<span class="kw">FROM</span>   <span class="nm">tabela</span>
+<span class="kw">WHERE</span>  <span class="nm">coluna1</span> <span class="op">=</span> <span class="str">'valor'</span>
+  <span class="kw">AND</span>  <span class="nm">coluna2</span> <span class="op">></span> <span class="str">100</span>
+<span class="kw">ORDER BY</span> <span class="nm">coluna1</span> <span class="kw">ASC</span>, <span class="nm">coluna2</span> <span class="kw">DESC</span>
+<span class="kw">LIMIT</span>  <span class="str">10</span> <span class="kw">OFFSET</span> <span class="str">20</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">SELECT DISTINCT / COUNT / GROUP BY / HAVING</div>
+            <div class="cmd-desc">Elimina duplicatas e agrega resultados com filtro sobre grupos</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> <span class="nm">categoria</span>,
+       <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> <span class="nm">total</span>,
+       <span class="fn">SUM</span>(<span class="nm">valor</span>)  <span class="kw">AS</span> <span class="nm">soma</span>,
+       <span class="fn">AVG</span>(<span class="nm">valor</span>)  <span class="kw">AS</span> <span class="nm">media</span>,
+       <span class="fn">MAX</span>(<span class="nm">valor</span>)  <span class="kw">AS</span> <span class="nm">maximo</span>,
+       <span class="fn">MIN</span>(<span class="nm">valor</span>)  <span class="kw">AS</span> <span class="nm">minimo</span>
+<span class="kw">FROM</span>   <span class="nm">pedidos</span>
+<span class="kw">GROUP  BY</span> <span class="nm">categoria</span>
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">></span> <span class="str">5</span>
+<span class="kw">ORDER  BY</span> <span class="nm">total</span> <span class="kw">DESC</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Operadores de filtro</div>
+            <div class="cmd-desc">LIKE, ILIKE, IN, BETWEEN, IS NULL, SIMILAR TO, regexp</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">clientes</span>
+<span class="kw">WHERE</span>  <span class="nm">nome</span>    <span class="kw">ILIKE</span> <span class="str">'%silva%'</span>          <span class="cmt">-- insensível a maiúsculas</span>
+  <span class="kw">AND</span>  <span class="nm">status</span>  <span class="kw">IN</span> (<span class="str">'ativo'</span>, <span class="str">'pendente'</span>)
+  <span class="kw">AND</span>  <span class="nm">idade</span>   <span class="kw">BETWEEN</span> <span class="str">18</span> <span class="kw">AND</span> <span class="str">65</span>
+  <span class="kw">AND</span>  <span class="nm">email</span>   <span class="kw">IS NOT NULL</span>
+  <span class="kw">AND</span>  <span class="nm">cpf</span>     <span class="op">~</span> <span class="str">'^[0-9]{11}$'</span>;         <span class="cmt">-- regex posix</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">CASE WHEN</div>
+            <div class="cmd-desc">Expressão condicional inline para transformar valores</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="nm">nome</span>,
+       <span class="kw">CASE</span>
+         <span class="kw">WHEN</span> <span class="nm">salario</span> <span class="op">></span> <span class="str">10000</span> <span class="kw">THEN</span> <span class="str">'Senior'</span>
+         <span class="kw">WHEN</span> <span class="nm">salario</span> <span class="op">></span> <span class="str">5000</span>  <span class="kw">THEN</span> <span class="str">'Pleno'</span>
+         <span class="kw">ELSE</span>                        <span class="str">'Junior'</span>
+       <span class="kw">END</span> <span class="kw">AS</span> <span class="nm">nivel</span>
+<span class="kw">FROM</span> <span class="nm">funcionarios</span>;</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───── JOINS ───── -->
+  <section class="section s-dql" id="joins">
+    <div class="section-header">
+      <div class="section-icon">🔗</div>
+      <div class="section-title">
+        JOINs — Relacionamentos
+        <small>Combinação de tabelas</small>
+      </div>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">INNER JOIN</div>
+            <div class="cmd-desc">Retorna apenas linhas com correspondência nos dois lados</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="nm">p.nome</span>, <span class="nm">c.razao_social</span>, <span class="nm">p.valor</span>
+<span class="kw">FROM</span>        <span class="nm">pedidos</span>    <span class="nm">p</span>
+<span class="kw">INNER JOIN</span> <span class="nm">clientes</span>   <span class="nm">c</span>  <span class="kw">ON</span> <span class="nm">p.cliente_id</span> <span class="op">=</span> <span class="nm">c.id</span>
+<span class="kw">INNER JOIN</span> <span class="nm">produtos</span>   <span class="nm">pr</span> <span class="kw">ON</span> <span class="nm">p.produto_id</span> <span class="op">=</span> <span class="nm">pr.id</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">LEFT / RIGHT / FULL OUTER JOIN</div>
+            <div class="cmd-desc">Mantém todos os registros de um ou ambos os lados mesmo sem correspondência</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="nm">c.nome</span>, <span class="nm">p.valor</span>
+<span class="kw">FROM</span>       <span class="nm">clientes</span> <span class="nm">c</span>
+<span class="kw">LEFT  JOIN</span> <span class="nm">pedidos</span>  <span class="nm">p</span> <span class="kw">ON</span> <span class="nm">c.id</span> <span class="op">=</span> <span class="nm">p.cliente_id</span>;
+<span class="cmt">-- RIGHT JOIN: todos de pedidos, nulos de clientes</span>
+<span class="cmt">-- FULL OUTER JOIN: tudo de ambos, nulos onde não há par</span>
+<span class="cmt">-- CROSS JOIN: produto cartesiano (sem ON)</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">SELF JOIN / LATERAL JOIN</div>
+            <div class="cmd-desc">Join da tabela com ela mesma; LATERAL referencia colunas anteriores</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- SELF JOIN: hierarquia</span>
+<span class="kw">SELECT</span> <span class="nm">e.nome</span>, <span class="nm">g.nome</span> <span class="kw">AS</span> <span class="nm">gestor</span>
+<span class="kw">FROM</span>       <span class="nm">funcionarios</span> <span class="nm">e</span>
+<span class="kw">LEFT  JOIN</span> <span class="nm">funcionarios</span> <span class="nm">g</span> <span class="kw">ON</span> <span class="nm">e.gestor_id</span> <span class="op">=</span> <span class="nm">g.id</span>;
+
+<span class="cmt">-- LATERAL JOIN</span>
+<span class="kw">SELECT</span> <span class="nm">u.nome</span>, <span class="nm">ult.criado_em</span>
+<span class="kw">FROM</span>  <span class="nm">usuarios</span> <span class="nm">u</span>
+<span class="kw">JOIN LATERAL</span> (
+  <span class="kw">SELECT</span> <span class="nm">criado_em</span> <span class="kw">FROM</span> <span class="nm">logs</span>
+  <span class="kw">WHERE</span> <span class="nm">usuario_id</span> <span class="op">=</span> <span class="nm">u.id</span>
+  <span class="kw">ORDER BY</span> <span class="nm">criado_em</span> <span class="kw">DESC LIMIT</span> <span class="str">1</span>
+) <span class="nm">ult</span> <span class="kw">ON TRUE</span>;</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───── SUBQUERY ───── -->
+  <section class="section s-dql" id="subquery">
+    <div class="section-header">
+      <div class="section-icon">🪆</div>
+      <div class="section-title">
+        Subqueries
+        <small>Consultas aninhadas</small>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Subquery no WHERE / IN / EXISTS</div>
+            <div class="cmd-desc">Filtra com base em resultado de outra consulta</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- IN</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">produtos</span>
+<span class="kw">WHERE</span> <span class="nm">id</span> <span class="kw">IN</span> (<span class="kw">SELECT</span> <span class="nm">produto_id</span> <span class="kw">FROM</span> <span class="nm">pedidos</span> <span class="kw">WHERE</span> <span class="nm">valor</span> <span class="op">></span> <span class="str">500</span>);
+
+<span class="cmt">-- EXISTS (mais eficiente que IN para grandes volumes)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">clientes</span> <span class="nm">c</span>
+<span class="kw">WHERE EXISTS</span> (
+  <span class="kw">SELECT</span> <span class="str">1</span> <span class="kw">FROM</span> <span class="nm">pedidos</span> <span class="nm">p</span>
+  <span class="kw">WHERE</span> <span class="nm">p.cliente_id</span> <span class="op">=</span> <span class="nm">c.id</span>
+);
+
+<span class="cmt">-- Subquery como coluna calculada</span>
+<span class="kw">SELECT</span> <span class="nm">nome</span>,
+       (<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> <span class="nm">pedidos</span> <span class="kw">WHERE</span> <span class="nm">cliente_id</span> <span class="op">=</span> <span class="nm">c.id</span>) <span class="kw">AS</span> <span class="nm">total_pedidos</span>
+<span class="kw">FROM</span> <span class="nm">clientes</span> <span class="nm">c</span>;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── CTE ───── -->
+  <section class="section s-cte" id="cte">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div class="section-title">
+        CTEs — WITH / Recursivo
+        <small>Common Table Expressions</small>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">WITH (CTE)</div>
+            <div class="cmd-desc">Define consultas nomeadas temporárias reutilizáveis na mesma query</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">WITH</span>
+  <span class="nm">vendas_mes</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="nm">vendedor_id</span>, <span class="fn">SUM</span>(<span class="nm">valor</span>) <span class="kw">AS</span> <span class="nm">total</span>
+    <span class="kw">FROM</span>  <span class="nm">pedidos</span>
+    <span class="kw">WHERE</span> <span class="nm">criado_em</span> <span class="op">>=</span> <span class="fn">date_trunc</span>(<span class="str">'month'</span>, <span class="fn">now</span>())
+    <span class="kw">GROUP BY</span> <span class="nm">vendedor_id</span>
+  ),
+  <span class="nm">meta</span> <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> <span class="nm">id</span>, <span class="nm">meta_valor</span> <span class="kw">FROM</span> <span class="nm">metas</span>
+  )
+<span class="kw">SELECT</span> <span class="nm">v.vendedor_id</span>, <span class="nm">vm.total</span>, <span class="nm">m.meta_valor</span>,
+       <span class="nm">vm.total</span> <span class="op">-</span> <span class="nm">m.meta_valor</span> <span class="kw">AS</span> <span class="nm">diferenca</span>
+<span class="kw">FROM</span>       <span class="nm">vendedores</span>  <span class="nm">v</span>
+<span class="kw">LEFT JOIN</span> <span class="nm">vendas_mes</span>  <span class="nm">vm</span> <span class="kw">ON</span> <span class="nm">v.id</span> <span class="op">=</span> <span class="nm">vm.vendedor_id</span>
+<span class="kw">LEFT JOIN</span> <span class="nm">meta</span>        <span class="nm">m</span>  <span class="kw">ON</span> <span class="nm">v.id</span> <span class="op">=</span> <span class="nm">m.id</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">WITH RECURSIVE</div>
+            <div class="cmd-desc">Percorre hierarquias e grafos com consulta auto-referenciada</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">WITH RECURSIVE</span> <span class="nm">hierarquia</span> <span class="kw">AS</span> (
+  <span class="cmt">-- Base: raiz</span>
+  <span class="kw">SELECT</span> <span class="nm">id</span>, <span class="nm">nome</span>, <span class="nm">pai_id</span>, <span class="str">0</span> <span class="kw">AS</span> <span class="nm">nivel</span>
+  <span class="kw">FROM</span>  <span class="nm">categorias</span>
+  <span class="kw">WHERE</span> <span class="nm">pai_id</span> <span class="kw">IS NULL</span>
+
+  <span class="kw">UNION ALL</span>
+
+  <span class="cmt">-- Recursivo: filhos</span>
+  <span class="kw">SELECT</span> <span class="nm">c.id</span>, <span class="nm">c.nome</span>, <span class="nm">c.pai_id</span>, <span class="nm">h.nivel</span> <span class="op">+</span> <span class="str">1</span>
+  <span class="kw">FROM</span>       <span class="nm">categorias</span>  <span class="nm">c</span>
+  <span class="kw">INNER JOIN</span> <span class="nm">hierarquia</span>  <span class="nm">h</span> <span class="kw">ON</span> <span class="nm">c.pai_id</span> <span class="op">=</span> <span class="nm">h.id</span>
+)
+<span class="kw">SELECT</span> <span class="fn">repeat</span>(<span class="str">'  '</span>, <span class="nm">nivel</span>) <span class="op">||</span> <span class="nm">nome</span> <span class="kw">AS</span> <span class="nm">arvore</span>
+<span class="kw">FROM</span>  <span class="nm">hierarquia</span>
+<span class="kw">ORDER BY</span> <span class="nm">nivel</span>, <span class="nm">nome</span>;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── WINDOW FUNCTIONS ───── -->
+  <section class="section s-win" id="window">
+    <div class="section-header">
+      <div class="section-icon">🪟</div>
+      <div class="section-title">
+        Window Functions
+        <small>Funções de janela / analíticas</small>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">ROW_NUMBER / RANK / DENSE_RANK / NTILE</div>
+            <div class="cmd-desc">Numera e classifica linhas dentro de partições sem colapsar o resultado</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span>
+  <span class="nm">nome</span>, <span class="nm">departamento</span>, <span class="nm">salario</span>,
+  <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> <span class="nm">departamento</span> <span class="kw">ORDER BY</span> <span class="nm">salario</span> <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="nm">posicao</span>,
+  <span class="fn">RANK</span>()       <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> <span class="nm">departamento</span> <span class="kw">ORDER BY</span> <span class="nm">salario</span> <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="nm">rank</span>,
+  <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> <span class="nm">departamento</span> <span class="kw">ORDER BY</span> <span class="nm">salario</span> <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="nm">dense_rank</span>,
+  <span class="fn">NTILE</span>(<span class="str">4</span>)    <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="nm">salario</span>)                              <span class="kw">AS</span> <span class="nm">quartil</span>
+<span class="kw">FROM</span> <span class="nm">funcionarios</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">LAG / LEAD / SUM acumulado / FIRST_VALUE</div>
+            <div class="cmd-desc">Acessa linhas anteriores/posteriores e calcula acumulados dentro da janela</div>
+          </div>
+          <span class="cmd-tag tag-dql">DQL</span>
+        </div>
+        <div class="code-block"><span class="kw">SELECT</span>
+  <span class="nm">data</span>, <span class="nm">valor</span>,
+  <span class="fn">LAG</span>(<span class="nm">valor</span>, <span class="str">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="nm">data</span>)         <span class="kw">AS</span> <span class="nm">valor_anterior</span>,
+  <span class="fn">LEAD</span>(<span class="nm">valor</span>, <span class="str">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="nm">data</span>)        <span class="kw">AS</span> <span class="nm">valor_proximo</span>,
+  <span class="fn">SUM</span>(<span class="nm">valor</span>)     <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="nm">data</span>)        <span class="kw">AS</span> <span class="nm">acumulado</span>,
+  <span class="fn">AVG</span>(<span class="nm">valor</span>)     <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="nm">data</span>
+                         <span class="kw">ROWS BETWEEN</span> <span class="str">2</span> <span class="kw">PRECEDING AND CURRENT ROW</span>) <span class="kw">AS</span> <span class="nm">media_movel</span>,
+  <span class="fn">FIRST_VALUE</span>(<span class="nm">valor</span>) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> <span class="nm">mes</span> <span class="kw">ORDER BY</span> <span class="nm">data</span>) <span class="kw">AS</span> <span class="nm">primeiro_do_mes</span>
+<span class="kw">FROM</span> <span class="nm">vendas</span>;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── DML ───── -->
+  <section class="section s-dml" id="dml">
+    <div class="section-header">
+      <div class="section-icon">✏️</div>
+      <div class="section-title">
+        INSERT / UPDATE / DELETE (DML)
+        <small>Data Manipulation Language</small>
+      </div>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">INSERT</div>
+            <div class="cmd-desc">Insere uma ou múltiplas linhas; RETURNING retorna dados inseridos</div>
+          </div>
+          <span class="cmd-tag tag-dml">DML</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Simples</span>
+<span class="kw">INSERT INTO</span> <span class="nm">clientes</span> (<span class="nm">nome</span>, <span class="nm">email</span>, <span class="nm">criado_em</span>)
+<span class="kw">VALUES</span> (<span class="str">'Ana Silva'</span>, <span class="str">'ana@email.com'</span>, <span class="fn">now</span>());
+
+<span class="cmt">-- Múltiplas linhas</span>
+<span class="kw">INSERT INTO</span> <span class="nm">produtos</span> (<span class="nm">nome</span>, <span class="nm">preco</span>) <span class="kw">VALUES</span>
+  (<span class="str">'Teclado'</span>, <span class="str">150.00</span>),
+  (<span class="str">'Mouse'</span>,   <span class="str">80.00</span>),
+  (<span class="str">'Monitor'</span>, <span class="str">900.00</span>);
+
+<span class="cmt">-- INSERT a partir de SELECT</span>
+<span class="kw">INSERT INTO</span> <span class="nm">clientes_vip</span> (<span class="nm">cliente_id</span>, <span class="nm">desde</span>)
+<span class="kw">SELECT</span> <span class="nm">id</span>, <span class="fn">now</span>() <span class="kw">FROM</span> <span class="nm">clientes</span> <span class="kw">WHERE</span> <span class="nm">total_compras</span> <span class="op">></span> <span class="str">10000</span>;
+
+<span class="cmt">-- Retornar o que foi inserido</span>
+<span class="kw">INSERT INTO</span> <span class="nm">pedidos</span> (<span class="nm">produto_id</span>, <span class="nm">valor</span>)
+<span class="kw">VALUES</span> (<span class="str">1</span>, <span class="str">250.00</span>)
+<span class="kw">RETURNING</span> <span class="nm">id</span>, <span class="nm">criado_em</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">UPSERT — INSERT ON CONFLICT</div>
+            <div class="cmd-desc">Insere ou atualiza se houver conflito de chave (merge)</div>
+          </div>
+          <span class="cmd-tag tag-dml">DML</span>
+        </div>
+        <div class="code-block"><span class="kw">INSERT INTO</span> <span class="nm">configuracoes</span> (<span class="nm">chave</span>, <span class="nm">valor</span>)
+<span class="kw">VALUES</span> (<span class="str">'tema'</span>, <span class="str">'escuro'</span>)
+<span class="kw">ON CONFLICT</span> (<span class="nm">chave</span>) <span class="kw">DO UPDATE</span>
+  <span class="kw">SET</span> <span class="nm">valor</span>      <span class="op">=</span> <span class="kw">EXCLUDED</span>.<span class="nm">valor</span>,
+      <span class="nm">atualizado_em</span> <span class="op">=</span> <span class="fn">now</span>();
+
+<span class="cmt">-- Ignorar se já existe</span>
+<span class="kw">INSERT INTO</span> <span class="nm">tags</span> (<span class="nm">nome</span>) <span class="kw">VALUES</span> (<span class="str">'postgres'</span>)
+<span class="kw">ON CONFLICT DO NOTHING</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">UPDATE</div>
+            <div class="cmd-desc">Atualiza linhas existentes; FROM permite JOIN no UPDATE</div>
+          </div>
+          <span class="cmd-tag tag-dml">DML</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Simples</span>
+<span class="kw">UPDATE</span> <span class="nm">produtos</span>
+<span class="kw">SET</span>    <span class="nm">preco</span> <span class="op">=</span> <span class="nm">preco</span> <span class="op">*</span> <span class="str">1.10</span>,
+       <span class="nm">atualizado_em</span> <span class="op">=</span> <span class="fn">now</span>()
+<span class="kw">WHERE</span>  <span class="nm">categoria_id</span> <span class="op">=</span> <span class="str">3</span>
+<span class="kw">RETURNING</span> <span class="nm">id</span>, <span class="nm">preco</span>;
+
+<span class="cmt">-- UPDATE com JOIN via FROM</span>
+<span class="kw">UPDATE</span> <span class="nm">pedidos</span> <span class="nm">p</span>
+<span class="kw">SET</span>    <span class="nm">status</span> <span class="op">=</span> <span class="str">'cancelado'</span>
+<span class="kw">FROM</span>   <span class="nm">clientes</span> <span class="nm">c</span>
+<span class="kw">WHERE</span>  <span class="nm">p.cliente_id</span> <span class="op">=</span> <span class="nm">c.id</span>
+  <span class="kw">AND</span>  <span class="nm">c.inadimplente</span> <span class="op">=</span> <span class="kw">TRUE</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">DELETE / TRUNCATE</div>
+            <div class="cmd-desc">Remove linhas; TRUNCATE apaga tudo mais rápido (não loggável por trigger)</div>
+          </div>
+          <span class="cmd-tag tag-dml">DML</span>
+        </div>
+        <div class="code-block"><span class="kw">DELETE FROM</span> <span class="nm">logs</span>
+<span class="kw">WHERE</span> <span class="nm">criado_em</span> <span class="op"><</span> <span class="fn">now</span>() <span class="op">-</span> <span class="kw">INTERVAL</span> <span class="str">'90 days'</span>
+<span class="kw">RETURNING</span> <span class="nm">id</span>;
+
+<span class="cmt">-- TRUNCATE: zera a tabela, reinicia SERIAL</span>
+<span class="kw">TRUNCATE TABLE</span> <span class="nm">sessoes</span> <span class="kw">RESTART IDENTITY CASCADE</span>;</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───── DDL ───── -->
+  <section class="section s-ddl" id="ddl">
+    <div class="section-header">
+      <div class="section-icon">🏗️</div>
+      <div class="section-title">
+        CREATE / ALTER / DROP (DDL)
+        <small>Data Definition Language</small>
+      </div>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">CREATE TABLE</div>
+            <div class="cmd-desc">Cria tabela com tipos, constraints, chaves e defaults</div>
+          </div>
+          <span class="cmd-tag tag-ddl">DDL</span>
+        </div>
+        <div class="code-block"><span class="kw">CREATE TABLE</span> <span class="nm">clientes</span> (
+  <span class="nm">id</span>          <span class="tp">BIGSERIAL</span>      <span class="kw">PRIMARY KEY</span>,
+  <span class="nm">nome</span>        <span class="tp">VARCHAR</span>(<span class="str">120</span>)  <span class="kw">NOT NULL</span>,
+  <span class="nm">email</span>       <span class="tp">TEXT</span>           <span class="kw">NOT NULL UNIQUE</span>,
+  <span class="nm">cpf</span>         <span class="tp">CHAR</span>(<span class="str">11</span>)      <span class="kw">UNIQUE</span>,
+  <span class="nm">ativo</span>       <span class="tp">BOOLEAN</span>        <span class="kw">NOT NULL DEFAULT</span> <span class="kw">TRUE</span>,
+  <span class="nm">criado_em</span>   <span class="tp">TIMESTAMPTZ</span>    <span class="kw">NOT NULL DEFAULT</span> <span class="fn">now</span>(),
+  <span class="nm">saldo</span>       <span class="tp">NUMERIC</span>(<span class="str">15</span>,<span class="str">2</span>) <span class="kw">DEFAULT</span> <span class="str">0</span> <span class="kw">CHECK</span> (<span class="nm">saldo</span> <span class="op">>=</span> <span class="str">0</span>),
+
+  <span class="kw">CONSTRAINT</span> <span class="nm">fk_cidade</span>
+    <span class="kw">FOREIGN KEY</span> (<span class="nm">cidade_id</span>)
+    <span class="kw">REFERENCES</span> <span class="nm">cidades</span>(<span class="nm">id</span>)
+    <span class="kw">ON DELETE SET NULL</span>
+);</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">ALTER TABLE</div>
+            <div class="cmd-desc">Modifica estrutura: colunas, constraints, renomear, tipo</div>
+          </div>
+          <span class="cmd-tag tag-ddl">DDL</span>
+        </div>
+        <div class="code-block"><span class="kw">ALTER TABLE</span> <span class="nm">clientes</span>
+  <span class="kw">ADD COLUMN</span>    <span class="nm">telefone</span>   <span class="tp">TEXT</span>,
+  <span class="kw">ADD COLUMN</span>    <span class="nm">cidade_id</span>  <span class="tp">BIGINT</span>,
+  <span class="kw">DROP COLUMN</span>   <span class="nm">campo_antigo</span>,
+  <span class="kw">ALTER COLUMN</span>  <span class="nm">nome</span> <span class="kw">SET NOT NULL</span>,
+  <span class="kw">ALTER COLUMN</span>  <span class="nm">saldo</span> <span class="kw">TYPE</span> <span class="tp">NUMERIC</span>(<span class="str">18</span>,<span class="str">4</span>),
+  <span class="kw">RENAME COLUMN</span> <span class="nm">telefone</span> <span class="kw">TO</span> <span class="nm">celular</span>,
+  <span class="kw">ADD CONSTRAINT</span> <span class="nm">chk_saldo</span> <span class="kw">CHECK</span> (<span class="nm">saldo</span> <span class="op">>=</span> <span class="str">0</span>),
+  <span class="kw">DROP CONSTRAINT</span> <span class="nm">chk_antigo</span>;
+
+<span class="kw">ALTER TABLE</span> <span class="nm">clientes</span> <span class="kw">RENAME TO</span> <span class="nm">usuarios</span>;</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">DROP / CREATE SCHEMA / SEQUENCE</div>
+            <div class="cmd-desc">Remove objetos; gerencia schemas e sequências numéricas</div>
+          </div>
+          <span class="cmd-tag tag-ddl">DDL</span>
+        </div>
+        <div class="code-block"><span class="kw">DROP TABLE IF EXISTS</span>    <span class="nm">temp_importacao</span> <span class="kw">CASCADE</span>;
+<span class="kw">DROP VIEW IF EXISTS</span>     <span class="nm">vw_relatorio</span>;
+<span class="kw">DROP INDEX IF EXISTS</span>    <span class="nm">idx_email</span>;
+<span class="kw">DROP FUNCTION IF EXISTS</span> <span class="nm">calcular_imposto</span>(<span class="tp">numeric</span>);
+
+<span class="cmt">-- Schema</span>
+<span class="kw">CREATE SCHEMA IF NOT EXISTS</span> <span class="nm">relatorios</span>;
+<span class="kw">SET search_path TO</span> <span class="nm">relatorios</span>, <span class="nm">public</span>;
+
+<span class="cmt">-- Sequence manual</span>
+<span class="kw">CREATE SEQUENCE</span> <span class="nm">seq_protocolo</span> <span class="kw">START</span> <span class="str">1000</span> <span class="kw">INCREMENT</span> <span class="str">1</span>;
+<span class="kw">SELECT</span> <span class="fn">nextval</span>(<span class="str">'seq_protocolo'</span>);   <span class="cmt">-- próximo valor</span>
+<span class="kw">SELECT</span> <span class="fn">currval</span>(<span class="str">'seq_protocolo'</span>);   <span class="cmt">-- valor atual</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───── TCL ───── -->
+  <section class="section s-tcl" id="tcl">
+    <div class="section-header">
+      <div class="section-icon">💾</div>
+      <div class="section-title">
+        Transações (TCL)
+        <small>Transaction Control Language</small>
+      </div>
+    </div>
+    <div class="note">⚠️ Sem BEGIN explícito, cada comando é auto-commitado. Use transações para garantir atomicidade (ACID).</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">BEGIN / COMMIT / ROLLBACK / SAVEPOINT</div>
+            <div class="cmd-desc">Controla o ciclo de vida de uma transação com pontos de salvamento</div>
+          </div>
+          <span class="cmd-tag tag-tcl">TCL</span>
+        </div>
+        <div class="code-block"><span class="kw">BEGIN</span>;                             <span class="cmt">-- inicia transação</span>
+
+  <span class="kw">UPDATE</span> <span class="nm">contas</span> <span class="kw">SET</span> <span class="nm">saldo</span> <span class="op">=</span> <span class="nm">saldo</span> <span class="op">-</span> <span class="str">500</span> <span class="kw">WHERE</span> <span class="nm">id</span> <span class="op">=</span> <span class="str">1</span>;
+
+  <span class="kw">SAVEPOINT</span> <span class="nm">sp1</span>;                  <span class="cmt">-- ponto de salvamento</span>
+
+  <span class="kw">UPDATE</span> <span class="nm">contas</span> <span class="kw">SET</span> <span class="nm">saldo</span> <span class="op">=</span> <span class="nm">saldo</span> <span class="op">+</span> <span class="str">500</span> <span class="kw">WHERE</span> <span class="nm">id</span> <span class="op">=</span> <span class="str">2</span>;
+
+  <span class="cmt">-- Se algo der errado parcialmente:</span>
+  <span class="kw">ROLLBACK TO SAVEPOINT</span> <span class="nm">sp1</span>;
+
+  <span class="cmt">-- Ou cancela tudo:</span>
+  <span class="kw">ROLLBACK</span>;
+
+<span class="kw">COMMIT</span>;                            <span class="cmt">-- confirma tudo
+
+-- Nível de isolamento</span>
+<span class="kw">BEGIN ISOLATION LEVEL SERIALIZABLE</span>;
+<span class="kw">BEGIN ISOLATION LEVEL REPEATABLE READ</span>;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── TRIGGERS ───── -->
+  <section class="section s-trig" id="triggers">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div class="section-title">
+        Triggers
+        <small>Gatilhos automáticos</small>
+      </div>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">CREATE TRIGGER — estrutura completa</div>
+            <div class="cmd-desc">Executa uma função automaticamente antes ou após eventos DML</div>
+          </div>
+          <span class="cmd-tag tag-trig">TRIGGER</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- 1. Criar a função do trigger (retorna TRIGGER)</span>
+<span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">fn_auditoria</span>()
+<span class="kw">RETURNS TRIGGER</span> <span class="kw">LANGUAGE</span> <span class="nm">plpgsql</span> <span class="kw">AS</span> <span class="str">$$</span>
+<span class="kw">BEGIN</span>
+  <span class="kw">IF</span> (<span class="nm">TG_OP</span> <span class="op">=</span> <span class="str">'DELETE'</span>) <span class="kw">THEN</span>
+    <span class="kw">INSERT INTO</span> <span class="nm">auditoria</span> (<span class="nm">tabela</span>, <span class="nm">operacao</span>, <span class="nm">dado_antigo</span>, <span class="nm">usuario</span>, <span class="nm">momento</span>)
+    <span class="kw">VALUES</span> (<span class="nm">TG_TABLE_NAME</span>, <span class="nm">TG_OP</span>, <span class="fn">row_to_json</span>(<span class="nm">OLD</span>), <span class="fn">current_user</span>, <span class="fn">now</span>());
+    <span class="kw">RETURN OLD</span>;
+  <span class="kw">ELSIF</span> (<span class="nm">TG_OP</span> <span class="op">=</span> <span class="str">'INSERT'</span>) <span class="kw">THEN</span>
+    <span class="kw">INSERT INTO</span> <span class="nm">auditoria</span> (<span class="nm">tabela</span>, <span class="nm">operacao</span>, <span class="nm">dado_novo</span>, <span class="nm">usuario</span>, <span class="nm">momento</span>)
+    <span class="kw">VALUES</span> (<span class="nm">TG_TABLE_NAME</span>, <span class="nm">TG_OP</span>, <span class="fn">row_to_json</span>(<span class="nm">NEW</span>), <span class="fn">current_user</span>, <span class="fn">now</span>());
+    <span class="kw">RETURN NEW</span>;
+  <span class="kw">ELSE</span>  <span class="cmt">-- UPDATE</span>
+    <span class="kw">INSERT INTO</span> <span class="nm">auditoria</span> (<span class="nm">tabela</span>, <span class="nm">operacao</span>, <span class="nm">dado_antigo</span>, <span class="nm">dado_novo</span>, <span class="nm">usuario</span>, <span class="nm">momento</span>)
+    <span class="kw">VALUES</span> (<span class="nm">TG_TABLE_NAME</span>, <span class="nm">TG_OP</span>, <span class="fn">row_to_json</span>(<span class="nm">OLD</span>), <span class="fn">row_to_json</span>(<span class="nm">NEW</span>), <span class="fn">current_user</span>, <span class="fn">now</span>());
+    <span class="kw">RETURN NEW</span>;
+  <span class="kw">END IF</span>;
+<span class="kw">END</span>;
+<span class="str">$$</span>;
+
+<span class="cmt">-- 2. Associar o trigger à tabela</span>
+<span class="kw">CREATE TRIGGER</span> <span class="nm">tg_auditoria_clientes</span>
+  <span class="kw">AFTER INSERT OR UPDATE OR DELETE</span>
+  <span class="kw">ON</span> <span class="nm">clientes</span>
+  <span class="kw">FOR EACH ROW</span>
+  <span class="kw">EXECUTE FUNCTION</span> <span class="fn">fn_auditoria</span>();</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Trigger BEFORE — validação / modificação</div>
+            <div class="cmd-desc">Intercepta o dado antes de persistir; permite modificar ou bloquear</div>
+          </div>
+          <span class="cmd-tag tag-trig">TRIGGER</span>
+        </div>
+        <div class="code-block"><span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">fn_normalizar_email</span>()
+<span class="kw">RETURNS TRIGGER LANGUAGE</span> <span class="nm">plpgsql</span> <span class="kw">AS</span> <span class="str">$$</span>
+<span class="kw">BEGIN</span>
+  <span class="nm">NEW</span>.<span class="nm">email</span> <span class="op">:=</span> <span class="fn">lower</span>(<span class="fn">trim</span>(<span class="nm">NEW</span>.<span class="nm">email</span>));
+  <span class="nm">NEW</span>.<span class="nm">nome</span>  <span class="op">:=</span> <span class="fn">initcap</span>(<span class="fn">trim</span>(<span class="nm">NEW</span>.<span class="nm">nome</span>));
+
+  <span class="kw">IF</span> <span class="nm">NEW</span>.<span class="nm">email</span> <span class="op">NOT LIKE</span> <span class="str">'%@%'</span> <span class="kw">THEN</span>
+    <span class="kw">RAISE EXCEPTION</span> <span class="str">'Email inválido: %'</span>, <span class="nm">NEW</span>.<span class="nm">email</span>;
+  <span class="kw">END IF</span>;
+
+  <span class="kw">RETURN NEW</span>;
+<span class="kw">END</span>;
+<span class="str">$$</span>;
+
+<span class="kw">CREATE TRIGGER</span> <span class="nm">tg_normalizar</span>
+  <span class="kw">BEFORE INSERT OR UPDATE ON</span> <span class="nm">clientes</span>
+  <span class="kw">FOR EACH ROW EXECUTE FUNCTION</span> <span class="fn">fn_normalizar_email</span>();</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Variáveis especiais de Trigger</div>
+            <div class="cmd-desc">Variáveis disponíveis automaticamente dentro de funções de trigger</div>
+          </div>
+          <span class="cmd-tag tag-trig">TRIGGER</span>
+        </div>
+        <div class="code-block">NEW          <span class="cmt">-- nova linha (INSERT / UPDATE)</span>
+OLD          <span class="cmt">-- linha anterior (UPDATE / DELETE)</span>
+TG_OP        <span class="cmt">-- 'INSERT' | 'UPDATE' | 'DELETE' | 'TRUNCATE'</span>
+TG_TABLE_NAME  <span class="cmt">-- nome da tabela</span>
+TG_WHEN      <span class="cmt">-- 'BEFORE' | 'AFTER' | 'INSTEAD OF'</span>
+TG_NARGS     <span class="cmt">-- número de argumentos</span>
+TG_ARGV[]    <span class="cmt">-- array de argumentos do trigger</span>
+TG_LEVEL     <span class="cmt">-- 'ROW' | 'STATEMENT'</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Gerenciar Triggers</div>
+            <div class="cmd-desc">Listar, desabilitar, habilitar e remover triggers</div>
+          </div>
+          <span class="cmd-tag tag-trig">TRIGGER</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Listar triggers</span>
+<span class="kw">SELECT</span> <span class="nm">trigger_name</span>, <span class="nm">event_manipulation</span>, <span class="nm">event_object_table</span>
+<span class="kw">FROM</span> <span class="nm">information_schema.triggers</span>
+<span class="kw">ORDER BY</span> <span class="nm">event_object_table</span>;
+
+<span class="kw">ALTER TABLE</span> <span class="nm">clientes</span> <span class="kw">DISABLE TRIGGER</span> <span class="nm">tg_auditoria_clientes</span>;
+<span class="kw">ALTER TABLE</span> <span class="nm">clientes</span> <span class="kw">ENABLE  TRIGGER</span> <span class="nm">tg_auditoria_clientes</span>;
+<span class="kw">ALTER TABLE</span> <span class="nm">clientes</span> <span class="kw">DISABLE TRIGGER ALL</span>;
+
+<span class="kw">DROP TRIGGER IF EXISTS</span> <span class="nm">tg_auditoria_clientes</span> <span class="kw">ON</span> <span class="nm">clientes</span>;</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───── FUNCTIONS ───── -->
+  <section class="section s-func" id="functions">
+    <div class="section-header">
+      <div class="section-icon">🧩</div>
+      <div class="section-title">
+        Functions &amp; Procedures (PL/pgSQL)
+        <small>Lógica procedural no banco</small>
+      </div>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">CREATE FUNCTION</div>
+            <div class="cmd-desc">Função que retorna um valor; pode ser usada em SELECT</div>
+          </div>
+          <span class="cmd-tag tag-func">FUNCTION</span>
+        </div>
+        <div class="code-block"><span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">calcular_desconto</span>(
+  <span class="nm">p_valor</span>     <span class="tp">NUMERIC</span>,
+  <span class="nm">p_percentual</span> <span class="tp">NUMERIC</span> <span class="kw">DEFAULT</span> <span class="str">10</span>
+)
+<span class="kw">RETURNS NUMERIC</span>
+<span class="kw">LANGUAGE</span> <span class="nm">plpgsql</span>
+<span class="kw">STABLE</span>  <span class="cmt">-- IMMUTABLE | STABLE | VOLATILE</span>
+<span class="kw">AS</span> <span class="str">$$</span>
+<span class="kw">DECLARE</span>
+  <span class="nm">v_desconto</span> <span class="tp">NUMERIC</span>;
+<span class="kw">BEGIN</span>
+  <span class="nm">v_desconto</span> <span class="op">:=</span> <span class="nm">p_valor</span> <span class="op">*</span> (<span class="nm">p_percentual</span> <span class="op">/</span> <span class="str">100</span>);
+  <span class="kw">RETURN</span> <span class="nm">p_valor</span> <span class="op">-</span> <span class="nm">v_desconto</span>;
+<span class="kw">END</span>;
+<span class="str">$$</span>;
+
+<span class="cmt">-- Uso</span>
+<span class="kw">SELECT</span> <span class="fn">calcular_desconto</span>(<span class="str">500.00</span>, <span class="str">15</span>);
+<span class="kw">SELECT</span> <span class="fn">calcular_desconto</span>(<span class="str">200.00</span>);   <span class="cmt">-- usa default 10%</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">FUNCTION que retorna tabela (SETOF / TABLE)</div>
+            <div class="cmd-desc">Retorna múltiplas linhas como se fosse uma tabela</div>
+          </div>
+          <span class="cmd-tag tag-func">FUNCTION</span>
+        </div>
+        <div class="code-block"><span class="kw">CREATE OR REPLACE FUNCTION</span> <span class="fn">buscar_clientes_ativos</span>(<span class="nm">p_limite</span> <span class="tp">INT</span> <span class="kw">DEFAULT</span> <span class="str">100</span>)
+<span class="kw">RETURNS TABLE</span>(<span class="nm">id</span> <span class="tp">BIGINT</span>, <span class="nm">nome</span> <span class="tp">TEXT</span>, <span class="nm">email</span> <span class="tp">TEXT</span>)
+<span class="kw">LANGUAGE</span> <span class="nm">plpgsql</span> <span class="kw">AS</span> <span class="str">$$</span>
+<span class="kw">BEGIN</span>
+  <span class="kw">RETURN QUERY</span>
+    <span class="kw">SELECT</span> <span class="nm">c.id</span>, <span class="nm">c.nome</span>, <span class="nm">c.email</span>
+    <span class="kw">FROM</span>   <span class="nm">clientes</span> <span class="nm">c</span>
+    <span class="kw">WHERE</span>  <span class="nm">c.ativo</span> <span class="op">=</span> <span class="kw">TRUE</span>
+    <span class="kw">LIMIT</span>  <span class="nm">p_limite</span>;
+<span class="kw">END</span>;
+<span class="str">$$</span>;
+
+<span class="cmt">-- Uso</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="fn">buscar_clientes_ativos</span>(<span class="str">50</span>);</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">CREATE PROCEDURE</div>
+            <div class="cmd-desc">Procedure não retorna valor; pode conter COMMIT/ROLLBACK internos</div>
+          </div>
+          <span class="cmd-tag tag-func">PROCEDURE</span>
+        </div>
+        <div class="code-block"><span class="kw">CREATE OR REPLACE PROCEDURE</span> <span class="fn">transferir_saldo</span>(
+  <span class="nm">p_origem</span>  <span class="tp">BIGINT</span>,
+  <span class="nm">p_destino</span> <span class="tp">BIGINT</span>,
+  <span class="nm">p_valor</span>   <span class="tp">NUMERIC</span>
+)
+<span class="kw">LANGUAGE</span> <span class="nm">plpgsql</span> <span class="kw">AS</span> <span class="str">$$</span>
+<span class="kw">BEGIN</span>
+  <span class="kw">UPDATE</span> <span class="nm">contas</span> <span class="kw">SET</span> <span class="nm">saldo</span> <span class="op">=</span> <span class="nm">saldo</span> <span class="op">-</span> <span class="nm">p_valor</span> <span class="kw">WHERE</span> <span class="nm">id</span> <span class="op">=</span> <span class="nm">p_origem</span>;
+  <span class="kw">UPDATE</span> <span class="nm">contas</span> <span class="kw">SET</span> <span class="nm">saldo</span> <span class="op">=</span> <span class="nm">saldo</span> <span class="op">+</span> <span class="nm">p_valor</span> <span class="kw">WHERE</span> <span class="nm">id</span> <span class="op">=</span> <span class="nm">p_destino</span>;
+  <span class="kw">COMMIT</span>;
+<span class="kw">EXCEPTION WHEN OTHERS THEN</span>
+  <span class="kw">ROLLBACK</span>;
+  <span class="kw">RAISE</span>;
+<span class="kw">END</span>;
+<span class="str">$$</span>;
+
+<span class="cmt">-- Uso</span>
+<span class="kw">CALL</span> <span class="fn">transferir_saldo</span>(<span class="str">1</span>, <span class="str">2</span>, <span class="str">250.00</span>);</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Controle de fluxo PL/pgSQL</div>
+            <div class="cmd-desc">IF/ELSIF/ELSE, LOOP, FOR, WHILE, EXCEPTION</div>
+          </div>
+          <span class="cmd-tag tag-func">PL/pgSQL</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Condicional</span>
+<span class="kw">IF</span> <span class="nm">condicao</span> <span class="kw">THEN</span> ... <span class="kw">ELSIF</span> <span class="nm">outra</span> <span class="kw">THEN</span> ... <span class="kw">ELSE</span> ... <span class="kw">END IF</span>;
+
+<span class="cmt">-- Loop numérico</span>
+<span class="kw">FOR</span> <span class="nm">i</span> <span class="kw">IN</span> <span class="str">1</span>..<span class="str">10</span> <span class="kw">LOOP</span>
+  <span class="kw">INSERT INTO</span> <span class="nm">serie</span> <span class="kw">VALUES</span> (<span class="nm">i</span>);
+<span class="kw">END LOOP</span>;
+
+<span class="cmt">-- Loop em query</span>
+<span class="kw">FOR</span> <span class="nm">rec</span> <span class="kw">IN SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">produtos</span> <span class="kw">LOOP</span>
+  <span class="kw">RAISE NOTICE</span> <span class="str">'Produto: %'</span>, <span class="nm">rec</span>.<span class="nm">nome</span>;
+<span class="kw">END LOOP</span>;
+
+<span class="cmt">-- While</span>
+<span class="kw">WHILE</span> <span class="nm">contador</span> <span class="op"><</span> <span class="str">10</span> <span class="kw">LOOP</span>
+  <span class="nm">contador</span> <span class="op">:=</span> <span class="nm">contador</span> <span class="op">+</span> <span class="str">1</span>;
+<span class="kw">END LOOP</span>;
+
+<span class="cmt">-- Tratamento de erros</span>
+<span class="kw">BEGIN</span>
+  ...
+<span class="kw">EXCEPTION</span>
+  <span class="kw">WHEN</span> <span class="nm">unique_violation</span> <span class="kw">THEN</span>
+    <span class="kw">RAISE WARNING</span> <span class="str">'Registro duplicado: %'</span>, <span class="fn">SQLERRM</span>;
+  <span class="kw">WHEN OTHERS THEN</span>
+    <span class="kw">RAISE EXCEPTION</span> <span class="str">'Erro: %'</span>, <span class="fn">SQLERRM</span>;
+<span class="kw">END</span>;</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───── INDEXES ───── -->
+  <section class="section s-idx" id="indexes">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div class="section-title">
+        Índices
+        <small>Otimização de consultas</small>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Tipos de índice</div>
+            <div class="cmd-desc">B-Tree, Hash, GIN, GiST, BRIN — cada um otimiza padrões diferentes</div>
+          </div>
+          <span class="cmd-tag tag-idx">INDEX</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- B-Tree (padrão): igualdade, range, ORDER BY</span>
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_cliente_email</span> <span class="kw">ON</span> <span class="nm">clientes</span>(<span class="nm">email</span>);
+
+<span class="cmt">-- Composto</span>
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_pedido_cliente_data</span> <span class="kw">ON</span> <span class="nm">pedidos</span>(<span class="nm">cliente_id</span>, <span class="nm">criado_em</span> <span class="kw">DESC</span>);
+
+<span class="cmt">-- Parcial: indexa só parte das linhas</span>
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_pedidos_pendentes</span> <span class="kw">ON</span> <span class="nm">pedidos</span>(<span class="nm">cliente_id</span>)
+<span class="kw">WHERE</span> <span class="nm">status</span> <span class="op">=</span> <span class="str">'pendente'</span>;
+
+<span class="cmt">-- GIN: arrays, JSONB, full-text search</span>
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_tags_gin</span>    <span class="kw">ON</span> <span class="nm">posts</span> <span class="kw">USING GIN</span>(<span class="nm">tags</span>);
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_dados_gin</span>   <span class="kw">ON</span> <span class="nm">logs</span>  <span class="kw">USING GIN</span>(<span class="nm">payload</span> <span class="nm">jsonb_path_ops</span>);
+
+<span class="cmt">-- GiST: geometria, ranges</span>
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_geo</span>         <span class="kw">ON</span> <span class="nm">locais</span> <span class="kw">USING GIST</span>(<span class="nm">coordenadas</span>);
+
+<span class="cmt">-- BRIN: tabelas muito grandes com dados correlacionados (time-series)</span>
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_logs_brin</span>   <span class="kw">ON</span> <span class="nm">eventos</span> <span class="kw">USING BRIN</span>(<span class="nm">criado_em</span>);
+
+<span class="cmt">-- Concorrente: sem travar a tabela</span>
+<span class="kw">CREATE INDEX CONCURRENTLY</span> <span class="nm">idx_novo</span> <span class="kw">ON</span> <span class="nm">tabela_grande</span>(<span class="nm">coluna</span>);
+
+<span class="cmt">-- Expressão</span>
+<span class="kw">CREATE INDEX</span> <span class="nm">idx_lower_email</span> <span class="kw">ON</span> <span class="nm">clientes</span>(<span class="fn">lower</span>(<span class="nm">email</span>));
+
+<span class="cmt">-- Analisar uso de índices</span>
+<span class="kw">EXPLAIN ANALYZE SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">clientes</span> <span class="kw">WHERE</span> <span class="nm">email</span> <span class="op">=</span> <span class="str">'a@b.com'</span>;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── JSON ───── -->
+  <section class="section s-json" id="json">
+    <div class="section-header">
+      <div class="section-icon">{ }</div>
+      <div class="section-title">
+        JSON / JSONB
+        <small>Dados semi-estruturados</small>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Operadores e funções JSON</div>
+            <div class="cmd-desc">Acesso, extração, atualização e pesquisa em colunas JSON/JSONB</div>
+          </div>
+          <span class="cmd-tag tag-func">JSONB</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Acesso</span>
+<span class="nm">payload</span><span class="op">-></span><span class="str">'chave'</span>         <span class="cmt">-- retorna JSON</span>
+<span class="nm">payload</span><span class="op">->></span><span class="str">'chave'</span>        <span class="cmt">-- retorna TEXT</span>
+<span class="nm">payload</span><span class="op">#></span><span class="str">'{a,b}'</span>         <span class="cmt">-- caminho aninhado → JSON</span>
+<span class="nm">payload</span><span class="op">#>></span><span class="str">'{a,b}'</span>        <span class="cmt">-- caminho aninhado → TEXT</span>
+
+<span class="cmt">-- Exemplos</span>
+<span class="kw">SELECT</span> <span class="nm">dados</span><span class="op">->></span><span class="str">'nome'</span> <span class="kw">AS</span> <span class="nm">nome</span>,
+       (<span class="nm">dados</span><span class="op">->></span><span class="str">'idade'</span>)::<span class="tp">INT</span> <span class="kw">AS</span> <span class="nm">idade</span>
+<span class="kw">FROM</span> <span class="nm">pessoas</span>
+<span class="kw">WHERE</span> <span class="nm">dados</span> <span class="op">@></span> <span class="str">'{"ativo": true}'</span>;   <span class="cmt">-- contém</span>
+
+<span class="cmt">-- Atualizar campo JSONB</span>
+<span class="kw">UPDATE</span> <span class="nm">pessoas</span>
+<span class="kw">SET</span>    <span class="nm">dados</span> <span class="op">=</span> <span class="nm">dados</span> <span class="op">||</span> <span class="str">'{"status": "vip"}'</span>::<span class="tp">jsonb</span>
+<span class="kw">WHERE</span>  <span class="nm">id</span> <span class="op">=</span> <span class="str">1</span>;
+
+<span class="cmt">-- Remover chave</span>
+<span class="kw">UPDATE</span> <span class="nm">pessoas</span> <span class="kw">SET</span> <span class="nm">dados</span> <span class="op">=</span> <span class="nm">dados</span> <span class="op">-</span> <span class="str">'campo_antigo'</span> <span class="kw">WHERE</span> <span class="nm">id</span> <span class="op">=</span> <span class="str">1</span>;
+
+<span class="cmt">-- Desempacotar array</span>
+<span class="kw">SELECT</span> <span class="fn">jsonb_array_elements</span>(<span class="nm">dados</span><span class="op">-></span><span class="str">'itens'</span>) <span class="kw">AS</span> <span class="nm">item</span>
+<span class="kw">FROM</span>   <span class="nm">pedidos</span>;
+
+<span class="cmt">-- Construir JSON</span>
+<span class="kw">SELECT</span> <span class="fn">jsonb_build_object</span>(<span class="str">'id'</span>, <span class="nm">id</span>, <span class="str">'nome'</span>, <span class="nm">nome</span>) <span class="kw">FROM</span> <span class="nm">clientes</span>;
+<span class="kw">SELECT</span> <span class="fn">json_agg</span>(<span class="nm">c</span>) <span class="kw">FROM</span> <span class="nm">clientes</span> <span class="nm">c</span>;   <span class="cmt">-- agrega em array JSON</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── VIEWS ───── -->
+  <section class="section s-idx" id="views">
+    <div class="section-header">
+      <div class="section-icon">👁️</div>
+      <div class="section-title">
+        Views &amp; Materialized Views
+        <small>Consultas salvas e cacheadas</small>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">CREATE VIEW / MATERIALIZED VIEW</div>
+            <div class="cmd-desc">View é sempre atualizada; Materialized armazena fisicamente e precisa ser refrescada</div>
+          </div>
+          <span class="cmd-tag tag-ddl">DDL</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- View simples</span>
+<span class="kw">CREATE OR REPLACE VIEW</span> <span class="nm">vw_clientes_ativos</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span> <span class="nm">id</span>, <span class="nm">nome</span>, <span class="nm">email</span>, <span class="nm">criado_em</span>
+  <span class="kw">FROM</span>   <span class="nm">clientes</span>
+  <span class="kw">WHERE</span>  <span class="nm">ativo</span> <span class="op">=</span> <span class="kw">TRUE</span>;
+
+<span class="cmt">-- Materialized View</span>
+<span class="kw">CREATE MATERIALIZED VIEW</span> <span class="nm">mv_relatorio_mensal</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span>
+    <span class="fn">date_trunc</span>(<span class="str">'month'</span>, <span class="nm">criado_em</span>) <span class="kw">AS</span> <span class="nm">mes</span>,
+    <span class="fn">COUNT</span>(<span class="op">*</span>)                        <span class="kw">AS</span> <span class="nm">total_pedidos</span>,
+    <span class="fn">SUM</span>(<span class="nm">valor</span>)                      <span class="kw">AS</span> <span class="nm">receita</span>
+  <span class="kw">FROM</span>     <span class="nm">pedidos</span>
+  <span class="kw">GROUP BY</span> <span class="str">1</span>
+<span class="kw">WITH DATA</span>;
+
+<span class="cmt">-- Refresca os dados (pode ser agendado via pg_cron)</span>
+<span class="kw">REFRESH MATERIALIZED VIEW CONCURRENTLY</span> <span class="nm">mv_relatorio_mensal</span>;
+
+<span class="cmt">-- Index em Materialized View</span>
+<span class="kw">CREATE UNIQUE INDEX ON</span> <span class="nm">mv_relatorio_mensal</span>(<span class="nm">mes</span>);</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── DCL ───── -->
+  <section class="section s-dcl" id="dcl">
+    <div class="section-header">
+      <div class="section-icon">🔐</div>
+      <div class="section-title">
+        Permissões (DCL)
+        <small>Data Control Language</small>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">GRANT / REVOKE / ROLE</div>
+            <div class="cmd-desc">Concede e revoga privilégios a usuários e papéis</div>
+          </div>
+          <span class="cmd-tag tag-dcl">DCL</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Criar role/usuário</span>
+<span class="kw">CREATE ROLE</span> <span class="nm">app_readonly</span> <span class="kw">NOLOGIN</span>;
+<span class="kw">CREATE ROLE</span> <span class="nm">app_user</span>     <span class="kw">LOGIN PASSWORD</span> <span class="str">'senha_segura'</span>;
+
+<span class="cmt">-- Conceder permissões</span>
+<span class="kw">GRANT CONNECT ON DATABASE</span>   <span class="nm">meu_banco</span> <span class="kw">TO</span> <span class="nm">app_user</span>;
+<span class="kw">GRANT USAGE ON SCHEMA</span>        <span class="nm">public</span>    <span class="kw">TO</span> <span class="nm">app_user</span>;
+<span class="kw">GRANT SELECT ON ALL TABLES IN SCHEMA</span> <span class="nm">public</span> <span class="kw">TO</span> <span class="nm">app_readonly</span>;
+<span class="kw">GRANT INSERT, UPDATE, DELETE ON</span> <span class="nm">pedidos</span> <span class="kw">TO</span> <span class="nm">app_user</span>;
+<span class="kw">GRANT EXECUTE ON FUNCTION</span> <span class="fn">calcular_desconto</span>(<span class="tp">numeric</span>,<span class="tp">numeric</span>) <span class="kw">TO</span> <span class="nm">app_user</span>;
+
+<span class="cmt">-- Herdar role</span>
+<span class="kw">GRANT</span> <span class="nm">app_readonly</span> <span class="kw">TO</span> <span class="nm">app_user</span>;
+
+<span class="cmt">-- Revogar</span>
+<span class="kw">REVOKE DELETE ON</span> <span class="nm">pedidos</span> <span class="kw">FROM</span> <span class="nm">app_user</span>;
+
+<span class="cmt">-- Default privileges (futuras tabelas)</span>
+<span class="kw">ALTER DEFAULT PRIVILEGES IN SCHEMA</span> <span class="nm">public</span>
+  <span class="kw">GRANT SELECT ON TABLES TO</span> <span class="nm">app_readonly</span>;</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── ADMIN ───── -->
+  <section class="section s-adm" id="admin">
+    <div class="section-header">
+      <div class="section-icon">🛠️</div>
+      <div class="section-title">
+        Manutenção &amp; Diagnóstico
+        <small>Performance, análise e administração</small>
+      </div>
+    </div>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">EXPLAIN / ANALYZE / VACUUM / ANALYZE</div>
+            <div class="cmd-desc">Plano de execução, estatísticas e manutenção de tabelas</div>
+          </div>
+          <span class="cmd-tag tag-adm">ADMIN</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Ver plano de execução</span>
+<span class="kw">EXPLAIN</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">clientes</span> <span class="kw">WHERE</span> <span class="nm">email</span> <span class="op">=</span> <span class="str">'x@y.com'</span>;
+
+<span class="cmt">-- Executar e mostrar tempo real</span>
+<span class="kw">EXPLAIN</span> (<span class="kw">ANALYZE</span>, <span class="kw">BUFFERS</span>, <span class="kw">FORMAT JSON</span>)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">pedidos</span> <span class="kw">WHERE</span> <span class="nm">valor</span> <span class="op">></span> <span class="str">1000</span>;
+
+<span class="cmt">-- Manutenção</span>
+<span class="kw">VACUUM</span> <span class="nm">clientes</span>;                   <span class="cmt">-- libera espaço</span>
+<span class="kw">VACUUM FULL</span> <span class="nm">clientes</span>;              <span class="cmt">-- reescreve a tabela (bloqueia)</span>
+<span class="kw">VACUUM ANALYZE</span> <span class="nm">clientes</span>;           <span class="cmt">-- vacuum + atualiza stats</span>
+<span class="kw">ANALYZE</span> <span class="nm">clientes</span>;                  <span class="cmt">-- só estatísticas</span>
+<span class="kw">REINDEX TABLE</span> <span class="nm">clientes</span>;            <span class="cmt">-- reconstrói índices</span>
+<span class="kw">CLUSTER</span> <span class="nm">clientes</span> <span class="kw">USING</span> <span class="nm">idx_email</span>; <span class="cmt">-- ordena fisicamente</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="cmd-name">Monitoramento — pg_stat_* / locks</div>
+            <div class="cmd-desc">Queries ativas, bloqueios, uso de índices, tabelas inchadas</div>
+          </div>
+          <span class="cmd-tag tag-adm">ADMIN</span>
+        </div>
+        <div class="code-block"><span class="cmt">-- Queries em execução</span>
+<span class="kw">SELECT</span> <span class="nm">pid</span>, <span class="fn">age</span>(<span class="nm">clock_timestamp</span>(), <span class="nm">query_start</span>) <span class="kw">AS</span> <span class="nm">duracao</span>,
+       <span class="nm">state</span>, <span class="nm">query</span>
+<span class="kw">FROM</span>   <span class="nm">pg_stat_activity</span>
+<span class="kw">WHERE</span>  <span class="nm">state</span> <span class="op">!=</span> <span class="str">'idle'</span>
+<span class="kw">ORDER BY</span> <span class="nm">duracao</span> <span class="kw">DESC</span>;
+
+<span class="cmt">-- Cancelar / terminar query</span>
+<span class="kw">SELECT</span> <span class="fn">pg_cancel_backend</span>(<span class="nm">pid</span>);
+<span class="kw">SELECT</span> <span class="fn">pg_terminate_backend</span>(<span class="nm">pid</span>);
+
+<span class="cmt">-- Bloqueios</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="nm">pg_locks</span> <span class="nm">l</span>
+<span class="kw">JOIN</span> <span class="nm">pg_stat_activity</span> <span class="nm">a</span> <span class="kw">ON</span> <span class="nm">l.pid</span> <span class="op">=</span> <span class="nm">a.pid</span>
+<span class="kw">WHERE NOT</span> <span class="nm">l.granted</span>;
+
+<span class="cmt">-- Uso de índices</span>
+<span class="kw">SELECT</span> <span class="nm">relname</span>, <span class="nm">indexrelname</span>, <span class="nm">idx_scan</span>, <span class="nm">idx_tup_read</span>
+<span class="kw">FROM</span>   <span class="nm">pg_stat_user_indexes</span>
+<span class="kw">ORDER BY</span> <span class="nm">idx_scan</span>;
+
+<span class="cmt">-- Tamanho de tabelas</span>
+<span class="kw">SELECT</span> <span class="fn">pg_size_pretty</span>(<span class="fn">pg_total_relation_size</span>(<span class="nm">relid</span>)) <span class="kw">AS</span> <span class="nm">tamanho</span>,
+       <span class="nm">relname</span>
+<span class="kw">FROM</span>   <span class="nm">pg_stat_user_tables</span>
+<span class="kw">ORDER BY</span> <span class="fn">pg_total_relation_size</span>(<span class="nm">relid</span>) <span class="kw">DESC</span>;</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───── TYPES ───── -->
+  <section class="section s-ddl" id="types">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div class="section-title">
+        Tipos de Dados
+        <small>Referência rápida</small>
+      </div>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <table class="ref-table">
+        <thead>
+          <tr><th>Tipo</th><th>Descrição</th><th>Exemplo / Nota</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>SMALLINT / INT / BIGINT</td><td>Inteiros 2 / 4 / 8 bytes</td><td>-32768..32767 / ±2B / ±9E18</td></tr>
+          <tr><td>SERIAL / BIGSERIAL</td><td>Inteiro auto-incrementado</td><td>Alias para SEQUENCE + DEFAULT</td></tr>
+          <tr><td>NUMERIC(p,s) / DECIMAL</td><td>Precisão exata</td><td>Ideal para dinheiro</td></tr>
+          <tr><td>REAL / DOUBLE PRECISION</td><td>Ponto flutuante 4 / 8 bytes</td><td>Aproximado</td></tr>
+          <tr><td>CHAR(n) / VARCHAR(n) / TEXT</td><td>Strings fixas/variáveis/ilimitadas</td><td>TEXT é o mais flexível</td></tr>
+          <tr><td>BOOLEAN</td><td>TRUE / FALSE / NULL</td><td>true, 'yes', '1', 'on'</td></tr>
+          <tr><td>DATE</td><td>Data sem horário</td><td>'2024-01-31'</td></tr>
+          <tr><td>TIME / TIMETZ</td><td>Hora com/sem fuso</td><td>'14:30:00'</td></tr>
+          <tr><td>TIMESTAMP / TIMESTAMPTZ</td><td>Data+hora com/sem fuso</td><td>Prefira TIMESTAMPTZ</td></tr>
+          <tr><td>INTERVAL</td><td>Duração</td><td>'1 year 2 months 3 days'</td></tr>
+          <tr><td>UUID</td><td>Identificador universal</td><td>gen_random_uuid()</td></tr>
+          <tr><td>JSON / JSONB</td><td>JSON texto / binário indexável</td><td>JSONB é superior</td></tr>
+          <tr><td>ARRAY</td><td>Array de qualquer tipo</td><td>INT[], TEXT[]</td></tr>
+          <tr><td>BYTEA</td><td>Dados binários</td><td>Arquivos, imagens</td></tr>
+          <tr><td>INET / CIDR / MACADDR</td><td>Endereços de rede</td><td>'192.168.1.0/24'</td></tr>
+          <tr><td>POINT / LINE / POLYGON</td><td>Geometria nativa</td><td>Extendido pelo PostGIS</td></tr>
+          <tr><td>TSVECTOR / TSQUERY</td><td>Full-text search</td><td>to_tsvector('pt', texto)</td></tr>
+          <tr><td>ENUM</td><td>Tipo enumerado customizado</td><td>CREATE TYPE status AS ENUM(...)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const el = document.getElementById('progress');
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  el.style.width = pct + '%';
+});
+
+// Active nav
+const sections = document.querySelectorAll('.section');
+const navItems = document.querySelectorAll('.nav-item');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(n => {
+        n.classList.toggle('active', n.getAttribute('href') === '#' + e.target.id);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => observer.observe(s));
+
+// Search
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    const txt = card.textContent.toLowerCase();
+    card.style.display = (!q || txt.includes(q)) ? '' : 'none';
+  });
+  const sections = document.querySelectorAll('.section');
+  sections.forEach(s => {
+    const visible = [...s.querySelectorAll('.card')].some(c => c.style.display !== 'none');
+    s.style.display = (!q || visible) ? '' : 'none';
+  });
+});
+</script>
+</body>
+</html>
