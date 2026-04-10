@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia SQL para Iniciantes — PostgreSQL</title>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#0d1117;
+  --card:#161b22;
+  --border:#21262d;
+  --accent:#00e5ff;
+  --text:#e6edf3;
+  --muted:#8b949e;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding:40px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+h1 {
+  font-size: 42px;
+  margin-bottom:10px;
+}
+
+h2 {
+  font-size: 22px;
+  margin-bottom:10px;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom:40px;
+}
+
+.card {
+  background: var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.code {
+  background:#0a0e14;
+  font-family:'JetBrains Mono', monospace;
+  padding:15px;
+  border-radius:8px;
+  font-size:13px;
+  overflow:auto;
+  margin-top:10px;
+}
+
+.note {
+  background:rgba(0,229,255,0.08);
+  border:1px solid rgba(0,229,255,0.2);
+  padding:10px;
+  border-radius:6px;
+  font-size:13px;
+  margin-top:10px;
+}
+
+.warning {
+  background:rgba(255,0,0,0.08);
+  border:1px solid rgba(255,0,0,0.2);
+  padding:10px;
+  border-radius:6px;
+  font-size:13px;
+  margin-top:10px;
+}
+
+.footer {
+  margin-top:40px;
+  padding-top:20px;
+  border-top:1px solid var(--border);
+  color:var(--muted);
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>Guia SQL — PostgreSQL</h1>
+<div class="subtitle">Aprenda a explorar qualquer banco de dados do zero até análise real</div>
+
+<!-- PASSO 1 -->
+<div class="card">
+<h2>1. Quais tabelas existem?</h2>
+<p>Primeiro passo: descobrir o que existe no banco.</p>
+
+<div class="code">
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+</div>
+
+<div class="note">
+information_schema é o catálogo interno do PostgreSQL — ele mostra toda a estrutura do banco.
+</div>
+</div>
+
+<!-- PASSO 2 -->
+<div class="card">
+<h2>2. Quais colunas existem na tabela?</h2>
+<p>Agora escolha uma tabela e entenda sua estrutura.</p>
+
+<div class="code">
+SELECT
+  ordinal_position AS ordem,
+  column_name AS coluna,
+  data_type AS tipo,
+  character_maximum_length AS tamanho,
+  is_nullable AS aceita_nulo,
+  column_default AS valor_padrao
+FROM information_schema.columns
+WHERE table_name = 'servidor'
+ORDER BY ordinal_position;
+</div>
+
+<div class="note">
+USER-DEFINED geralmente significa ENUM (tipo personalizado).
+</div>
+</div>
+
+<!-- PASSO 3 -->
+<div class="card">
+<h2>3. Como são os dados?</h2>
+
+<div class="code">
+-- Ver dados
+SELECT * FROM servidor LIMIT 5;
+
+-- Contagem
+SELECT COUNT(*) FROM servidor;
+
+-- Valores únicos
+SELECT DISTINCT situacao FROM servidor;
+</div>
+
+<div class="warning">
+Sempre use LIMIT no início. Em produção, tabelas podem ter milhões de registros.
+</div>
+</div>
+
+<!-- PASSO 4 -->
+<div class="card">
+<h2>4. Como as tabelas se conectam?</h2>
+
+<div class="code">
+SELECT
+  tc.table_name,
+  kcu.column_name,
+  ccu.table_name AS ref_table,
+  ccu.column_name AS ref_column
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu
+ON tc.constraint_name = kcu.constraint_name
+JOIN information_schema.constraint_column_usage ccu
+ON ccu.constraint_name = tc.constraint_name
+WHERE tc.constraint_type = 'FOREIGN KEY';
+</div>
+
+<div class="note">
+Isso mostra exatamente como fazer JOIN entre tabelas.
+</div>
+</div>
+
+<!-- PASSO 5 -->
+<div class="card">
+<h2>5. Estatísticas rápidas</h2>
+
+<div class="code">
+SELECT
+  COUNT(*) AS total,
+  COUNT(salario_atual) AS preenchidos,
+  COUNT(*) - COUNT(salario_atual) AS nulos,
+  MIN(salario_atual),
+  MAX(salario_atual),
+  ROUND(AVG(salario_atual),2)
+FROM servidor;
+</div>
+
+<div class="code">
+SELECT situacao, COUNT(*)
+FROM servidor
+GROUP BY situacao
+ORDER BY COUNT(*) DESC;
+</div>
+</div>
+
+<!-- PASSO 6 -->
+<div class="card">
+<h2>6. ENUMs, Views e funções</h2>
+
+<div class="code">
+-- ENUMs
+SELECT t.typname, e.enumlabel
+FROM pg_type t
+JOIN pg_enum e ON e.enumtypid = t.oid;
+</div>
+
+<div class="code">
+-- Views
+SELECT table_name
+FROM information_schema.views;
+</div>
+
+<div class="code">
+-- Código da view
+SELECT view_definition
+FROM information_schema.views
+WHERE table_name = 'vw_servidores';
+</div>
+
+<div class="note">
+Views já possuem JOINs prontos — use elas como ponto de partida.
+</div>
+</div>
+
+<!-- RESUMO -->
+<div class="card">
+<h2>Fluxo do Analista</h2>
+
+<div class="note">
+1 → Descobrir tabelas<br>
+2 → Entender colunas<br>
+3 → Ver dados<br>
+4 → Entender relações<br><br>
+Depois disso você já consegue fazer análises reais.
+</div>
+</div>
+
+<div class="footer">
+Guia criado para aprendizado prático de PostgreSQL • Nível iniciante → profissional
+</div>
+
+</div>
+</body>
+</html>
