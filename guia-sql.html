@@ -3,269 +3,369 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guia SQL para Iniciantes — PostgreSQL</title>
-
+<title>Guia SQL — PostgreSQL</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --bg:#0d1117;
-  --card:#161b22;
-  --border:#21262d;
-  --accent:#00e5ff;
-  --text:#e6edf3;
-  --muted:#8b949e;
-}
+  :root {
+    --editor-bg: #0d1117;
+    --editor-surface: #161b22;
+    --editor-border: #30363d;
+    --editor-gutter: #21262d;
+    --editor-line-num: #484f58;
+    --editor-header: #1c2128;
 
-* { margin:0; padding:0; box-sizing:border-box; }
+    --kw: #ff7b72;
+    --fn: #d2a8ff;
+    --str: #a5d6ff;
+    --com: #8b949e;
+    --col: #ffa657;
+    --op: #79c0ff;
+    --num: #6e7681;
+    --punc: #c9d1d9;
+    --schema: #56d364;
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  padding:40px;
-}
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --note-bg: rgba(56,139,253,0.1);
+    --note-border: rgba(56,139,253,0.3);
+    --warn-bg: rgba(248,81,73,0.1);
+    --warn-border: rgba(248,81,73,0.3);
+    --page-bg: #010409;
+  }
 
-.container {
-  max-width: 1000px;
-  margin: auto;
-}
+  * { margin:0; padding:0; box-sizing:border-box; }
 
-h1 {
-  font-size: 42px;
-  margin-bottom:10px;
-}
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--page-bg);
+    color: var(--text);
+    padding: 2rem 1.5rem;
+    min-height: 100vh;
+  }
 
-h2 {
-  font-size: 22px;
-  margin-bottom:10px;
-}
+  .page { max-width: 860px; margin: auto; }
 
-.subtitle {
-  color: var(--muted);
-  margin-bottom:40px;
-}
+  .page-header { margin-bottom: 2rem; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .page-sub { color: var(--muted); font-size: 14px; }
 
-.card {
-  background: var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:20px;
-  margin-bottom:20px;
-}
+  .section { margin-bottom: 1.25rem; }
 
-.code {
-  background:#0a0e14;
-  font-family:'JetBrains Mono', monospace;
-  padding:15px;
-  border-radius:8px;
-  font-size:13px;
-  overflow:auto;
-  margin-top:10px;
-  line-height:1.6;
-  white-space: normal;
-}
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--editor-header);
+    border: 1px solid var(--editor-border);
+    border-bottom: none;
+    padding: 10px 16px;
+    border-radius: 8px 8px 0 0;
+  }
 
-.note {
-  background:rgba(0,229,255,0.08);
-  border:1px solid rgba(0,229,255,0.2);
-  padding:10px;
-  border-radius:6px;
-  font-size:13px;
-  margin-top:10px;
-}
+  .step-badge {
+    background: var(--editor-gutter);
+    border: 1px solid var(--editor-border);
+    color: var(--muted);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
 
-.warning {
-  background:rgba(255,0,0,0.08);
-  border:1px solid rgba(255,0,0,0.2);
-  padding:10px;
-  border-radius:6px;
-  font-size:13px;
-  margin-top:10px;
-}
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
 
-.footer {
-  margin-top:40px;
-  padding-top:20px;
-  border-top:1px solid var(--border);
-  color:var(--muted);
-  font-size:13px;
-}
+  .editor-block {
+    background: var(--editor-bg);
+    border: 1px solid var(--editor-border);
+    border-top: none;
+    overflow: auto;
+  }
+
+  table.code-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .ln {
+    text-align: right;
+    padding: 0 16px 0 12px;
+    color: var(--editor-line-num);
+    user-select: none;
+    background: var(--editor-gutter);
+    border-right: 1px solid var(--editor-border);
+    vertical-align: top;
+    width: 42px;
+    min-width: 42px;
+    font-size: 12px;
+  }
+
+  .lc {
+    padding: 0 16px 0 16px;
+    white-space: pre;
+    color: var(--punc);
+    vertical-align: top;
+  }
+
+  .kw  { color: var(--kw); }
+  .fn  { color: var(--fn); }
+  .str { color: var(--str); }
+  .com { color: var(--com); font-style: italic; }
+  .col { color: var(--col); }
+  .op  { color: var(--op); }
+  .schema { color: var(--schema); }
+  .num { color: var(--num); }
+
+  .callout {
+    border-radius: 0 0 8px 8px;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.6;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    border-top: none;
+  }
+
+  .callout.note {
+    background: var(--note-bg);
+    border-color: var(--note-border);
+    color: #79c0ff;
+  }
+
+  .callout.warn {
+    background: var(--warn-bg);
+    border-color: var(--warn-border);
+    color: #ff7b72;
+  }
+
+  .icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+  .flow-box {
+    background: var(--note-bg);
+    border: 1px solid var(--note-border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #79c0ff;
+    line-height: 2;
+  }
+
+  .footer {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--editor-border);
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    letter-spacing: 0.2px;
+  }
 </style>
 </head>
-
 <body>
-<div class="container">
+<div class="page">
 
-<h1>Guia SQL — PostgreSQL</h1>
-<div class="subtitle">Aprenda a explorar qualquer banco de dados do zero até análise real</div>
+  <div class="page-header">
+    <div class="page-title">Guia SQL — PostgreSQL</div>
+    <div class="page-sub">Aprenda a explorar qualquer banco de dados do zero até análise real</div>
+  </div>
 
-<!-- PASSO 1 -->
-<div class="card">
-<h2>1. Quais tabelas existem?</h2>
-<p>Primeiro passo: descobrir o que existe no banco.</p>
+  <!-- PASSO 1 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="step-badge">01</span>
+      <span class="section-title">Quais tabelas existem?</span>
+    </div>
+    <div class="editor-block">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="kw">SELECT</span> table_name</td></tr>
+        <tr><td class="ln">2</td><td class="lc"><span class="kw">FROM</span> <span class="schema">information_schema</span>.tables</td></tr>
+        <tr><td class="ln">3</td><td class="lc"><span class="kw">WHERE</span> table_schema <span class="op">=</span> <span class="str">'public'</span></td></tr>
+        <tr><td class="ln">4</td><td class="lc">  <span class="kw">AND</span> table_type <span class="op">=</span> <span class="str">'BASE TABLE'</span></td></tr>
+        <tr><td class="ln">5</td><td class="lc"><span class="kw">ORDER BY</span> table_name<span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div class="callout note">
+      <span class="icon">ℹ</span>
+      <span><code>information_schema</code> é o catálogo interno do PostgreSQL — ele mostra toda a estrutura do banco.</span>
+    </div>
+  </div>
 
-<div class="code">
-  <pre><code>
-    SELECT table_name
-    FROM information_schema.tables
-    WHERE table_schema = 'public'
-    AND table_type = 'BASE TABLE'
-    ORDER BY table_name;
-  </code></pre>
-</div>
+  <!-- PASSO 2 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="step-badge">02</span>
+      <span class="section-title">Quais colunas existem na tabela?</span>
+    </div>
+    <div class="editor-block">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="kw">SELECT</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc">  ordinal_position     <span class="kw">AS</span> <span class="col">ordem</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">3</td><td class="lc">  column_name          <span class="kw">AS</span> <span class="col">coluna</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">4</td><td class="lc">  data_type            <span class="kw">AS</span> <span class="col">tipo</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">5</td><td class="lc">  character_maximum_length <span class="kw">AS</span> <span class="col">tamanho</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">6</td><td class="lc">  is_nullable          <span class="kw">AS</span> <span class="col">aceita_nulo</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">7</td><td class="lc">  column_default       <span class="kw">AS</span> <span class="col">valor_padrao</span></td></tr>
+        <tr><td class="ln">8</td><td class="lc"><span class="kw">FROM</span> <span class="schema">information_schema</span>.columns</td></tr>
+        <tr><td class="ln">9</td><td class="lc"><span class="kw">WHERE</span> table_name <span class="op">=</span> <span class="str">'servidor'</span></td></tr>
+        <tr><td class="ln">10</td><td class="lc"><span class="kw">ORDER BY</span> ordinal_position<span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div class="callout note">
+      <span class="icon">ℹ</span>
+      <span><code>USER-DEFINED</code> geralmente significa ENUM (tipo personalizado).</span>
+    </div>
+  </div>
 
-<div class="note">
-information_schema é o catálogo interno do PostgreSQL — ele mostra toda a estrutura do banco.
-</div>
-</div>
+  <!-- PASSO 3 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="step-badge">03</span>
+      <span class="section-title">Como são os dados?</span>
+    </div>
+    <div class="editor-block">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="com">-- ver dados</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc"><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> servidor <span class="kw">LIMIT</span> <span class="num">5</span><span class="punc">;</span></td></tr>
+        <tr><td class="ln">3</td><td class="lc"></td></tr>
+        <tr><td class="ln">4</td><td class="lc"><span class="com">-- contagem total</span></td></tr>
+        <tr><td class="ln">5</td><td class="lc"><span class="kw">SELECT</span> <span class="fn">COUNT</span><span class="punc">(</span><span class="op">*</span><span class="punc">)</span> <span class="kw">FROM</span> servidor<span class="punc">;</span></td></tr>
+        <tr><td class="ln">6</td><td class="lc"></td></tr>
+        <tr><td class="ln">7</td><td class="lc"><span class="com">-- valores únicos</span></td></tr>
+        <tr><td class="ln">8</td><td class="lc"><span class="kw">SELECT DISTINCT</span> situacao <span class="kw">FROM</span> servidor<span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="icon">⚠</span>
+      <span>Sempre use <code>LIMIT</code> no início. Em produção, tabelas podem ter milhões de registros.</span>
+    </div>
+  </div>
 
-<!-- PASSO 2 -->
-<div class="card">
-<h2>2. Quais colunas existem na tabela?
-<p>Agora escolha uma tabela e entenda sua estrutura.
+  <!-- PASSO 4 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="step-badge">04</span>
+      <span class="section-title">Como as tabelas se conectam?</span>
+    </div>
+    <div class="editor-block">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="kw">SELECT</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc">  tc.table_name<span class="punc">,</span></td></tr>
+        <tr><td class="ln">3</td><td class="lc">  kcu.column_name<span class="punc">,</span></td></tr>
+        <tr><td class="ln">4</td><td class="lc">  ccu.table_name  <span class="kw">AS</span> <span class="col">ref_table</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">5</td><td class="lc">  ccu.column_name <span class="kw">AS</span> <span class="col">ref_column</span></td></tr>
+        <tr><td class="ln">6</td><td class="lc"><span class="kw">FROM</span> <span class="schema">information_schema</span>.table_constraints tc</td></tr>
+        <tr><td class="ln">7</td><td class="lc"><span class="kw">JOIN</span> <span class="schema">information_schema</span>.key_column_usage kcu</td></tr>
+        <tr><td class="ln">8</td><td class="lc">  <span class="kw">ON</span> tc.constraint_name <span class="op">=</span> kcu.constraint_name</td></tr>
+        <tr><td class="ln">9</td><td class="lc"><span class="kw">JOIN</span> <span class="schema">information_schema</span>.constraint_column_usage ccu</td></tr>
+        <tr><td class="ln">10</td><td class="lc">  <span class="kw">ON</span> ccu.constraint_name <span class="op">=</span> tc.constraint_name</td></tr>
+        <tr><td class="ln">11</td><td class="lc"><span class="kw">WHERE</span> tc.constraint_type <span class="op">=</span> <span class="str">'FOREIGN KEY'</span><span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div class="callout note">
+      <span class="icon">ℹ</span>
+      <span>Isso mostra exatamente como fazer <code>JOIN</code> entre tabelas.</span>
+    </div>
+  </div>
 
-<div class="code">
-  <code><pre>
-    SELECT
-      ordinal_position AS ordem,
-      column_name AS coluna,
-      data_type AS tipo,
-      character_maximum_length AS tamanho,
-      is_nullable AS aceita_nulo,
-      column_default AS valor_padrao
-    FROM information_schema.columns
-    WHERE table_name = 'servidor'
-    ORDER BY ordinal_position;
-  </code></pre>
-</div>
+  <!-- PASSO 5 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="step-badge">05</span>
+      <span class="section-title">Estatísticas rápidas</span>
+    </div>
+    <div class="editor-block">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="kw">SELECT</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc">  <span class="fn">COUNT</span><span class="punc">(</span><span class="op">*</span><span class="punc">)</span>                       <span class="kw">AS</span> <span class="col">total</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">3</td><td class="lc">  <span class="fn">COUNT</span><span class="punc">(</span>salario_atual<span class="punc">)</span>          <span class="kw">AS</span> <span class="col">preenchidos</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">4</td><td class="lc">  <span class="fn">COUNT</span><span class="punc">(</span><span class="op">*</span><span class="punc">)</span> <span class="op">-</span> <span class="fn">COUNT</span><span class="punc">(</span>salario_atual<span class="punc">)</span> <span class="kw">AS</span> <span class="col">nulos</span><span class="punc">,</span></td></tr>
+        <tr><td class="ln">5</td><td class="lc">  <span class="fn">MIN</span><span class="punc">(</span>salario_atual<span class="punc">),</span></td></tr>
+        <tr><td class="ln">6</td><td class="lc">  <span class="fn">MAX</span><span class="punc">(</span>salario_atual<span class="punc">),</span></td></tr>
+        <tr><td class="ln">7</td><td class="lc">  <span class="fn">ROUND</span><span class="punc">(</span><span class="fn">AVG</span><span class="punc">(</span>salario_atual<span class="punc">),</span> <span class="num">2</span><span class="punc">)</span></td></tr>
+        <tr><td class="ln">8</td><td class="lc"><span class="kw">FROM</span> servidor<span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div style="border-top: 1px solid var(--editor-border); background: var(--editor-bg); border-left: 1px solid var(--editor-border); border-right: 1px solid var(--editor-border);">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="kw">SELECT</span> situacao<span class="punc">,</span> <span class="fn">COUNT</span><span class="punc">(</span><span class="op">*</span><span class="punc">)</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc"><span class="kw">FROM</span> servidor</td></tr>
+        <tr><td class="ln">3</td><td class="lc"><span class="kw">GROUP BY</span> situacao</td></tr>
+        <tr><td class="ln">4</td><td class="lc"><span class="kw">ORDER BY</span> <span class="fn">COUNT</span><span class="punc">(</span><span class="op">*</span><span class="punc">)</span> <span class="kw">DESC</span><span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div style="height: 8px; background: var(--editor-bg); border-left: 1px solid var(--editor-border); border-right: 1px solid var(--editor-border); border-bottom: 1px solid var(--editor-border); border-radius: 0 0 8px 8px;"></div>
+  </div>
 
-<div class="note">
-USER-DEFINED geralmente significa ENUM (tipo personalizado).
-</div>
-</div>
+  <!-- PASSO 6 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="step-badge">06</span>
+      <span class="section-title">ENUMs, views e funções</span>
+    </div>
+    <div class="editor-block">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="com">-- enums do banco</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc"><span class="kw">SELECT</span> t.typname<span class="punc">,</span> e.enumlabel</td></tr>
+        <tr><td class="ln">3</td><td class="lc"><span class="kw">FROM</span> pg_type t</td></tr>
+        <tr><td class="ln">4</td><td class="lc"><span class="kw">JOIN</span> pg_enum e <span class="kw">ON</span> e.enumtypid <span class="op">=</span> t.oid<span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div style="border-top: 1px solid var(--editor-border); background: var(--editor-bg); border-left: 1px solid var(--editor-border); border-right: 1px solid var(--editor-border);">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="com">-- listar views</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc"><span class="kw">SELECT</span> table_name</td></tr>
+        <tr><td class="ln">3</td><td class="lc"><span class="kw">FROM</span> <span class="schema">information_schema</span>.views<span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div style="border-top: 1px solid var(--editor-border); background: var(--editor-bg); border-left: 1px solid var(--editor-border); border-right: 1px solid var(--editor-border);">
+      <table class="code-table">
+        <tr><td class="ln">1</td><td class="lc"><span class="com">-- código da view</span></td></tr>
+        <tr><td class="ln">2</td><td class="lc"><span class="kw">SELECT</span> view_definition</td></tr>
+        <tr><td class="ln">3</td><td class="lc"><span class="kw">FROM</span> <span class="schema">information_schema</span>.views</td></tr>
+        <tr><td class="ln">4</td><td class="lc"><span class="kw">WHERE</span> table_name <span class="op">=</span> <span class="str">'vw_servidores'</span><span class="punc">;</span></td></tr>
+      </table>
+    </div>
+    <div class="callout note">
+      <span class="icon">ℹ</span>
+      <span>Views já possuem <code>JOIN</code>s prontos — use-as como ponto de partida.</span>
+    </div>
+  </div>
 
-<!-- PASSO 3 -->
-<div class="card">
-<h2>3. Como são os dados?</h2>
+  <!-- FLUXO -->
+  <div class="section">
+    <div class="section-header">
+      <span class="step-badge">→</span>
+      <span class="section-title">Fluxo do analista</span>
+    </div>
+    <div class="flow-box">
+      01 → Descobrir tabelas &nbsp;·&nbsp;
+      02 → Entender colunas &nbsp;·&nbsp;
+      03 → Ver dados &nbsp;·&nbsp;
+      04 → Entender relações<br>
+      <span style="color: #8b949e; font-size: 12px;">Depois disso você já consegue fazer análises reais.</span>
+    </div>
+  </div>
 
-<div class="code">
-  <code><pre>
-    -- Ver dados
-    SELECT * FROM servidor LIMIT 5;
-    
-    -- Contagem
-    SELECT COUNT(*) FROM servidor;
-    
-    -- Valores únicos
-    SELECT DISTINCT situacao FROM servidor;
-  
-  </code></pre>
-</div>
-
-<div class="warning">
-Sempre use LIMIT no início. Em produção, tabelas podem ter milhões de registros.
-</div>
-</div>
-
-<!-- PASSO 4 -->
-<div class="card">
-<h2>4. Como as tabelas se conectam?</h2>
-
-<div class="code">
-<pre><code>
-SELECT
-  tc.table_name,
-  kcu.column_name,
-  ccu.table_name AS ref_table,
-  ccu.column_name AS ref_column
-FROM information_schema.table_constraints tc
-JOIN information_schema.key_column_usage kcu
-ON tc.constraint_name = kcu.constraint_name
-JOIN information_schema.constraint_column_usage ccu
-ON ccu.constraint_name = tc.constraint_name
-WHERE tc.constraint_type = 'FOREIGN KEY';
-</code></pre>
-</div>
-
-<div class="note">
-Isso mostra exatamente como fazer JOIN entre tabelas.
-</div>
-</div>
-
-<!-- PASSO 5 -->
-<div class="card">
-<h2>5. Estatísticas rápidas</h2>
-
-<div class="code">
-<pre><code>
-SELECT
-  COUNT(*) AS total,
-  COUNT(salario_atual) AS preenchidos,
-  COUNT(*) - COUNT(salario_atual) AS nulos,
-  MIN(salario_atual),
-  MAX(salario_atual),
-  ROUND(AVG(salario_atual),2)
-FROM servidor;
-</code></pre>
-</div>
-
-<div class="code">
-  <code><pre>
-SELECT situacao, COUNT(*)
-FROM servidor
-GROUP BY situacao
-ORDER BY COUNT(*) DESC;
-  </code></pre>
-</div>
-</div>
-
-<!-- PASSO 6 -->
-<div class="card">
-<h2>6. ENUMs, Views e funções</h2>
-
-<div class="code"><code><pre>
--- ENUMs
-SELECT t.typname, e.enumlabel
-FROM pg_type t
-JOIN pg_enum e ON e.enumtypid = t.oid;</code></pre>
-</div>
-
-<div class="code"><code><pre>
--- Views
-SELECT table_name
-FROM information_schema.views;</code></pre>
-</div>
-
-<div class="code"><code><pre>
--- Código da view
-SELECT view_definition
-FROM information_schema.views
-WHERE table_name = 'vw_servidores';</code></pre>
-</div>
-
-<div class="note">
-Views já possuem JOINs prontos — use elas como ponto de partida.
-</div>
-</div>
-
-<!-- RESUMO -->
-<div class="card">
-<h2>Fluxo do Analista</h2>
-
-<div class="note">
-1 → Descobrir tabelas<br>
-2 → Entender colunas<br>
-3 → Ver dados<br>
-4 → Entender relações<br><br>
-Depois disso você já consegue fazer análises reais.
-</div>
-</div>
-
-<div class="footer">
-Guia criado para aprendizado prático de PostgreSQL • Nível iniciante → profissional
-</div>
-
+  <div class="footer">Guia criado para aprendizado prático de PostgreSQL · nível iniciante → profissional</div>
 </div>
 </body>
 </html>
