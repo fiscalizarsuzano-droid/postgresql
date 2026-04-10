@@ -104,11 +104,13 @@ h2 {
 <p>Primeiro passo: descobrir o que existe no banco.</p>
 
 <div class="code">
+<pre><code>
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public'
 AND table_type = 'BASE TABLE'
 ORDER BY table_name;
+</code></pre>
 </div>
 
 <div class="note">
@@ -122,6 +124,7 @@ information_schema é o catálogo interno do PostgreSQL — ele mostra toda a es
 <p>Agora escolha uma tabela e entenda sua estrutura.
 
 <div class="code">
+<code><pre>
 SELECT
   ordinal_position AS ordem,
   column_name AS coluna,
@@ -132,6 +135,7 @@ SELECT
 FROM information_schema.columns
 WHERE table_name = 'servidor'
 ORDER BY ordinal_position;
+</code></pre>
 </div>
 
 <div class="note">
@@ -143,7 +147,7 @@ USER-DEFINED geralmente significa ENUM (tipo personalizado).
 <div class="card">
 <h2>3. Como são os dados?</h2>
 
-<div class="code">
+<div class="code"><code><pre>
 -- Ver dados
 SELECT * FROM servidor LIMIT 5;
 
@@ -152,6 +156,8 @@ SELECT COUNT(*) FROM servidor;
 
 -- Valores únicos
 SELECT DISTINCT situacao FROM servidor;
+
+</code></pre>
 </div>
 
 <div class="warning">
@@ -202,10 +208,12 @@ FROM servidor;
 </div>
 
 <div class="code">
+  <code><pre>
 SELECT situacao, COUNT(*)
 FROM servidor
 GROUP BY situacao
 ORDER BY COUNT(*) DESC;
+  </code></pre>
 </div>
 </div>
 
@@ -213,24 +221,24 @@ ORDER BY COUNT(*) DESC;
 <div class="card">
 <h2>6. ENUMs, Views e funções</h2>
 
-<div class="code">
+<div class="code"><code><pre>
 -- ENUMs
 SELECT t.typname, e.enumlabel
 FROM pg_type t
-JOIN pg_enum e ON e.enumtypid = t.oid;
+JOIN pg_enum e ON e.enumtypid = t.oid;</code></pre>
 </div>
 
-<div class="code">
+<div class="code"><code><pre>
 -- Views
 SELECT table_name
-FROM information_schema.views;
+FROM information_schema.views;</code></pre>
 </div>
 
-<div class="code">
+<div class="code"><code><pre>
 -- Código da view
 SELECT view_definition
 FROM information_schema.views
-WHERE table_name = 'vw_servidores';
+WHERE table_name = 'vw_servidores';</code></pre>
 </div>
 
 <div class="note">
