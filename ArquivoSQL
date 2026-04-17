@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualizador de Arquivo SQL</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    h2 {
+      color: #569cd6;
+      margin-bottom: 20px;
+    }
+
+    .upload-area {
+      background: #2d2d2d;
+      border: 2px dashed #569cd6;
+      border-radius: 10px;
+      padding: 30px 60px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background 0.2s;
+    }
+
+    .upload-area:hover {
+      background: #3a3a3a;
+    }
+
+    .upload-area input[type="file"] {
+      display: none;
+    }
+
+    .upload-area label {
+      cursor: pointer;
+      font-size: 16px;
+      color: #9cdcfe;
+    }
+
+    .upload-area p {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: #777;
+    }
+
+    #file-name {
+      font-size: 13px;
+      color: #4ec9b0;
+      margin-bottom: 16px;
+    }
+
+    #code-box {
+      width: 100%;
+      max-width: 900px;
+      background: #252526;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      display: none;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #ce9178;
+    }
+
+    /* Syntax highlight básico */
+    .kw  { color: #569cd6; font-weight: bold; }
+    .fn  { color: #dcdcaa; }
+    .str { color: #ce9178; }
+    .cm  { color: #6a9955; font-style: italic; }
+    .nm  { color: #b5cea8; }
+  </style>
+</head>
+<body>
+
+  <h2>📄 Visualizador de Arquivo SQL</h2>
+
+  <div class="upload-area" onclick="document.getElementById('file-input').click()">
+    <label for="file-input">🗂️ Clique para selecionar um arquivo .sql</label>
+    <p>Somente leitura — nenhum dado é enviado para servidor</p>
+    <input type="file" id="file-input" accept=".sql,.txt">
+  </div>
+
+  <div id="file-name"></div>
+
+  <div id="code-box">
+    <pre id="code-content"></pre>
+  </div>
+
+  <script>
+    document.getElementById('file-input').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      document.getElementById('file-name').textContent = '📁 Arquivo: ' + file.name;
+
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        const raw = evt.target.result;
+        const highlighted = highlight(raw);
+        document.getElementById('code-content').innerHTML = highlighted;
+        document.getElementById('code-box').style.display = 'block';
+      };
+      reader.readAsText(file, 'UTF-8');
+    });
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function highlight(code) {
+      let escaped = escapeHtml(code);
+
+      // Comentários de linha --
+      escaped = escaped.replace(/(--[^\n]*)/g, '<span class="cm">$1</span>');
+
+      // Comentários de bloco /* */
+      escaped = escaped.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="cm">$1</span>');
+
+      // Strings entre aspas simples
+      escaped = escaped.replace(/('(?:[^'\\]|\\.)*')/g, '<span class="str">$1</span>');
+
+      // Palavras-chave SQL
+      const keywords = [
+        'SELECT','FROM','WHERE','INSERT','INTO','VALUES','UPDATE','SET',
+        'DELETE','CREATE','TABLE','DROP','ALTER','ADD','COLUMN','INDEX',
+        'PRIMARY','KEY','FOREIGN','REFERENCES','JOIN','LEFT','RIGHT',
+        'INNER','OUTER','ON','AND','OR','NOT','NULL','IS','AS','DISTINCT',
+        'ORDER','BY','GROUP','HAVING','LIMIT','TOP','OFFSET','UNION',
+        'ALL','EXEC','EXECUTE','BEGIN','END','TRANSACTION','COMMIT',
+        'ROLLBACK','IF','ELSE','WHILE','DECLARE','SET','PRINT','USE',
+        'GO','DATABASE','SCHEMA','VIEW','PROCEDURE','FUNCTION','TRIGGER',
+        'RETURNS','RETURN','IDENTITY','DEFAULT','CONSTRAINT','UNIQUE',
+        'CHECK','WITH','NOLOCK','IN','EXISTS','CASE','WHEN','THEN','END',
+        'BETWEEN','LIKE','ASC','DESC','CAST','CONVERT','COALESCE','ISNULL'
+      ];
+      const kwRegex = new RegExp('\\b(' + keywords.join('|') + ')\\b', 'gi');
+      escaped = escaped.replace(kwRegex, '<span class="kw">$1</span>');
+
+      // Funções SQL comuns
+      const functions = [
+        'COUNT','SUM','AVG','MIN','MAX','LEN','UPPER','LOWER','TRIM',
+        'LTRIM','RTRIM','SUBSTRING','CHARINDEX','REPLACE','GETDATE',
+        'DATEADD','DATEDIFF','FORMAT','CONVERT','CAST','ISNULL','COALESCE',
+        'ROW_NUMBER','RANK','DENSE_RANK','OVER','PARTITION','NEWID'
+      ];
+      const fnRegex = new RegExp('\\b(' + functions.join('|') + ')\\s*(?=\\()', 'gi');
+      escaped = escaped.replace(fnRegex, '<span class="fn">$1</span>');
+
+      // Números
+      escaped = escaped.replace(/\b(\d+)\b/g, '<span class="nm">$1</span>');
+
+      return escaped;
+    }
+  </script>
+
+</body>
+</html>
