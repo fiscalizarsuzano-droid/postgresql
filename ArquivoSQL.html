@@ -162,6 +162,24 @@
     }
     .statusbar b { color: var(--text); }
 
+    /* Save dropdown */
+    .save-wrap { position: relative; }
+    .save-menu {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; z-index: 100;
+      min-width: 180px; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .save-menu.open { display: block; }
+    .save-menu button {
+      display: block; width: 100%; text-align: left;
+      background: transparent; border: none; border-bottom: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 13px;
+      padding: 9px 16px; cursor: pointer; transition: background .15s;
+    }
+    .save-menu button:last-child { border-bottom: none; }
+    .save-menu button:hover { background: #2a2f3d; color: #fff; }
+
     /* Toast */
     #toast {
       position: fixed; bottom: 28px; right: 28px;
@@ -212,7 +230,13 @@
   <button class="btn" onclick="navMatch(1)"  title="Próximo">▼</button>
   <div class="sep"></div>
   <button class="btn" onclick="copyCode()">📋 Copiar</button>
-  <button class="btn" onclick="downloadFile()">💾 Salvar</button>
+  <div class="save-wrap" id="save-wrap">
+    <button class="btn" onclick="toggleSaveMenu()">💾 Salvar ▾</button>
+    <div class="save-menu" id="save-menu">
+      <button onclick="downloadTxt()">📄 Salvar como .txt</button>
+      <button onclick="downloadPdf()">🖨️ Salvar como PDF</button>
+    </div>
+  </div>
   <button class="btn danger" onclick="clearAll()">✕ Fechar</button>
 </div>
 
@@ -399,14 +423,53 @@ function copyCode() {
   navigator.clipboard.writeText(txt).then(() => toast('Código copiado!'));
 }
 
-function downloadFile() {
+function toggleSaveMenu() {
+  document.getElementById('save-menu').classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('save-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('save-menu').classList.remove('open');
+  }
+});
+
+function downloadTxt() {
   const txt  = mode === 'edit' ? document.getElementById('editor').value : rawText;
+  const name = fileName.replace(/\.[^.]+$/, '') + '.txt';
   const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
-  const a    = Object.assign(document.createElement('a'), { href: url, download: fileName });
+  const a    = Object.assign(document.createElement('a'), { href: url, download: name });
   a.click();
   URL.revokeObjectURL(url);
-  toast('Arquivo salvo!');
+  document.getElementById('save-menu').classList.remove('open');
+  toast('Salvo como .txt!');
+}
+
+function downloadPdf() {
+  const txt = mode === 'edit' ? document.getElementById('editor').value : rawText;
+  const name = fileName.replace(/\.[^.]+$/, '');
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>${name}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap');
+    body { margin: 32px 40px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+           line-height: 1.7; color: #1a1a1a; background: #fff; }
+    h2 { font-size: 14px; font-family: sans-serif; color: #333; margin-bottom: 16px;
+         border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+    @media print { body { margin: 16px 24px; } }
+  </style></head><body>
+  <h2>📄 ${name}</h2>
+  <pre>${txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`);
+  win.document.close();
+
+  document.getElementById('save-menu').classList.remove('open');
+  toast('Abrindo diálogo de impressão/PDF…');
 }
 
 function clearAll() {
