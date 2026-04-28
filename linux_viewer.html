@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Linux Commands Pro</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@500;700&display=swap');
+
+:root {
+  --bg:#13151a;
+  --surface:#1c1f28;
+  --border:#2e3340;
+  --accent:#4f8ef7;
+  --accent2:#38c9a8;
+  --text:#c8cdd8;
+  --muted:#6b7280;
+  --cmd:#79c0ff;
+}
+
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Syne',sans-serif;
+  padding:30px;
+}
+
+h1 {
+  text-align:center;
+  margin-bottom:5px;
+}
+h1 span { color:var(--accent); }
+
+.subtitle {
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:25px;
+  font-size:14px;
+}
+
+.container {
+  max-width:1000px;
+  margin:auto;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:25px;
+}
+
+pre {
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+  line-height:1.7;
+  white-space:pre-wrap;
+}
+
+.cmd { color:var(--cmd); }
+.section {
+  margin-top:25px;
+  color:var(--accent);
+  font-weight:bold;
+  font-size:15px;
+}
+
+.tip {
+  color:var(--accent2);
+}
+</style>
+</head>
+
+<body>
+
+<h1>🐧 Linux <span>Commands</span></h1>
+<div class="subtitle">Guia completo para uso e estudo</div>
+
+<div class="container">
+<pre>
+
+<span class="section">📁 Navegação e Arquivos</span>
+
+<span class="cmd">pwd</span>                # mostra o diretório atual
+<span class="cmd">ls</span>                 # lista arquivos
+<span class="cmd">ls -l</span>              # lista detalhada
+<span class="cmd">ls -a</span>              # inclui ocultos
+<span class="cmd">cd pasta</span>           # entra no diretório
+<span class="cmd">cd ..</span>              # volta um nível
+<span class="cmd">cd ~</span>               # vai para a home
+<span class="cmd">tree</span>               # estrutura em árvore
+
+<span class="cmd">cp arquivo destino</span> # copia arquivo
+<span class="cmd">mv arquivo destino</span> # move ou renomeia
+<span class="cmd">rm arquivo</span>         # remove arquivo
+<span class="cmd">rm -r pasta</span>        # remove pasta
+<span class="cmd">mkdir pasta</span>       # cria diretório
+<span class="cmd">rmdir pasta</span>       # remove diretório vazio
+<span class="cmd">touch arquivo</span>     # cria arquivo vazio
+
+<span class="section">🔍 Busca e Localização</span>
+
+<span class="cmd">find / -name arquivo.txt</span>   # busca arquivo
+<span class="cmd">locate arquivo.txt</span>          # busca rápida
+<span class="cmd">grep "texto" arquivo</span>        # busca dentro do arquivo
+<span class="cmd">grep -r "texto" .</span>           # busca recursiva
+<span class="cmd">which comando</span>              # caminho do comando
+<span class="cmd">whereis comando</span>            # localização do binário
+
+<span class="section">📄 Visualização de Arquivos</span>
+
+<span class="cmd">cat arquivo</span>        # exibe conteúdo
+<span class="cmd">less arquivo</span>       # leitura paginada
+<span class="cmd">more arquivo</span>       # leitura simples
+<span class="cmd">head -n 10 arquivo</span> # primeiras linhas
+<span class="cmd">tail -n 10 arquivo</span> # últimas linhas
+<span class="cmd">tail -f log.txt</span>    # acompanha log em tempo real
+
+<span class="section">📦 Gerenciamento de Pacotes (APT)</span>
+
+<span class="cmd">sudo apt update</span>        # atualiza lista de pacotes
+<span class="cmd">sudo apt upgrade</span>       # atualiza sistema
+<span class="cmd">sudo apt install pacote</span># instala pacote
+<span class="cmd">sudo apt remove pacote</span> # remove pacote
+<span class="cmd">sudo apt purge pacote</span>  # remove + configs
+<span class="cmd">sudo apt autoremove</span>    # remove dependências
+<span class="cmd">apt search nome</span>        # busca pacote
+<span class="cmd">apt show pacote</span>        # detalhes
+
+<span class="section">👤 Usuários e Permissões</span>
+
+<span class="cmd">whoami</span>                  # usuário atual
+<span class="cmd">id</span>                      # info do usuário
+<span class="cmd">adduser nome</span>            # criar usuário
+<span class="cmd">deluser nome</span>            # remove usuário
+<span class="cmd">passwd</span>                  # remove usuário
+<span class="cmd">chmod 755 arquivo</span>       # altera permissão
+<span class="cmd">chown user:grupo arquivo</span># altera dono
+
+<span class="section">🔐 Permissões (numérico)</span>
+
+7 = leitura + escrita + execução  
+6 = leitura + escrita  
+5 = leitura + execução  
+4 = leitura  
+
+<span class="tip">Exemplo:</span>
+<span class="cmd">chmod 755 script.sh</span>
+
+<span class="section">⚙️ Processos e Sistema</span>
+
+<span class="cmd">top</span>   		    # monitora processos
+<span class="cmd">htop</span>		      # versão melhorada
+<span class="cmd">ps aux</span>       # lista processos
+<span class="cmd">kill PID</span>	    # mata processo
+<span class="cmd">kill -9 PID</span>	# força encerramento
+<span class="cmd">uptime</span>       # tempo ligado
+<span class="cmd">free -h</span>      # uso de memória
+<span class="cmd">df -h</span>        # espaço em disco
+<span class="cmd">du -sh pasta</span> # tamanho da pasta
+
+<span class="section">🌐 Rede</span>
+
+<span class="cmd">ping google.com</span># testa conexão
+<span class="cmd">ifconfig</span>       # info de rede (antigo)
+<span class="cmd">ip a</span>           # IP atual (moderno)
+<span class="cmd">netstat -tuln</span>  # portas abertas
+<span class="cmd">ss -tuln</span>       # substituto do netstat
+<span class="cmd">curl site.com</span>  # requisição web
+<span class="cmd">wget url</span>       # baixar arquivo
+
+<span class="section">📦 Compactação</span>
+
+<span class="cmd">tar -cvf arquivo.tar pasta</span>     # cria tar
+<span class="cmd">tar -xvf arquivo.tar</span>           # extrai tar
+<span class="cmd">tar -czvf arquivo.tar.gz pasta</span> # compacta gzip
+<span class="cmd">tar -xzvf arquivo.tar.gz</span>       # extrai gzip
+<span class="cmd">zip -r arquivo.zip pasta</span>
+<span class="cmd">unzip arquivo.zip</span>
+
+<span class="section">💽 Disco e Sistema</span>
+
+<span class="cmd">lsblk</span>      # lista discos
+<span class="cmd">mount</span>      # monta disco
+<span class="cmd">umount</span>	    # desmonta
+<span class="cmd">fdisk -l</span>	  # partições
+
+<span class="section">🕒 Data e Hora</span>
+
+<span class="cmd">date</span>        # data atual
+<span class="cmd">cal</span>	       # calendário
+<span class="cmd">timedatectl</span> # configura hora
+
+<span class="section">⌨️ Histórico e Atalhos</span>
+
+<span class="cmd">history</span>	# comandos usados
+<span class="cmd">clear</span>	  # limpa terminal
+<span class="cmd">!!</span>	      # repete último comando
+<span class="cmd">!n</span>        # executa comando número n
+
+<span class="section">🔀 Redirecionamento e Pipes</span>
+
+<span class="cmd">comando > arquivo</span>    	# salva saída
+<span class="cmd">comando >> arquivo</span>    	# adiciona saída
+<span class="cmd">comando < arquivo</span>    	# entrada
+<span class="cmd">comando1 | comando2</span>   	# pipe
+
+<span class="section">🧠 Variáveis e Shell</span>
+
+<span class="cmd">echo $HOME</span>  		   # mostra variável
+<span class="cmd">export VAR=valor</span>  # cria variável
+<span class="cmd">env</span>	             # lista variáveis
+
+<span class="section">🚀 Permissão de execução</span>
+
+<span class="cmd">chmod +x script.sh</span>
+<span class="cmd">./script.sh</span>
+
+<span class="section">🔄 Serviços (systemd)</span>
+
+<span class="cmd">systemctl start serviço</span>
+<span class="cmd">systemctl stop serviço</span>
+<span class="cmd">systemctl restart serviço</span>
+<span class="cmd">systemctl status serviço</span>
+<span class="cmd">systemctl enable serviço</span>
+<span class="cmd">systemctl disable serviço</span>
+
+<span class="section">📚 Dicas essenciais</span>
+
+<span class="cmd">man comando</span>      # manual completo
+<span class="cmd">comando --help</span>  	# ajuda rápida
+
+</pre>
+</div>
+
+</body>
+</html>
