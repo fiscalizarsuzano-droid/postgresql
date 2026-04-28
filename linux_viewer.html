@@ -2,233 +2,385 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Linux Commands Pro</title>
+<title>Linux Study Mode</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Syne:wght@500;700&display=swap');
 
 :root {
   --bg:#13151a;
-  --surface:#1c1f28;
+  --card:#1c1f28;
   --border:#2e3340;
   --accent:#4f8ef7;
-  --accent2:#38c9a8;
   --text:#c8cdd8;
   --muted:#6b7280;
   --cmd:#79c0ff;
+  --ok:#38c9a8;
 }
 
 body {
+  margin:0;
   background:var(--bg);
   color:var(--text);
   font-family:'Syne',sans-serif;
-  padding:30px;
 }
 
-h1 {
+header {
   text-align:center;
-  margin-bottom:5px;
+  padding:20px;
 }
+
 h1 span { color:var(--accent); }
 
-.subtitle {
-  text-align:center;
-  color:var(--muted);
-  margin-bottom:25px;
-  font-size:14px;
+.container {
+  max-width:900px;
+  margin:auto;
+  padding:20px;
 }
 
-.container {
-  max-width:1000px;
-  margin:auto;
-  background:var(--surface);
+/* SEARCH */
+.search {
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  margin-bottom:20px;
+}
+
+/* LIST MODE */
+.list-item {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.cmd {
+  font-family:'JetBrains Mono', monospace;
+  color:var(--cmd);
+}
+
+.desc {
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* BUTTON */
+.copy-btn {
+  background:none;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:5px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.copy-btn:hover {
+  border-color:var(--accent);
+}
+
+/* FLASHCARD */
+.flashcard {
+  background:var(--card);
   border:1px solid var(--border);
   border-radius:12px;
-  padding:25px;
+  padding:40px;
+  text-align:center;
+  margin-top:20px;
 }
 
-pre {
-  font-family:'JetBrains Mono', monospace;
-  font-size:13px;
-  line-height:1.7;
-  white-space:pre-wrap;
+.flashcard .cmd {
+  font-size:20px;
 }
 
-.cmd { color:var(--cmd); }
-.section {
-  margin-top:25px;
+.hidden {
+  display:none;
+}
+
+.toggle {
+  margin-top:20px;
+  cursor:pointer;
   color:var(--accent);
-  font-weight:bold;
-  font-size:15px;
 }
 
-.tip {
-  color:var(--accent2);
+/* RESPONSIVO */
+@media(max-width:600px){
+  .list-item {
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<h1>🐧 Linux <span>Commands</span></h1>
-<div class="subtitle">Guia completo para uso e estudo</div>
+<header>
+  <h1>🐧 Linux <span>Study Mode</span></h1>
+</header>
 
 <div class="container">
-<pre>
 
-<span class="section">📁 Navegação e Arquivos</span>
+<input class="search" placeholder="🔍 Buscar comando..." oninput="filterCommands(this.value)">
 
-<span class="cmd">pwd</span>                # mostra o diretório atual
-<span class="cmd">ls</span>                 # lista arquivos
-<span class="cmd">ls -l</span>              # lista detalhada
-<span class="cmd">ls -a</span>              # inclui ocultos
-<span class="cmd">cd pasta</span>           # entra no diretório
-<span class="cmd">cd ..</span>              # volta um nível
-<span class="cmd">cd ~</span>               # vai para a home
-<span class="cmd">tree</span>               # estrutura em árvore
+<button onclick="toggleMode()">🎯 Alternar modo estudo</button>
 
-<span class="cmd">cp arquivo destino</span> # copia arquivo
-<span class="cmd">mv arquivo destino</span> # move ou renomeia
-<span class="cmd">rm arquivo</span>         # remove arquivo
-<span class="cmd">rm -r pasta</span>        # remove pasta
-<span class="cmd">mkdir pasta</span>       # cria diretório
-<span class="cmd">rmdir pasta</span>       # remove diretório vazio
-<span class="cmd">touch arquivo</span>     # cria arquivo vazio
+<div id="list"></div>
 
-<span class="section">🔍 Busca e Localização</span>
-
-<span class="cmd">find / -name arquivo.txt</span>   # busca arquivo
-<span class="cmd">locate arquivo.txt</span>          # busca rápida
-<span class="cmd">grep "texto" arquivo</span>        # busca dentro do arquivo
-<span class="cmd">grep -r "texto" .</span>           # busca recursiva
-<span class="cmd">which comando</span>              # caminho do comando
-<span class="cmd">whereis comando</span>            # localização do binário
-
-<span class="section">📄 Visualização de Arquivos</span>
-
-<span class="cmd">cat arquivo</span>        # exibe conteúdo
-<span class="cmd">less arquivo</span>       # leitura paginada
-<span class="cmd">more arquivo</span>       # leitura simples
-<span class="cmd">head -n 10 arquivo</span> # primeiras linhas
-<span class="cmd">tail -n 10 arquivo</span> # últimas linhas
-<span class="cmd">tail -f log.txt</span>    # acompanha log em tempo real
-
-<span class="section">📦 Gerenciamento de Pacotes (APT)</span>
-
-<span class="cmd">sudo apt update</span>        # atualiza lista de pacotes
-<span class="cmd">sudo apt upgrade</span>       # atualiza sistema
-<span class="cmd">sudo apt install pacote</span># instala pacote
-<span class="cmd">sudo apt remove pacote</span> # remove pacote
-<span class="cmd">sudo apt purge pacote</span>  # remove + configs
-<span class="cmd">sudo apt autoremove</span>    # remove dependências
-<span class="cmd">apt search nome</span>        # busca pacote
-<span class="cmd">apt show pacote</span>        # detalhes
-
-<span class="section">👤 Usuários e Permissões</span>
-
-<span class="cmd">whoami</span>                  # usuário atual
-<span class="cmd">id</span>                      # info do usuário
-<span class="cmd">adduser nome</span>            # criar usuário
-<span class="cmd">deluser nome</span>            # remove usuário
-<span class="cmd">passwd</span>                  # remove usuário
-<span class="cmd">chmod 755 arquivo</span>       # altera permissão
-<span class="cmd">chown user:grupo arquivo</span># altera dono
-
-<span class="section">🔐 Permissões (numérico)</span>
-
-7 = leitura + escrita + execução  
-6 = leitura + escrita  
-5 = leitura + execução  
-4 = leitura  
-
-<span class="tip">Exemplo:</span>
-<span class="cmd">chmod 755 script.sh</span>
-
-<span class="section">⚙️ Processos e Sistema</span>
-
-<span class="cmd">top</span>   		    # monitora processos
-<span class="cmd">htop</span>		      # versão melhorada
-<span class="cmd">ps aux</span>       # lista processos
-<span class="cmd">kill PID</span>	    # mata processo
-<span class="cmd">kill -9 PID</span>	# força encerramento
-<span class="cmd">uptime</span>       # tempo ligado
-<span class="cmd">free -h</span>      # uso de memória
-<span class="cmd">df -h</span>        # espaço em disco
-<span class="cmd">du -sh pasta</span> # tamanho da pasta
-
-<span class="section">🌐 Rede</span>
-
-<span class="cmd">ping google.com</span># testa conexão
-<span class="cmd">ifconfig</span>       # info de rede (antigo)
-<span class="cmd">ip a</span>           # IP atual (moderno)
-<span class="cmd">netstat -tuln</span>  # portas abertas
-<span class="cmd">ss -tuln</span>       # substituto do netstat
-<span class="cmd">curl site.com</span>  # requisição web
-<span class="cmd">wget url</span>       # baixar arquivo
-
-<span class="section">📦 Compactação</span>
-
-<span class="cmd">tar -cvf arquivo.tar pasta</span>     # cria tar
-<span class="cmd">tar -xvf arquivo.tar</span>           # extrai tar
-<span class="cmd">tar -czvf arquivo.tar.gz pasta</span> # compacta gzip
-<span class="cmd">tar -xzvf arquivo.tar.gz</span>       # extrai gzip
-<span class="cmd">zip -r arquivo.zip pasta</span>
-<span class="cmd">unzip arquivo.zip</span>
-
-<span class="section">💽 Disco e Sistema</span>
-
-<span class="cmd">lsblk</span>      # lista discos
-<span class="cmd">mount</span>      # monta disco
-<span class="cmd">umount</span>	    # desmonta
-<span class="cmd">fdisk -l</span>	  # partições
-
-<span class="section">🕒 Data e Hora</span>
-
-<span class="cmd">date</span>        # data atual
-<span class="cmd">cal</span>	       # calendário
-<span class="cmd">timedatectl</span> # configura hora
-
-<span class="section">⌨️ Histórico e Atalhos</span>
-
-<span class="cmd">history</span>	# comandos usados
-<span class="cmd">clear</span>	  # limpa terminal
-<span class="cmd">!!</span>	      # repete último comando
-<span class="cmd">!n</span>        # executa comando número n
-
-<span class="section">🔀 Redirecionamento e Pipes</span>
-
-<span class="cmd">comando > arquivo</span>    	# salva saída
-<span class="cmd">comando >> arquivo</span>    	# adiciona saída
-<span class="cmd">comando < arquivo</span>    	# entrada
-<span class="cmd">comando1 | comando2</span>   	# pipe
-
-<span class="section">🧠 Variáveis e Shell</span>
-
-<span class="cmd">echo $HOME</span>  		   # mostra variável
-<span class="cmd">export VAR=valor</span>  # cria variável
-<span class="cmd">env</span>	             # lista variáveis
-
-<span class="section">🚀 Permissão de execução</span>
-
-<span class="cmd">chmod +x script.sh</span>
-<span class="cmd">./script.sh</span>
-
-<span class="section">🔄 Serviços (systemd)</span>
-
-<span class="cmd">systemctl start serviço</span>
-<span class="cmd">systemctl stop serviço</span>
-<span class="cmd">systemctl restart serviço</span>
-<span class="cmd">systemctl status serviço</span>
-<span class="cmd">systemctl enable serviço</span>
-<span class="cmd">systemctl disable serviço</span>
-
-<span class="section">📚 Dicas essenciais</span>
-
-<span class="cmd">man comando</span>      # manual completo
-<span class="cmd">comando --help</span>  	# ajuda rápida
-
-</pre>
+<div id="flashcard" class="flashcard hidden">
+  <div id="flash-cmd" class="cmd"></div>
+  <div id="flash-desc" class="desc hidden"></div>
+  <div class="toggle" onclick="showAnswer()">Mostrar resposta</div>
 </div>
+
+</div>
+
+<script>
+
+const data = [
+
+/* =========================
+📁 NAVEGAÇÃO E ARQUIVOS
+========================= */
+{cmd:"pwd",desc:"mostra o diretório atual"},
+{cmd:"ls",desc:"lista arquivos"},
+{cmd:"ls -l",desc:"lista detalhada"},
+{cmd:"ls -a",desc:"inclui arquivos ocultos"},
+{cmd:"cd pasta",desc:"entra no diretório"},
+{cmd:"cd ..",desc:"volta um nível"},
+{cmd:"cd ~",desc:"vai para a home"},
+{cmd:"tree",desc:"estrutura em árvore"},
+{cmd:"cp arquivo destino",desc:"copia arquivo"},
+{cmd:"mv arquivo destino",desc:"move ou renomeia"},
+{cmd:"rm arquivo",desc:"remove arquivo"},
+{cmd:"rm -r pasta",desc:"remove pasta"},
+{cmd:"rm -f arquivo",desc:"remove sem confirmação"},
+{cmd:"mkdir pasta",desc:"cria diretório"},
+{cmd:"rmdir pasta",desc:"remove diretório vazio"},
+{cmd:"touch arquivo",desc:"cria arquivo vazio"},
+
+/* =========================
+🔍 BUSCA
+========================= */
+{cmd:"find / -name arquivo.txt",desc:"busca arquivo no sistema"},
+{cmd:"locate arquivo.txt",desc:"busca rápida indexada"},
+{cmd:"updatedb",desc:"atualiza base do locate"},
+{cmd:"grep 'texto' arquivo",desc:"busca dentro do arquivo"},
+{cmd:"grep -r 'texto' .",desc:"busca recursiva"},
+{cmd:"which comando",desc:"caminho do executável"},
+{cmd:"whereis comando",desc:"localização do binário"},
+
+/* =========================
+📄 VISUALIZAÇÃO
+========================= */
+{cmd:"cat arquivo",desc:"exibe conteúdo"},
+{cmd:"less arquivo",desc:"visualização paginada"},
+{cmd:"more arquivo",desc:"visualização simples"},
+{cmd:"head -n 10 arquivo",desc:"primeiras linhas"},
+{cmd:"tail -n 10 arquivo",desc:"últimas linhas"},
+{cmd:"tail -f log.txt",desc:"acompanha logs em tempo real"},
+
+/* =========================
+📦 APT
+========================= */
+{cmd:"sudo apt update",desc:"atualiza lista de pacotes"},
+{cmd:"sudo apt upgrade",desc:"atualiza sistema"},
+{cmd:"sudo apt install pacote",desc:"instala pacote"},
+{cmd:"sudo apt remove pacote",desc:"remove pacote"},
+{cmd:"sudo apt purge pacote",desc:"remove com configs"},
+{cmd:"sudo apt autoremove",desc:"remove dependências"},
+{cmd:"apt search nome",desc:"busca pacote"},
+{cmd:"apt show pacote",desc:"detalhes do pacote"},
+
+/* =========================
+👤 USUÁRIOS
+========================= */
+{cmd:"whoami",desc:"usuário atual"},
+{cmd:"id",desc:"informações do usuário"},
+{cmd:"adduser nome",desc:"cria usuário"},
+{cmd:"deluser nome",desc:"remove usuário"},
+{cmd:"passwd",desc:"altera senha"},
+{cmd:"chmod 755 arquivo",desc:"altera permissões"},
+{cmd:"chown user:grupo arquivo",desc:"altera dono"},
+
+/* =========================
+⚙️ SISTEMA
+========================= */
+{cmd:"top",desc:"monitor de processos"},
+{cmd:"htop",desc:"monitor avançado"},
+{cmd:"ps aux",desc:"lista processos"},
+{cmd:"kill PID",desc:"encerra processo"},
+{cmd:"kill -9 PID",desc:"força encerramento"},
+{cmd:"uptime",desc:"tempo ligado"},
+{cmd:"free -h",desc:"uso de memória"},
+{cmd:"df -h",desc:"uso de disco"},
+{cmd:"du -sh pasta",desc:"tamanho da pasta"},
+
+/* =========================
+🌐 REDE
+========================= */
+{cmd:"ping google.com",desc:"testa conexão"},
+{cmd:"ifconfig",desc:"configuração de rede (antigo)"},
+{cmd:"ip a",desc:"mostra IP"},
+{cmd:"netstat -tuln",desc:"portas abertas"},
+{cmd:"ss -tuln",desc:"substituto do netstat"},
+{cmd:"curl site.com",desc:"requisição HTTP"},
+{cmd:"wget url",desc:"download de arquivo"},
+
+/* =========================
+📦 COMPACTAÇÃO
+========================= */
+{cmd:"tar -cvf arquivo.tar pasta",desc:"cria tar"},
+{cmd:"tar -xvf arquivo.tar",desc:"extrai tar"},
+{cmd:"tar -czvf arquivo.tar.gz pasta",desc:"compacta gzip"},
+{cmd:"tar -xzvf arquivo.tar.gz",desc:"extrai gzip"},
+{cmd:"zip -r arquivo.zip pasta",desc:"compacta zip"},
+{cmd:"unzip arquivo.zip",desc:"extrai zip"},
+
+/* =========================
+💽 DISCO
+========================= */
+{cmd:"lsblk",desc:"lista discos"},
+{cmd:"mount",desc:"monta disco"},
+{cmd:"umount",desc:"desmonta disco"},
+{cmd:"fdisk -l",desc:"lista partições"},
+
+/* =========================
+🕒 DATA
+========================= */
+{cmd:"date",desc:"data atual"},
+{cmd:"cal",desc:"calendário"},
+{cmd:"timedatectl",desc:"configura hora"},
+
+/* =========================
+⌨️ HISTÓRICO
+========================= */
+{cmd:"history",desc:"histórico"},
+{cmd:"clear",desc:"limpa terminal"},
+{cmd:"!!",desc:"repete último comando"},
+{cmd:"!n",desc:"executa comando do histórico"},
+
+/* =========================
+🔀 REDIRECIONAMENTO
+========================= */
+{cmd:"comando > arquivo",desc:"sobrescreve saída"},
+{cmd:"comando >> arquivo",desc:"adiciona saída"},
+{cmd:"comando < arquivo",desc:"entrada"},
+{cmd:"comando1 | comando2",desc:"pipe"},
+
+/* =========================
+🧠 SHELL
+========================= */
+{cmd:"echo $HOME",desc:"mostra variável"},
+{cmd:"export VAR=valor",desc:"define variável"},
+{cmd:"env",desc:"lista variáveis"},
+
+/* =========================
+🚀 EXECUÇÃO
+========================= */
+{cmd:"chmod +x script.sh",desc:"torna executável"},
+{cmd:"./script.sh",desc:"executa script"},
+
+/* =========================
+🔄 SERVIÇOS
+========================= */
+{cmd:"systemctl start serviço",desc:"inicia serviço"},
+{cmd:"systemctl stop serviço",desc:"para serviço"},
+{cmd:"systemctl restart serviço",desc:"reinicia"},
+{cmd:"systemctl status serviço",desc:"status"},
+{cmd:"systemctl enable serviço",desc:"ativa no boot"},
+{cmd:"systemctl disable serviço",desc:"desativa"},
+
+/* =========================
+🐘 POSTGRESQL (EXTRA)
+========================= */
+{cmd:"psql -U postgres",desc:"acessa PostgreSQL"},
+{cmd:"psql -h localhost -U user db",desc:"conecta ao banco"},
+{cmd:"\\l",desc:"lista bancos"},
+{cmd:"\\c banco",desc:"conecta ao banco"},
+{cmd:"\\dt",desc:"lista tabelas"},
+{cmd:"\\d tabela",desc:"estrutura da tabela"},
+{cmd:"\\q",desc:"sair do psql"},
+{cmd:"createdb nome",desc:"cria banco"},
+{cmd:"dropdb nome",desc:"remove banco"},
+{cmd:"createuser nome",desc:"cria usuário"},
+{cmd:"dropuser nome",desc:"remove usuário"},
+{cmd:"pg_dump db > backup.sql",desc:"backup banco"},
+{cmd:"psql db < backup.sql",desc:"restore banco"},
+
+/* =========================
+📚 AJUDA
+========================= */
+{cmd:"man comando",desc:"manual completo"},
+{cmd:"comando --help",desc:"ajuda rápida"}
+
+];
+
+let studyMode = false;
+let current = 0;
+
+function renderList(filter=""){
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data
+    .filter(c => c.cmd.includes(filter) || c.desc.includes(filter))
+    .forEach(c => {
+      list.innerHTML += `
+        <div class="list-item">
+          <div>
+            <div class="cmd">${c.cmd}</div>
+            <div class="desc">${c.desc}</div>
+          </div>
+          <button class="copy-btn" onclick="copy('${c.cmd}')">📋</button>
+        </div>
+      `;
+    });
+}
+
+function filterCommands(text){
+  renderList(text.toLowerCase());
+}
+
+function copy(text){
+  navigator.clipboard.writeText(text);
+  alert("Copiado!");
+}
+
+/* FLASHCARD */
+
+function toggleMode(){
+  studyMode = !studyMode;
+
+  document.getElementById("list").classList.toggle("hidden", studyMode);
+  document.getElementById("flashcard").classList.toggle("hidden", !studyMode);
+
+  nextCard();
+}
+
+function nextCard(){
+  current = Math.floor(Math.random() * data.length);
+  document.getElementById("flash-cmd").innerText = data[current].cmd;
+  document.getElementById("flash-desc").innerText = data[current].desc;
+  document.getElementById("flash-desc").classList.add("hidden");
+}
+
+function showAnswer(){
+  const desc = document.getElementById("flash-desc");
+  desc.classList.remove("hidden");
+  setTimeout(nextCard,2000);
+}
+
+/* INIT */
+renderList();
+
+</script>
 
 </body>
 </html>
