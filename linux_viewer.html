@@ -61,6 +61,45 @@ h1 span { color:var(--accent); }
   align-items:center;
 }
 
+#list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 10px;
+}
+
+/* cada item */
+.list-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  transition: 0.2s;
+}
+
+.list-item:hover {
+  border-color: var(--accent);
+  transform: scale(1.02);
+}
+  
+/* deixa mais compacto */
+.cmd {
+  font-size: 13px;
+}
+
+.desc {
+  font-size: 12px;
+}
+
+/* botão menor */
+.copy-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+  
 .cmd {
   font-family:'JetBrains Mono', monospace;
   color:var(--cmd);
