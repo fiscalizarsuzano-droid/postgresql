@@ -1,177 +1,619 @@
-
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treinamento Linux para DBA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg: #0f1117;
+  --surface: #181c27;
+  --surface2: #1e2333;
+  --border: #2a2f42;
+  --border2: #363c54;
+  --text: #e2e6f3;
+  --text2: #8891b0;
+  --text3: #555e7a;
+  --green: #3dd68c;
+  --green-dim: #1a3d2b;
+  --red: #f87171;
+  --red-dim: #3b1a1a;
+  --amber: #fbbf24;
+  --amber-dim: #2d2210;
+  --blue: #60a5fa;
+  --blue-dim: #172140;
+  --purple: #a78bfa;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); }
-.wrap { padding: 1.5rem 0; }
-.level-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
-.tab { padding: 6px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 13px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
-.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0 16px;
+  position: sticky;
+  top: 0;
+  background: rgba(15,17,23,0.95);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.header-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--green);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.logo-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.logo-sub {
+  font-size: 12px;
+  color: var(--text3);
+  font-weight: 400;
+}
+
+.score-badge {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--green);
+  background: var(--green-dim);
+  border: 1px solid #2a5c3f;
+  padding: 5px 12px;
+  border-radius: 99px;
+}
+
+.main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 24px 0;
+}
+
+.level-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab:hover { border-color: var(--border2); color: var(--text); }
+
+.tab.active {
+  background: var(--green-dim);
+  border-color: #2a5c3f;
+  color: var(--green);
+}
+
+.tab .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.level-header {
+  margin-bottom: 20px;
+}
+
+.level-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.level-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.progress-bar-outer {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-bar-inner {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text3);
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}
+
+.exercise {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+
+.exercise:hover { border-color: var(--border2); }
+.exercise.correct { border-color: #2a5c3f; }
+.exercise.wrong-anim { animation: shake 0.3s ease; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.ex-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.ex-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+}
+
+.ex-q {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.ex-status {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text3);
+  transition: all 0.2s;
+}
+
+.ex-status.ok { background: var(--green-dim); border-color: #2a5c3f; color: var(--green); }
+.ex-status.err { background: var(--red-dim); border-color: #6b2020; color: var(--red); }
+
+.ex-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ex-input {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+
+.ex-input:focus { outline: none; border-color: var(--blue); }
+.ex-input:disabled { opacity: 0.5; cursor: not-allowed; }
+.ex-input.input-ok { border-color: var(--green) !important; }
+.ex-input.input-err { border-color: var(--red) !important; }
+
+.btn-check {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: var(--sans);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  background: var(--surface2);
+  color: var(--text);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-check:hover { background: var(--border); color: var(--text); }
+.btn-check:active { transform: scale(0.97); }
+
+.ex-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-dica {
+  font-size: 12px;
+  font-family: var(--sans);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: transparent;
+  color: var(--text3);
+  transition: all 0.15s;
+}
+
+.btn-dica:hover { color: var(--amber); border-color: #4a3810; background: var(--amber-dim); }
+
+.feedback {
+  font-size: 12px;
+  color: var(--text3);
+  display: none;
+}
+
+.feedback.ok { color: var(--green); display: inline; }
+.feedback.err { color: var(--red); display: inline; }
+
+.dica-box {
+  display: none;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--amber-dim);
+  border: 1px solid #4a3810;
+  font-size: 12px;
+  color: #f4d170;
+  font-family: var(--mono);
+  line-height: 1.5;
+}
+
 .level-block { display: none; }
 .level-block.visible { display: block; }
-.level-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
-.level-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
-.exercise { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
-.ex-num { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); margin-bottom: 6px; letter-spacing: 0.04em; }
-.ex-q { font-size: 14px; color: var(--color-text-primary); margin-bottom: 10px; line-height: 1.6; }
-.ex-input { width: 100%; font-family: var(--font-mono); font-size: 13px; padding: 8px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); }
-.ex-input:focus { outline: none; border-color: var(--color-border-primary); }
-.ex-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
-.btn-check { padding: 6px 14px; font-size: 13px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); cursor: pointer; background: var(--color-background-primary); color: var(--color-text-primary); }
-.btn-check:hover { background: var(--color-background-secondary); }
-.feedback { font-size: 12px; margin-top: 6px; padding: 6px 10px; border-radius: var(--border-radius-md); display: none; }
-.feedback.ok { background: #EAF3DE; color: #27500A; display: block; }
-.feedback.err { background: #FCEBEB; color: #791F1F; display: block; }
-.btn-dica { padding: 4px 10px; font-size: 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; background: transparent; color: var(--color-text-secondary); }
-.btn-dica:hover { background: var(--color-background-secondary); }
-.dica { font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); padding: 6px 10px; border-radius: var(--border-radius-md); margin-top: 6px; display: none; font-family: var(--font-mono); }
-.progress-bar-wrap { height: 4px; background: var(--color-background-secondary); border-radius: 99px; margin-bottom: 1.25rem; overflow: hidden; }
-.progress-bar { height: 4px; background: #1D9E75; border-radius: 99px; transition: width 0.4s; }
-.score { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+  font-size: 14px;
+}
 </style>
+</head>
+<body>
 
-<div class="wrap">
-<h2 class="sr-only">Exercícios práticos de comandos Bash Linux, organizados por nível</h2>
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">$_</div>
+      <div>
+        <div class="logo-text">Linux DBA Training</div>
+        <div class="logo-sub">Prefeitura — exercícios práticos</div>
+      </div>
+    </div>
+    <div class="score-badge" id="global-score">0 corretos</div>
+  </div>
+</header>
 
-<div class="level-tabs">
-  <button class="tab active" onclick="showLevel(0)">🟢 Nível 1 — Iniciante</button>
-  <button class="tab" onclick="showLevel(1)">🟡 Nível 2 — Básico</button>
-  <button class="tab" onclick="showLevel(2)">🔴 Nível 3 — Intermediário</button>
-</div>
-
-<div id="progress-wrap">
-  <div class="score" id="score-text">0 de 0 corretos</div>
-  <div class="progress-bar-wrap"><div class="progress-bar" id="pbar" style="width:0%"></div></div>
-</div>
-
-<div id="level-0" class="level-block visible">
-  <p class="level-title">Nível 1 — Primeiros passos no terminal</p>
-  <p class="level-desc">Comandos básicos de navegação e visualização. Abra o bash com Ctrl+T e pratique cada um.</p>
-</div>
-
-<div id="level-1" class="level-block">
-  <p class="level-title">Nível 2 — Criando e manipulando arquivos</p>
-  <p class="level-desc">Agora você vai criar, copiar, mover e remover arquivos e pastas.</p>
-</div>
-
-<div id="level-2" class="level-block">
-  <p class="level-title">Nível 3 — Intermediário com cat, nano e combinações</p>
-  <p class="level-desc">Combine comandos e use o cat e nano para editar e visualizar conteúdo de arquivos.</p>
-</div>
-
-</div>
+<main class="main">
+  <div class="level-tabs" id="tabs"></div>
+  <div id="content"></div>
+</main>
 
 <script>
 const levels = [
   {
-    id: 0,
+    name: "Nível 1",
+    label: "Iniciante",
+    desc: "Navegação básica, listagem de arquivos e primeiros comandos. Abra o terminal com Ctrl+T.",
     exercises: [
-      { q: "Qual comando você usa para descobrir em qual pasta você está agora?", a: ["pwd"], dica: "É uma sigla de 'print working directory'" },
-      { q: "Como você lista os arquivos e pastas do diretório atual?", a: ["ls"], dica: "Vem de 'list'" },
-      { q: "Como voltar um nível de diretório (pasta anterior)?", a: ["cd .."], dica: "Use cd seguido de dois pontos" },
-      { q: "Como limpar a tela do terminal?", a: ["clear"], dica: "Pense em 'limpar' em inglês" },
-      { q: "Qual comando lista arquivos com detalhes como permissões e tamanho?", a: ["ls -l"], dica: "ls com a flag -l (letra L minúscula)" },
+      { q: "Mostre em qual diretório você está atualmente", a: ["pwd"], dica: "Sigla de 'print working directory'" },
+      { q: "Liste os arquivos e pastas do diretório atual", a: ["ls"], dica: "Vem de 'list'" },
+      { q: "Entre em uma pasta chamada pasta", a: ["cd pasta"], dica: "cd = change directory" },
+      { q: "Volte para o diretório anterior (um nível acima)", a: ["cd .."], dica: "Use cd seguido de dois pontos" },
+      { q: "Limpe a tela do terminal", a: ["clear"], dica: "Pense em 'limpar' em inglês" },
+      { q: "Liste arquivos com detalhes como permissões e tamanho", a: ["ls -l"], dica: "ls com a flag -l (L minúsculo)" },
+      { q: "Liste todos os arquivos, incluindo os ocultos", a: ["ls -a"], dica: "Flag -a de 'all'" },
+      { q: "Veja os últimos 500 comandos digitados", a: ["history"], dica: "Há um comando específico só para isso" },
+      { q: "Abra o manual do comando ls", a: ["man ls"], dica: "man = manual. Funciona para qualquer comando" },
+      { q: "Mostre a data e hora atuais do sistema", a: ["date"], dica: "Comando direto com o nome em inglês" },
+      { q: "Descubra com qual usuário você está logado", a: ["whoami"], dica: "'Quem sou eu?' em inglês" },
+      { q: "Veja o nome da máquina (hostname)", a: ["hostname"], dica: "Escreva o nome da propriedade que você quer ver" },
+      { q: "Veja há quanto tempo o sistema está ligado", a: ["uptime"], dica: "'Tempo ligado' em inglês" },
+      { q: "Veja todas as informações do sistema operacional", a: ["uname -a"], dica: "uname com a flag -a para 'all'" },
+      { q: "Exiba o texto 'teste' no terminal", a: ["echo teste"], dica: "echo repete o que você escrever" },
+      { q: "Crie um arquivo vazio chamado arquivo.txt", a: ["touch arquivo.txt"], dica: "touch cria arquivos vazios" },
+      { q: "Crie uma pasta chamada pasta", a: ["mkdir pasta"], dica: "mkdir = make directory" },
+      { q: "Remova o arquivo arquivo.txt", a: ["rm arquivo.txt"], dica: "rm = remove" },
+      { q: "Remova a pasta vazia chamada pasta", a: ["rmdir pasta"], dica: "rmdir = remove directory (só para pastas vazias)" },
+      { q: "Copie o arquivo a para b", a: ["cp a b"], dica: "cp <origem> <destino>" },
     ]
   },
   {
-    id: 1,
+    name: "Nível 2",
+    label: "Básico",
+    desc: "Manipulação de arquivos, edição de texto e permissões.",
     exercises: [
-      { q: "Crie um arquivo vazio chamado notas.txt", a: ["touch notas.txt"], dica: "O comando touch cria arquivos vazios" },
-      { q: "Crie três pastas de uma vez: js, css e img", a: ["mkdir js css img"], dica: "mkdir aceita múltiplos nomes separados por espaço" },
-      { q: "Copie o arquivo notas.txt para backup.txt", a: ["cp notas.txt backup.txt"], dica: "cp <origem> <destino>" },
-      { q: "Renomeie o arquivo backup.txt para antigo.txt", a: ["mv backup.txt antigo.txt"], dica: "mv também serve para renomear: mv <nome atual> <novo nome>" },
-      { q: "Remova o arquivo antigo.txt", a: ["rm antigo.txt"], dica: "rm <nome do arquivo>" },
-      { q: "Crie a pasta js com uma subpasta chamada components dentro", a: ["mkdir -p js/components"], dica: "Use mkdir -p para criar subpastas aninhadas" },
+      { q: "Mova o arquivo a para b", a: ["mv a b"], dica: "mv = move" },
+      { q: "Renomeie o arquivo 'velho' para 'novo'", a: ["mv velho novo"], dica: "mv também serve para renomear" },
+      { q: "Crie a pasta a com a subpasta b dentro", a: ["mkdir -p a/b"], dica: "Use a flag -p para criar hierarquia de pastas" },
+      { q: "Mostre o conteúdo do arquivo.txt no terminal", a: ["cat arquivo.txt"], dica: "cat exibe conteúdo de arquivos" },
+      { q: "Edite o arquivo.txt usando o editor nano", a: ["nano arquivo.txt"], dica: "nano é o editor de texto do terminal" },
+      { q: "Mostre o conteúdo de arquivo.txt com linhas numeradas", a: ["cat -n arquivo.txt"], dica: "Use a flag -n no cat" },
+      { q: "Busque a palavra 'texto' dentro de arquivo.txt", a: ["grep texto arquivo.txt"], dica: "grep <palavra> <arquivo>" },
+      { q: "Mostre as últimas linhas de arquivo.txt", a: ["tail arquivo.txt"], dica: "tail = cauda (final do arquivo)" },
+      { q: "Mostre as primeiras linhas de arquivo.txt", a: ["head arquivo.txt"], dica: "head = cabeça (início do arquivo)" },
+      { q: "Ordene o conteúdo de arquivo.txt", a: ["sort arquivo.txt"], dica: "sort = ordenar" },
+      { q: "Conte o número de linhas de arquivo.txt", a: ["wc -l arquivo.txt"], dica: "wc = word count. -l conta linhas" },
+      { q: "Compacte a pasta 'pasta' em a.tar.gz", a: ["tar -czf a.tar.gz pasta"], dica: "tar -czf <destino.tar.gz> <origem>" },
+      { q: "Descompacte o arquivo a.tar.gz", a: ["tar -xzf a.tar.gz"], dica: "tar -xzf para extrair .tar.gz" },
+      { q: "Dê permissão 644 (leitura) ao arquivo.txt", a: ["chmod 644 arquivo.txt"], dica: "chmod <permissão numérica> <arquivo>" },
+      { q: "Dê permissão total (777) ao arquivo.txt", a: ["chmod 777 arquivo.txt"], dica: "777 = leitura, escrita e execução para todos" },
+      { q: "Mude o dono do arquivo.txt para o usuário 'user'", a: ["chown user arquivo.txt"], dica: "chown <usuário> <arquivo>" },
+      { q: "Mude o grupo do arquivo.txt para 'grupo'", a: ["chgrp grupo arquivo.txt"], dica: "chgrp <grupo> <arquivo>" },
+      { q: "Veja o espaço em disco disponível de forma legível", a: ["df -h"], dica: "df -h (h = human readable)" },
+      { q: "Veja o uso de espaço da pasta atual", a: ["du -h"], dica: "du -h = disk usage, human readable" },
+      { q: "Liste todos os processos em execução", a: ["ps aux"], dica: "ps aux mostra todos os processos detalhados" },
     ]
   },
   {
-    id: 2,
+    name: "Nível 3",
+    label: "Intermediário",
+    desc: "Monitoramento do sistema, rede, agendamento e redirecionamento.",
     exercises: [
-      { q: "Mostre o conteúdo do arquivo notas.txt no terminal", a: ["cat notas.txt"], dica: "cat exibe o conteúdo de arquivos" },
-      { q: "Crie um novo arquivo chamado lista.txt e já entre no modo de edição via terminal", a: ["cat > lista.txt"], dica: "cat > nome cria e já abre para digitação (saia com Ctrl+C)" },
-      { q: "Mostre o conteúdo de notas.txt com as linhas numeradas", a: ["cat -n notas.txt"], dica: "Use a flag -n junto com cat" },
-      { q: "Junte o conteúdo de arquivo1.txt e arquivo2.txt e salve em resultado.txt", a: ["cat arquivo1.txt arquivo2.txt > resultado.txt"], dica: "cat arq1 arq2 > destino" },
-      { q: "Liste os arquivos mostrando os mais recentemente modificados por último", a: ["ls -ltr"], dica: "Combine as flags -l, -t e -r" },
-      { q: "Veja os últimos 500 comandos que você digitou no terminal", a: ["history"], dica: "Há um comando específico só para isso" },
-      { q: "Abra o arquivo notas.txt para editar com o editor de texto do terminal", a: ["nano notas.txt"], dica: "nano é o editor de texto no terminal" },
+      { q: "Monitore os processos em tempo real", a: ["top"], dica: "top atualiza a lista de processos continuamente" },
+      { q: "Finalize o processo com PID 1234", a: ["kill 1234"], dica: "kill <PID do processo>" },
+      { q: "Veja as portas abertas no sistema", a: ["ss -tuln"], dica: "ss -tuln lista sockets TCP/UDP" },
+      { q: "Baixe um arquivo de uma URL", a: ["wget url"], dica: "wget <endereço da URL>" },
+      { q: "Faça uma requisição HTTP a uma URL com curl", a: ["curl url"], dica: "curl <endereço da URL>" },
+      { q: "Exporte a variável de ambiente VAR com valor 1", a: ["export VAR=1"], dica: "export NOME=valor" },
+      { q: "Liste todas as variáveis de ambiente", a: ["env"], dica: "env exibe todas as variáveis do ambiente atual" },
+      { q: "Abra o editor de agendamento de tarefas (cron)", a: ["crontab -e"], dica: "crontab -e abre o cron para edição" },
+      { q: "Liste as tarefas agendadas no cron", a: ["crontab -l"], dica: "crontab -l lista as tarefas" },
+      { q: "Veja a memória disponível de forma legível", a: ["free -h"], dica: "free -h = free memory, human readable" },
+      { q: "Liste os discos e partições do sistema", a: ["lsblk"], dica: "lsblk = list block devices" },
+      { q: "Liste todos os discos montados no sistema", a: ["mount"], dica: "mount sem argumento lista o que está montado" },
+      { q: "Veja quais usuários estão logados agora", a: ["who"], dica: "'Quem' em inglês" },
+      { q: "Troque para o usuário chamado 'usuario'", a: ["su usuario"], dica: "su = switch user" },
+      { q: "Execute um comando com privilégios de root", a: ["sudo comando"], dica: "sudo = superuser do" },
+      { q: "Consulte os logs do sistema", a: ["journalctl"], dica: "journalctl exibe os logs do systemd" },
+      { q: "Acompanhe as últimas linhas de log.txt em tempo real", a: ["tail -f log.txt"], dica: "tail -f = follow (acompanha ao vivo)" },
+      { q: "Filtre as linhas com 'erro' dentro de log.txt", a: ["grep erro log.txt"], dica: "grep <termo> <arquivo>" },
+      { q: "Combine ls com grep para filtrar arquivos .txt", a: ["ls | grep txt"], dica: "Use o pipe | para combinar comandos" },
+      { q: "Redirecione a saída do ls para o arquivo out.txt", a: ["ls > out.txt"], dica: "Use > para redirecionar a saída para um arquivo" },
+    ]
+  },
+  {
+    name: "Nível 4",
+    label: "DBA / PostgreSQL",
+    desc: "Comandos específicos do PostgreSQL para administração de bancos de dados.",
+    exercises: [
+      { q: "Acesse o terminal interativo do PostgreSQL", a: ["psql"], dica: "psql é o cliente de linha de comando do Postgres" },
+      { q: "Liste todos os bancos de dados (dentro do psql)", a: ["\\l"], dica: "Use \\l (barra invertida + L) dentro do psql" },
+      { q: "Conecte ao banco de dados chamado 'banco'", a: ["\\c banco"], dica: "\\c = connect <nome do banco>" },
+      { q: "Liste todas as tabelas do banco atual", a: ["\\dt"], dica: "\\dt = describe tables" },
+      { q: "Descreva a estrutura da tabela 'tabela'", a: ["\\d tabela"], dica: "\\d <nome da tabela>" },
+      { q: "Faça backup do banco 'db' para backup.sql", a: ["pg_dump db > backup.sql"], dica: "pg_dump <banco> > <arquivo.sql>" },
+      { q: "Restaure o banco 'db' a partir de backup.sql", a: ["psql db < backup.sql"], dica: "psql <banco> < <arquivo.sql>" },
+      { q: "Veja todas as conexões ativas no PostgreSQL", a: ["select * from pg_stat_activity;"], dica: "Consulte a view pg_stat_activity" },
+      { q: "Encerre a conexão do processo com um PID (SQL)", a: ["select pg_terminate_backend(pid);"], dica: "Use a função pg_terminate_backend(pid)" },
+      { q: "Acompanhe o log do postgres em tempo real", a: ["tail -f postgresql.log"], dica: "tail -f no arquivo de log do postgres" },
+      { q: "Veja a versão instalada do PostgreSQL (SQL)", a: ["select version();"], dica: "Função version() retorna a versão" },
+      { q: "Crie um banco de dados chamado 'teste' (SQL)", a: ["create database teste;"], dica: "CREATE DATABASE <nome>;" },
+      { q: "Crie uma tabela t com coluna id inteiro (SQL)", a: ["create table t(id int);"], dica: "CREATE TABLE <nome>(<coluna> <tipo>);" },
+      { q: "Insira o valor 1 na tabela t (SQL)", a: ["insert into t values(1);"], dica: "INSERT INTO <tabela> VALUES(<valor>);" },
+      { q: "Selecione todos os dados da tabela t (SQL)", a: ["select * from t;"], dica: "SELECT * FROM <tabela>;" },
+      { q: "Atualize id para 2 na tabela t (SQL)", a: ["update t set id=2;"], dica: "UPDATE <tabela> SET <coluna>=<valor>;" },
+      { q: "Delete todos os dados da tabela t (SQL)", a: ["delete from t;"], dica: "DELETE FROM <tabela>;" },
+      { q: "Crie um índice 'idx' na coluna id da tabela t (SQL)", a: ["create index idx on t(id);"], dica: "CREATE INDEX <nome> ON <tabela>(<coluna>);" },
+      { q: "Analise o plano de execução de SELECT * FROM t (SQL)", a: ["explain select * from t;"], dica: "EXPLAIN antes do SELECT mostra o plano" },
+      { q: "Execute a manutenção VACUUM na tabela t (SQL)", a: ["vacuum;"], dica: "VACUUM libera espaço de linhas deletadas" },
     ]
   }
 ];
 
-let activeLevel = 0;
-let scores = { 0: { ok: 0, total: 5 }, 1: { ok: 0, total: 6 }, 2: { ok: 0, total: 7 } };
+let current = 0;
+let scores = levels.map(l => ({ ok: 0, total: l.exercises.length, answered: {} }));
+
+function globalOk() {
+  return scores.reduce((s, l) => s + l.ok, 0);
+}
+
+function updateGlobal() {
+  document.getElementById('global-score').textContent = globalOk() + ' corretos';
+}
 
 function showLevel(n) {
-  activeLevel = n;
-  document.querySelectorAll('.level-block').forEach((b, i) => b.classList.toggle('visible', i === n));
+  current = n;
   document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n));
-  renderExercises(n);
-  updateProgress();
+  document.querySelectorAll('.level-block').forEach((b, i) => b.classList.toggle('visible', i === n));
+  updateProgress(n);
 }
 
-function renderExercises(n) {
-  const block = document.getElementById('level-' + n);
-  const oldCards = block.querySelectorAll('.exercise');
-  oldCards.forEach(c => c.remove());
-
-  levels[n].exercises.forEach((ex, i) => {
-    const div = document.createElement('div');
-    div.className = 'exercise';
-    div.id = 'ex-' + n + '-' + i;
-    div.innerHTML = `
-      <div class="ex-num">EXERCÍCIO ${i + 1}</div>
-      <div class="ex-q">${ex.q}</div>
-      <input class="ex-input" type="text" placeholder="Digite o comando..." id="inp-${n}-${i}" />
-      <div class="ex-row">
-        <button class="btn-check" onclick="check(${n},${i})">Verificar ↗</button>
-        <button class="btn-dica" onclick="toggleDica(${n},${i})">Ver dica</button>
-      </div>
-      <div class="feedback" id="fb-${n}-${i}"></div>
-      <div class="dica" id="dica-${n}-${i}">💡 ${ex.dica}</div>
-    `;
-    block.appendChild(div);
-
-    div.querySelector('input').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') check(n, i);
-    });
-  });
+function updateProgress(n) {
+  const s = scores[n];
+  const pct = s.total > 0 ? Math.round((s.ok / s.total) * 100) : 0;
+  const bar = document.getElementById('pbar-' + n);
+  const lbl = document.getElementById('plabel-' + n);
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = s.ok + ' / ' + s.total;
 }
 
-function toggleDica(n, i) {
-  const d = document.getElementById('dica-' + n + '-' + i);
-  d.style.display = d.style.display === 'block' ? 'none' : 'block';
-}
-
-function check(n, i) {
-  const inp = document.getElementById('inp-' + n + '-' + i);
-  const fb = document.getElementById('fb-' + n + '-' + i);
+function check(lv, i) {
+  if (scores[lv].answered[i]) return;
+  const inp = document.getElementById('inp-' + lv + '-' + i);
+  const fb = document.getElementById('fb-' + lv + '-' + i);
+  const status = document.getElementById('status-' + lv + '-' + i);
+  const card = document.getElementById('ex-' + lv + '-' + i);
   const val = inp.value.trim().toLowerCase();
-  const answers = levels[n].exercises[i].a.map(a => a.toLowerCase());
-  const correct = answers.includes(val);
+  const answers = levels[lv].exercises[i].a.map(a => a.toLowerCase());
+  const ok = answers.includes(val);
 
-  fb.className = 'feedback ' + (correct ? 'ok' : 'err');
-  fb.textContent = correct
-    ? '✓ Correto! Bom trabalho.'
-    : '✗ Quase lá. Confira a dica se precisar.';
-
-  if (correct) {
-    inp.style.borderColor = '#1D9E75';
+  if (ok) {
+    inp.classList.add('input-ok');
     inp.disabled = true;
-    if (!inp.dataset.counted) {
-      inp.dataset.counted = '1';
-      scores[n].ok++;
-      updateProgress();
-    }
+    fb.textContent = '✓ Correto!';
+    fb.className = 'feedback ok';
+    status.textContent = '✓';
+    status.className = 'ex-status ok';
+    card.classList.add('correct');
+    scores[lv].answered[i] = true;
+    scores[lv].ok++;
+    updateProgress(lv);
+    updateGlobal();
   } else {
-    inp.style.borderColor = '#E24B4A';
+    inp.classList.add('input-err');
+    fb.textContent = '✗ Tente novamente.';
+    fb.className = 'feedback err';
+    status.textContent = '✗';
+    status.className = 'ex-status err';
+    card.classList.remove('wrong-anim');
+    void card.offsetWidth;
+    card.classList.add('wrong-anim');
+    setTimeout(() => {
+      inp.classList.remove('input-err');
+      status.className = 'ex-status';
+      status.textContent = '';
+    }, 1200);
   }
 }
 
-function updateProgress() {
-  const s = scores[activeLevel];
-  const pct = s.total > 0 ? Math.round((s.ok / s.total) * 100) : 0;
-  document.getElementById('pbar').style.width = pct + '%';
-  document.getElementById('score-text').textContent = s.ok + ' de ' + s.total + ' corretos neste nível';
+function toggleDica(lv, i) {
+  const d = document.getElementById('dica-' + lv + '-' + i);
+  d.style.display = d.style.display === 'block' ? 'none' : 'block';
 }
 
-showLevel(0);
+function init() {
+  const tabs = document.getElementById('tabs');
+  const content = document.getElementById('content');
+
+  levels.forEach((lv, li) => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (li === 0 ? ' active' : '');
+    tab.innerHTML = `<span class="dot"></span>${lv.name} <span style="opacity:0.5;font-size:11px;">${lv.label}</span>`;
+    tab.onclick = () => showLevel(li);
+    tabs.appendChild(tab);
+
+    const block = document.createElement('div');
+    block.className = 'level-block' + (li === 0 ? ' visible' : '');
+    block.id = 'level-' + li;
+
+    block.innerHTML = `
+      <div class="level-header">
+        <div class="level-title">${lv.name} — ${lv.label}</div>
+        <div class="level-desc">${lv.desc}</div>
+      </div>
+      <div class="progress-section">
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="pbar-${li}" style="width:0%"></div>
+        </div>
+        <div class="progress-label" id="plabel-${li}">0 / ${lv.total}</div>
+      </div>
+    `;
+
+    lv.exercises.forEach((ex, i) => {
+      const div = document.createElement('div');
+      div.className = 'exercise';
+      div.id = 'ex-' + li + '-' + i;
+      div.innerHTML = `
+        <div class="ex-top">
+          <div>
+            <div class="ex-num">EXERCÍCIO ${String(i + 1).padStart(2, '0')}</div>
+            <div class="ex-q">${ex.q}</div>
+          </div>
+          <div class="ex-status" id="status-${li}-${i}"></div>
+        </div>
+        <div class="ex-input-row">
+          <input class="ex-input" type="text" id="inp-${li}-${i}" placeholder="$ digite o comando..." autocomplete="off" autocorrect="off" spellcheck="false" />
+          <button class="btn-check" onclick="check(${li},${i})">Verificar</button>
+        </div>
+        <div class="ex-footer">
+          <button class="btn-dica" onclick="toggleDica(${li},${i})">💡 Ver dica</button>
+          <span class="feedback" id="fb-${li}-${i}"></span>
+        </div>
+        <div class="dica-box" id="dica-${li}-${i}">💡 ${ex.dica}</div>
+      `;
+      block.appendChild(div);
+
+      div.querySelector('input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') check(li, i);
+      });
+    });
+
+    content.appendChild(block);
+  });
+}
+
+init();
 </script>
+</body>
+</html>
