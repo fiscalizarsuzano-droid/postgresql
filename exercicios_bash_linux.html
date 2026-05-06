@@ -1,0 +1,177 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.wrap { padding: 1.5rem 0; }
+.level-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 6px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 13px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
+.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.level-block { display: none; }
+.level-block.visible { display: block; }
+.level-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.level-desc { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.25rem; }
+.exercise { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+.ex-num { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); margin-bottom: 6px; letter-spacing: 0.04em; }
+.ex-q { font-size: 14px; color: var(--color-text-primary); margin-bottom: 10px; line-height: 1.6; }
+.ex-input { width: 100%; font-family: var(--font-mono); font-size: 13px; padding: 8px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); }
+.ex-input:focus { outline: none; border-color: var(--color-border-primary); }
+.ex-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+.btn-check { padding: 6px 14px; font-size: 13px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); cursor: pointer; background: var(--color-background-primary); color: var(--color-text-primary); }
+.btn-check:hover { background: var(--color-background-secondary); }
+.feedback { font-size: 12px; margin-top: 6px; padding: 6px 10px; border-radius: var(--border-radius-md); display: none; }
+.feedback.ok { background: #EAF3DE; color: #27500A; display: block; }
+.feedback.err { background: #FCEBEB; color: #791F1F; display: block; }
+.btn-dica { padding: 4px 10px; font-size: 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); cursor: pointer; background: transparent; color: var(--color-text-secondary); }
+.btn-dica:hover { background: var(--color-background-secondary); }
+.dica { font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); padding: 6px 10px; border-radius: var(--border-radius-md); margin-top: 6px; display: none; font-family: var(--font-mono); }
+.progress-bar-wrap { height: 4px; background: var(--color-background-secondary); border-radius: 99px; margin-bottom: 1.25rem; overflow: hidden; }
+.progress-bar { height: 4px; background: #1D9E75; border-radius: 99px; transition: width 0.4s; }
+.score { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; }
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Exercícios práticos de comandos Bash Linux, organizados por nível</h2>
+
+<div class="level-tabs">
+  <button class="tab active" onclick="showLevel(0)">🟢 Nível 1 — Iniciante</button>
+  <button class="tab" onclick="showLevel(1)">🟡 Nível 2 — Básico</button>
+  <button class="tab" onclick="showLevel(2)">🔴 Nível 3 — Intermediário</button>
+</div>
+
+<div id="progress-wrap">
+  <div class="score" id="score-text">0 de 0 corretos</div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="pbar" style="width:0%"></div></div>
+</div>
+
+<div id="level-0" class="level-block visible">
+  <p class="level-title">Nível 1 — Primeiros passos no terminal</p>
+  <p class="level-desc">Comandos básicos de navegação e visualização. Abra o bash com Ctrl+T e pratique cada um.</p>
+</div>
+
+<div id="level-1" class="level-block">
+  <p class="level-title">Nível 2 — Criando e manipulando arquivos</p>
+  <p class="level-desc">Agora você vai criar, copiar, mover e remover arquivos e pastas.</p>
+</div>
+
+<div id="level-2" class="level-block">
+  <p class="level-title">Nível 3 — Intermediário com cat, nano e combinações</p>
+  <p class="level-desc">Combine comandos e use o cat e nano para editar e visualizar conteúdo de arquivos.</p>
+</div>
+
+</div>
+
+<script>
+const levels = [
+  {
+    id: 0,
+    exercises: [
+      { q: "Qual comando você usa para descobrir em qual pasta você está agora?", a: ["pwd"], dica: "É uma sigla de 'print working directory'" },
+      { q: "Como você lista os arquivos e pastas do diretório atual?", a: ["ls"], dica: "Vem de 'list'" },
+      { q: "Como voltar um nível de diretório (pasta anterior)?", a: ["cd .."], dica: "Use cd seguido de dois pontos" },
+      { q: "Como limpar a tela do terminal?", a: ["clear"], dica: "Pense em 'limpar' em inglês" },
+      { q: "Qual comando lista arquivos com detalhes como permissões e tamanho?", a: ["ls -l"], dica: "ls com a flag -l (letra L minúscula)" },
+    ]
+  },
+  {
+    id: 1,
+    exercises: [
+      { q: "Crie um arquivo vazio chamado notas.txt", a: ["touch notas.txt"], dica: "O comando touch cria arquivos vazios" },
+      { q: "Crie três pastas de uma vez: js, css e img", a: ["mkdir js css img"], dica: "mkdir aceita múltiplos nomes separados por espaço" },
+      { q: "Copie o arquivo notas.txt para backup.txt", a: ["cp notas.txt backup.txt"], dica: "cp <origem> <destino>" },
+      { q: "Renomeie o arquivo backup.txt para antigo.txt", a: ["mv backup.txt antigo.txt"], dica: "mv também serve para renomear: mv <nome atual> <novo nome>" },
+      { q: "Remova o arquivo antigo.txt", a: ["rm antigo.txt"], dica: "rm <nome do arquivo>" },
+      { q: "Crie a pasta js com uma subpasta chamada components dentro", a: ["mkdir -p js/components"], dica: "Use mkdir -p para criar subpastas aninhadas" },
+    ]
+  },
+  {
+    id: 2,
+    exercises: [
+      { q: "Mostre o conteúdo do arquivo notas.txt no terminal", a: ["cat notas.txt"], dica: "cat exibe o conteúdo de arquivos" },
+      { q: "Crie um novo arquivo chamado lista.txt e já entre no modo de edição via terminal", a: ["cat > lista.txt"], dica: "cat > nome cria e já abre para digitação (saia com Ctrl+C)" },
+      { q: "Mostre o conteúdo de notas.txt com as linhas numeradas", a: ["cat -n notas.txt"], dica: "Use a flag -n junto com cat" },
+      { q: "Junte o conteúdo de arquivo1.txt e arquivo2.txt e salve em resultado.txt", a: ["cat arquivo1.txt arquivo2.txt > resultado.txt"], dica: "cat arq1 arq2 > destino" },
+      { q: "Liste os arquivos mostrando os mais recentemente modificados por último", a: ["ls -ltr"], dica: "Combine as flags -l, -t e -r" },
+      { q: "Veja os últimos 500 comandos que você digitou no terminal", a: ["history"], dica: "Há um comando específico só para isso" },
+      { q: "Abra o arquivo notas.txt para editar com o editor de texto do terminal", a: ["nano notas.txt"], dica: "nano é o editor de texto no terminal" },
+    ]
+  }
+];
+
+let activeLevel = 0;
+let scores = { 0: { ok: 0, total: 5 }, 1: { ok: 0, total: 6 }, 2: { ok: 0, total: 7 } };
+
+function showLevel(n) {
+  activeLevel = n;
+  document.querySelectorAll('.level-block').forEach((b, i) => b.classList.toggle('visible', i === n));
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n));
+  renderExercises(n);
+  updateProgress();
+}
+
+function renderExercises(n) {
+  const block = document.getElementById('level-' + n);
+  const oldCards = block.querySelectorAll('.exercise');
+  oldCards.forEach(c => c.remove());
+
+  levels[n].exercises.forEach((ex, i) => {
+    const div = document.createElement('div');
+    div.className = 'exercise';
+    div.id = 'ex-' + n + '-' + i;
+    div.innerHTML = `
+      <div class="ex-num">EXERCÍCIO ${i + 1}</div>
+      <div class="ex-q">${ex.q}</div>
+      <input class="ex-input" type="text" placeholder="Digite o comando..." id="inp-${n}-${i}" />
+      <div class="ex-row">
+        <button class="btn-check" onclick="check(${n},${i})">Verificar ↗</button>
+        <button class="btn-dica" onclick="toggleDica(${n},${i})">Ver dica</button>
+      </div>
+      <div class="feedback" id="fb-${n}-${i}"></div>
+      <div class="dica" id="dica-${n}-${i}">💡 ${ex.dica}</div>
+    `;
+    block.appendChild(div);
+
+    div.querySelector('input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') check(n, i);
+    });
+  });
+}
+
+function toggleDica(n, i) {
+  const d = document.getElementById('dica-' + n + '-' + i);
+  d.style.display = d.style.display === 'block' ? 'none' : 'block';
+}
+
+function check(n, i) {
+  const inp = document.getElementById('inp-' + n + '-' + i);
+  const fb = document.getElementById('fb-' + n + '-' + i);
+  const val = inp.value.trim().toLowerCase();
+  const answers = levels[n].exercises[i].a.map(a => a.toLowerCase());
+  const correct = answers.includes(val);
+
+  fb.className = 'feedback ' + (correct ? 'ok' : 'err');
+  fb.textContent = correct
+    ? '✓ Correto! Bom trabalho.'
+    : '✗ Quase lá. Confira a dica se precisar.';
+
+  if (correct) {
+    inp.style.borderColor = '#1D9E75';
+    inp.disabled = true;
+    if (!inp.dataset.counted) {
+      inp.dataset.counted = '1';
+      scores[n].ok++;
+      updateProgress();
+    }
+  } else {
+    inp.style.borderColor = '#E24B4A';
+  }
+}
+
+function updateProgress() {
+  const s = scores[activeLevel];
+  const pct = s.total > 0 ? Math.round((s.ok / s.total) * 100) : 0;
+  document.getElementById('pbar').style.width = pct + '%';
+  document.getElementById('score-text').textContent = s.ok + ' de ' + s.total + ' corretos neste nível';
+}
+
+showLevel(0);
+</script>
