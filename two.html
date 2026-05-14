@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treinamento Linux — Tópicos Avançados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #424a4a;
+  --surface: #323838;
+  --surface2: #323838;
+  --border: #2a2f42;
+  --border2: #363c54;
+  --text: #09ba41;
+  --text2: #0ccc82;
+  --text3: #7cebc0;
+  --green: #3dd68c;
+  --green-dim: #1a3d2b;
+  --red: #f87171;
+  --red-dim: #3b1a1a;
+  --amber: #fbbf24;
+  --amber-dim: #2d2210;
+  --blue: #60a5fa;
+  --blue-dim: #172140;
+  --purple: #a78bfa;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0 16px;
+  position: sticky;
+  top: 0;
+  background: rgba(15,17,23,0.95);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.header-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--green);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.logo-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.logo-sub {
+  font-size: 12px;
+  color: var(--text3);
+  font-weight: 400;
+}
+
+.score-badge {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--green);
+  background: var(--green-dim);
+  border: 1px solid #2a5c3f;
+  padding: 5px 12px;
+  border-radius: 99px;
+}
+
+.main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 24px 0;
+}
+
+.level-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab:hover { border-color: var(--border2); color: var(--text); }
+
+.tab.active {
+  background: var(--green-dim);
+  border-color: #2a5c3f;
+  color: var(--green);
+}
+
+.tab .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.level-header {
+  margin-bottom: 20px;
+}
+
+.level-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.level-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.progress-bar-outer {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-bar-inner {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text3);
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}
+
+.exercise {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+
+.exercise:hover { border-color: var(--border2); }
+.exercise.correct { border-color: #2a5c3f; }
+.exercise.wrong-anim { animation: shake 0.3s ease; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.ex-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.ex-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+}
+
+.ex-q {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.ex-status {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text3);
+  transition: all 0.2s;
+}
+
+.ex-status.ok { background: var(--green-dim); border-color: #2a5c3f; color: var(--green); }
+.ex-status.err { background: var(--red-dim); border-color: #6b2020; color: var(--red); }
+
+.ex-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ex-input {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+
+.ex-input:focus { outline: none; border-color: var(--blue); }
+.ex-input:disabled { opacity: 0.5; cursor: not-allowed; }
+.ex-input.input-ok { border-color: var(--green) !important; }
+.ex-input.input-err { border-color: var(--red) !important; }
+
+.btn-check {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: var(--sans);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  background: var(--surface2);
+  color: var(--text);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-check:hover { background: var(--border); color: var(--text); }
+.btn-check:active { transform: scale(0.97); }
+
+.ex-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-dica {
+  font-size: 12px;
+  font-family: var(--sans);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: transparent;
+  color: var(--text3);
+  transition: all 0.15s;
+}
+
+.btn-dica:hover { color: var(--amber); border-color: #4a3810; background: var(--amber-dim); }
+
+.feedback {
+  font-size: 12px;
+  color: var(--text3);
+  display: none;
+}
+
+.feedback.ok { color: var(--green); display: inline; }
+.feedback.err { color: var(--red); display: inline; }
+
+.dica-box {
+  display: none;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--amber-dim);
+  border: 1px solid #4a3810;
+  font-size: 12px;
+  color: #f4d170;
+  font-family: var(--mono);
+  line-height: 1.5;
+}
+
+.level-block { display: none; }
+.level-block.visible { display: block; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">$_</div>
+      <div>
+        <div class="logo-text">Linux DBA Training</div>
+        <div class="logo-sub">Prefeitura — exercícios práticos</div>
+      </div>
+    </div>
+    <div class="score-badge" id="global-score">0 corretos</div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="level-tabs" id="tabs"></div>
+  <div id="content"></div>
+</main>
+
+<!-- ═══════════════ COLINHA FLUTUANTE ═══════════════ -->
+<style>
+#cheat-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  border: 1.5px solid #2a5c3f;
+  background: var(--green-dim);
+  color: var(--green);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 0 rgba(61,214,140,0.3);
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+}
+#cheat-fab:hover {
+  transform: scale(1.08) rotate(-4deg);
+  background: #1f4d35;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.5), 0 0 0 6px rgba(61,214,140,0.12);
+}
+#cheat-fab.open {
+  background: #2a1a1a;
+  border-color: #6b2020;
+  color: var(--red);
+}
+
+#cheat-panel {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  z-index: 999;
+  width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.55);
+  display: none;
+  flex-direction: column;
+}
+#cheat-panel.visible { display: flex; }
+
+#cheat-panel::-webkit-scrollbar { width: 5px; }
+#cheat-panel::-webkit-scrollbar-track { background: transparent; }
+#cheat-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+.cheat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+.cheat-header-icon { font-size: 16px; }
+.cheat-header-title { font-family: var(--mono); font-size: 13px; color: var(--text); font-weight: 600; flex: 1; }
+.cheat-header-badge {
+  font-family: var(--mono); font-size: 9px; color: var(--green);
+  background: var(--green-dim); border: 1px solid #2a5c3f;
+  padding: 2px 7px; border-radius: 99px; letter-spacing: 0.05em;
+}
+
+.cheat-body { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.cs-section { display: flex; flex-direction: column; gap: 4px; }
+.cs-section-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  color: var(--text3); text-transform: uppercase; margin-bottom: 4px;
+}
+.cs-item {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 11.5px; line-height: 1.6;
+}
+.cs-cmd { font-family: var(--mono); color: var(--green); white-space: nowrap; }
+.cs-desc { color: var(--text3); font-size: 11px; }
+.cs-note {
+  font-size: 11px; color: #a78bfa;
+  background: #1a1430; border: 1px solid #2e2050;
+  border-radius: 5px; padding: 6px 9px; margin-top: 2px; line-height: 1.5;
+}
+.cs-shortcut-row { display: flex; align-items: center; gap: 10px; font-size: 11.5px; }
+.cs-shortcut {
+  font-family: var(--mono); background: var(--bg); border: 1px solid var(--border2);
+  border-radius: 4px; padding: 2px 7px; font-size: 11px; color: var(--amber);
+}
+.cs-shortcut-label { color: var(--text3); font-size: 11px; }
+.cs-flag-item { display: flex; gap: 8px; font-size: 11.5px; line-height: 1.6; }
+.cs-flag-cmd { font-family: var(--mono); color: var(--blue); white-space: nowrap; }
+.cs-flag-desc { color: var(--text3); font-size: 11px; }
+</style>
+
+<button id="cheat-fab" title="Colinha de comandos" onclick="toggleCheat()">📋</button>
+
+<div id="cheat-panel">
+  <div class="cheat-header">
+    <span class="cheat-header-icon">📋</span>
+    <span class="cheat-header-title">colinha.sh</span>
+    <span class="cheat-header-badge">TÓPICOS LINUX</span>
+  </div>
+  <div class="cheat-body">
+
+    <!-- PROCESSOS -->
+    <div class="cs-section">
+      <div class="cs-section-title">⚙ gerenciamento de processos</div>
+      <div class="cs-item"><span class="cs-cmd">ps aux</span><span class="cs-desc">todos os processos detalhados</span></div>
+      <div class="cs-item"><span class="cs-cmd">top</span><span class="cs-desc">monitor em tempo real</span></div>
+      <div class="cs-item"><span class="cs-cmd">kill PID</span><span class="cs-desc">encerra processo pelo PID</span></div>
+      <div class="cs-item"><span class="cs-cmd">kill -9 PID</span><span class="cs-desc">força encerramento</span></div>
+      <div class="cs-item"><span class="cs-cmd">pkill nome</span><span class="cs-desc">encerra processo pelo nome</span></div>
+      <div class="cs-item"><span class="cs-cmd">pgrep nome</span><span class="cs-desc">busca PID pelo nome</span></div>
+      <div class="cs-item"><span class="cs-cmd">nice -n 10 cmd</span><span class="cs-desc">executa com prioridade ajustada</span></div>
+      <div class="cs-item"><span class="cs-cmd">nohup cmd &</span><span class="cs-desc">executa em background</span></div>
+      <div class="cs-item"><span class="cs-cmd">jobs</span><span class="cs-desc">lista jobs em background</span></div>
+    </div>
+
+    <!-- MEMÓRIA -->
+    <div class="cs-section">
+      <div class="cs-section-title">🧠 memória</div>
+      <div class="cs-item"><span class="cs-cmd">free -h</span><span class="cs-desc">memória livre (legível)</span></div>
+      <div class="cs-item"><span class="cs-cmd">free -m</span><span class="cs-desc">memória em megabytes</span></div>
+      <div class="cs-item"><span class="cs-cmd">cat /proc/meminfo</span><span class="cs-desc">detalhes do uso de memória</span></div>
+      <div class="cs-item"><span class="cs-cmd">vmstat</span><span class="cs-desc">estatísticas de memória virtual</span></div>
+      <div class="cs-item"><span class="cs-cmd">swapon --show</span><span class="cs-desc">informações do swap</span></div>
+    </div>
+
+    <!-- PERMISSÕES -->
+    <div class="cs-section">
+      <div class="cs-section-title">🔐 permissões</div>
+      <div class="cs-item"><span class="cs-cmd">chmod 644 arq</span><span class="cs-desc">leitura para todos, escrita ao dono</span></div>
+      <div class="cs-item"><span class="cs-cmd">chmod 755 arq</span><span class="cs-desc">execução para todos</span></div>
+      <div class="cs-item"><span class="cs-cmd">chmod +x arq</span><span class="cs-desc">adiciona permissão de execução</span></div>
+      <div class="cs-item"><span class="cs-cmd">chown user arq</span><span class="cs-desc">muda o dono do arquivo</span></div>
+      <div class="cs-item"><span class="cs-cmd">chown user:grp arq</span><span class="cs-desc">muda dono e grupo</span></div>
+      <div class="cs-item"><span class="cs-cmd">chgrp grupo arq</span><span class="cs-desc">muda o grupo do arquivo</span></div>
+      <div class="cs-item"><span class="cs-cmd">umask</span><span class="cs-desc">máscara padrão de criação</span></div>
+      <div class="cs-item"><span class="cs-cmd">stat arq</span><span class="cs-desc">info detalhada do arquivo</span></div>
+      <div class="cs-note">rwx = 4+2+1 = 7 &nbsp;|&nbsp; rw- = 6 &nbsp;|&nbsp; r-- = 4</div>
+    </div>
+
+    <!-- REDES -->
+    <div class="cs-section">
+      <div class="cs-section-title">🌐 redes básicas</div>
+      <div class="cs-item"><span class="cs-cmd">ip addr</span><span class="cs-desc">endereços IP de todas as interfaces</span></div>
+      <div class="cs-item"><span class="cs-cmd">ip route</span><span class="cs-desc">tabela de rotas</span></div>
+      <div class="cs-item"><span class="cs-cmd">ping -c 4 host</span><span class="cs-desc">testa conectividade (4x)</span></div>
+      <div class="cs-item"><span class="cs-cmd">ss -tuln</span><span class="cs-desc">portas TCP/UDP abertas</span></div>
+      <div class="cs-item"><span class="cs-cmd">traceroute host</span><span class="cs-desc">rastreia a rota até o destino</span></div>
+      <div class="cs-item"><span class="cs-cmd">nslookup dominio</span><span class="cs-desc">resolve DNS</span></div>
+      <div class="cs-item"><span class="cs-cmd">ssh user@host</span><span class="cs-desc">conecta via SSH</span></div>
+      <div class="cs-item"><span class="cs-cmd">scp arq user@host:/</span><span class="cs-desc">copia arquivo via SSH</span></div>
+    </div>
+
+    <!-- SHELL SCRIPT -->
+    <div class="cs-section">
+      <div class="cs-section-title">📜 shell script</div>
+      <div class="cs-item"><span class="cs-cmd">#!/bin/bash</span><span class="cs-desc">shebang — primeira linha do script</span></div>
+      <div class="cs-item"><span class="cs-cmd">chmod +x script.sh</span><span class="cs-desc">torna o script executável</span></div>
+      <div class="cs-item"><span class="cs-cmd">./script.sh</span><span class="cs-desc">executa o script</span></div>
+      <div class="cs-item"><span class="cs-cmd">VAR="valor"</span><span class="cs-desc">define variável (sem espaços)</span></div>
+      <div class="cs-item"><span class="cs-cmd">echo $VAR</span><span class="cs-desc">exibe o valor da variável</span></div>
+      <div class="cs-item"><span class="cs-cmd">$1, $2 ...</span><span class="cs-desc">argumentos posicionais</span></div>
+      <div class="cs-item"><span class="cs-cmd">$?</span><span class="cs-desc">código de retorno do último comando</span></div>
+      <div class="cs-item"><span class="cs-cmd">bash -x script.sh</span><span class="cs-desc">executa em modo debug</span></div>
+    </div>
+
+    <!-- WINDOWS SERVER -->
+    <div class="cs-section">
+      <div class="cs-section-title">🪟 windows server (powershell)</div>
+      <div class="cs-item"><span class="cs-cmd">Get-Process</span><span class="cs-desc">lista processos em execução</span></div>
+      <div class="cs-item"><span class="cs-cmd">Get-Service</span><span class="cs-desc">lista todos os serviços</span></div>
+      <div class="cs-item"><span class="cs-cmd">Start-Service nome</span><span class="cs-desc">inicia um serviço</span></div>
+      <div class="cs-item"><span class="cs-cmd">Stop-Service nome</span><span class="cs-desc">para um serviço</span></div>
+      <div class="cs-item"><span class="cs-cmd">ipconfig</span><span class="cs-desc">informações de rede</span></div>
+      <div class="cs-item"><span class="cs-cmd">tasklist</span><span class="cs-desc">lista processos (CMD)</span></div>
+      <div class="cs-item"><span class="cs-cmd">taskkill /PID n /F</span><span class="cs-desc">encerra processo à força</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleCheat() {
+  const fab = document.getElementById('cheat-fab');
+  const panel = document.getElementById('cheat-panel');
+  const open = panel.classList.toggle('visible');
+  fab.classList.toggle('open', open);
+  fab.title = open ? 'Fechar colinha' : 'Colinha de comandos';
+  fab.textContent = open ? '✕' : '📋';
+}
+document.addEventListener('click', function(e) {
+  const fab = document.getElementById('cheat-fab');
+  const panel = document.getElementById('cheat-panel');
+  if (!panel.contains(e.target) && e.target !== fab) {
+    panel.classList.remove('visible');
+    fab.classList.remove('open');
+    fab.title = 'Colinha de comandos';
+    fab.textContent = '📋';
+  }
+});
+</script>
+<!-- ═══════════════════════════════════════════════ -->
+
+<script>
+const levels = [
+  {
+    name: "Linux",
+    label: "Sistema",
+    desc: "Comandos essenciais do sistema Linux: informações do kernel, discos, serviços e logs.",
+    exercises: [
+      { q: "Veja a versão do kernel do sistema", a: ["uname -r"], dica: "uname com a flag -r de 'release'" },
+      { q: "Veja todas as informações do sistema operacional", a: ["uname -a"], dica: "flag -a de 'all'" },
+      { q: "Exiba as informações da distribuição Linux instalada", a: ["cat /etc/os-release"], dica: "cat no arquivo /etc/os-release" },
+      { q: "Veja o espaço em disco de forma legível", a: ["df -h"], dica: "df -h (h = human readable)" },
+      { q: "Veja o uso de espaço da pasta atual de forma legível", a: ["du -sh ."], dica: "du -sh . (s = summary, h = human)" },
+      { q: "Liste os discos e partições do sistema", a: ["lsblk"], dica: "lsblk = list block devices" },
+      { q: "Liste todos os dispositivos de hardware PCI", a: ["lspci"], dica: "lspci = list PCI devices" },
+      { q: "Veja o status de um serviço chamado 'nginx'", a: ["systemctl status nginx"], dica: "systemctl status <nome-do-serviço>" },
+      { q: "Inicie o serviço 'nginx'", a: ["systemctl start nginx"], dica: "systemctl start <nome-do-serviço>" },
+      { q: "Pare o serviço 'nginx'", a: ["systemctl stop nginx"], dica: "systemctl stop <nome-do-serviço>" },
+      { q: "Habilite o serviço 'nginx' para iniciar com o sistema", a: ["systemctl enable nginx"], dica: "systemctl enable <nome-do-serviço>" },
+      { q: "Consulte os logs do sistema (systemd)", a: ["journalctl"], dica: "journalctl exibe os logs do systemd" },
+      { q: "Veja os logs do sistema em tempo real", a: ["journalctl -f"], dica: "journalctl -f (f = follow, ao vivo)" },
+      { q: "Veja há quanto tempo o sistema está ligado", a: ["uptime"], dica: "'Tempo ativo' em inglês" },
+      { q: "Veja quais usuários estão logados agora", a: ["who"], dica: "'Quem' em inglês" },
+      { q: "Adicione um novo usuário chamado 'user1'", a: ["adduser user1"], dica: "adduser <nome>" },
+      { q: "Defina a senha do usuário 'user1'", a: ["passwd user1"], dica: "passwd <nome-do-usuário>" },
+      { q: "Veja os grupos do usuário atual", a: ["groups"], dica: "groups (sem argumentos)" },
+      { q: "Exiba o conteúdo do arquivo de usuários do sistema", a: ["cat /etc/passwd"], dica: "cat no arquivo /etc/passwd" },
+      { q: "Reinicie o sistema imediatamente", a: ["reboot"], dica: "reboot = reiniciar em inglês" },
+    ]
+  },
+  {
+    name: "Win Server",
+    label: "PowerShell",
+    desc: "Administração do Windows Server via PowerShell e CMD: serviços, processos, rede e logs.",
+    exercises: [
+      { q: "Liste todos os processos em execução (PowerShell)", a: ["Get-Process"], dica: "Get-Process é o cmdlet do PowerShell" },
+      { q: "Liste todos os serviços do sistema (PowerShell)", a: ["Get-Service"], dica: "Get-Service lista todos os serviços" },
+      { q: "Inicie o serviço chamado 'Spooler' (PowerShell)", a: ["Start-Service Spooler"], dica: "Start-Service <Nome>" },
+      { q: "Pare o serviço chamado 'Spooler' (PowerShell)", a: ["Stop-Service Spooler"], dica: "Stop-Service <Nome>" },
+      { q: "Reinicie o serviço 'Spooler' (PowerShell)", a: ["Restart-Service Spooler"], dica: "Restart-Service <Nome>" },
+      { q: "Veja as informações de rede do servidor (CMD)", a: ["ipconfig"], dica: "ipconfig é o equivalente ao ip addr do Linux" },
+      { q: "Veja informações detalhadas de todas as interfaces (CMD)", a: ["ipconfig /all"], dica: "ipconfig com a flag /all" },
+      { q: "Liste os processos em execução (CMD)", a: ["tasklist"], dica: "tasklist é o equivalente ao ps do Linux" },
+      { q: "Encerre à força o processo com PID 1234 (CMD)", a: ["taskkill /PID 1234 /F"], dica: "taskkill /PID <número> /F" },
+      { q: "Veja as portas de rede abertas (CMD)", a: ["netstat -an"], dica: "netstat -an mostra todas as conexões" },
+      { q: "Teste a conectividade com o host 8.8.8.8 (CMD)", a: ["ping 8.8.8.8"], dica: "ping funciona igual ao Linux" },
+      { q: "Veja a versão do sistema operacional (CMD)", a: ["winver"], dica: "winver abre informações de versão" },
+      { q: "Limpe a tela do terminal (CMD/PowerShell)", a: ["cls"], dica: "cls = clear screen (diferente do Linux)" },
+      { q: "Veja o hostname do servidor (CMD)", a: ["hostname"], dica: "hostname funciona igual ao Linux" },
+      { q: "Acesse o gerenciador de usuários e grupos (CMD)", a: ["lusrmgr.msc"], dica: "lusrmgr.msc = Local Users and Groups Manager" },
+      { q: "Liste usuários locais do sistema (PowerShell)", a: ["Get-LocalUser"], dica: "Get-LocalUser lista contas locais" },
+      { q: "Exiba os logs de evento do sistema (PowerShell)", a: ["Get-EventLog -LogName System"], dica: "Get-EventLog -LogName System" },
+      { q: "Veja o uso de CPU e memória em tempo real (CMD)", a: ["taskmgr"], dica: "taskmgr = Task Manager" },
+      { q: "Crie uma pasta chamada 'dados' (CMD)", a: ["mkdir dados"], dica: "mkdir funciona igual no Windows" },
+      { q: "Liste os arquivos do diretório atual (PowerShell)", a: ["Get-ChildItem"], dica: "Get-ChildItem é equivalente ao ls" },
+    ]
+  },
+  {
+    name: "Shell Script",
+    label: "Bash",
+    desc: "Criação e execução de scripts Bash: variáveis, condicionais, loops, funções e argumentos.",
+    exercises: [
+      { q: "Qual é a primeira linha obrigatória de um script Bash?", a: ["#!/bin/bash"], dica: "Shebang: indica o interpretador do script" },
+      { q: "Dê permissão de execução ao script.sh", a: ["chmod +x script.sh"], dica: "chmod +x adiciona execução" },
+      { q: "Execute o script.sh do diretório atual", a: ["./script.sh"], dica: "./ indica o diretório atual" },
+      { q: "Execute o script.sh em modo debug (mostra cada linha)", a: ["bash -x script.sh"], dica: "bash -x ativa o trace/debug" },
+      { q: "Defina a variável NOME com o valor 'joao'", a: ["NOME=\"joao\""], dica: "VAR=\"valor\" — sem espaços ao redor do =" },
+      { q: "Exiba o valor da variável NOME", a: ["echo $NOME"], dica: "echo $VARIAVEL" },
+      { q: "Leia uma entrada do usuário e guarde em NOME", a: ["read NOME"], dica: "read <nome-da-variável>" },
+      { q: "Exporte a variável PORTA com valor 8080", a: ["export PORTA=8080"], dica: "export torna a variável disponível para subprocessos" },
+      { q: "Veja o código de retorno do último comando", a: ["echo $?"], dica: "$? armazena o código de saída (0 = sucesso)" },
+      { q: "Veja o número de argumentos passados ao script", a: ["echo $#"], dica: "$# = quantity of arguments" },
+      { q: "Acesse o primeiro argumento passado ao script", a: ["echo $1"], dica: "$1, $2... são argumentos posicionais" },
+      { q: "Execute o script.sh no shell atual (sem subprocesso)", a: ["source script.sh"], dica: "source (ou . script.sh) executa no shell atual" },
+      { q: "Redirecione a saída de erro do comando para erros.txt", a: ["comando 2> erros.txt"], dica: "2> redireciona stderr (file descriptor 2)" },
+      { q: "Redirecione stdout e stderr juntos para saida.txt", a: ["comando > saida.txt 2>&1"], dica: "2>&1 une stderr ao stdout" },
+      { q: "Combine dois comandos: execute cmd2 só se cmd1 tiver sucesso", a: ["cmd1 && cmd2"], dica: "&& executa o segundo apenas se o primeiro retornar 0" },
+      { q: "Execute cmd2 mesmo que cmd1 falhe", a: ["cmd1 || cmd2"], dica: "|| executa o segundo se o primeiro falhar" },
+      { q: "Envie a saída de ls como entrada para grep txt", a: ["ls | grep txt"], dica: "| (pipe) encadeia comandos" },
+      { q: "Crie um loop que exiba os números 1, 2 e 3", a: ["for i in 1 2 3; do echo $i; done"], dica: "for item in lista; do ...; done" },
+      { q: "Execute um bloco enquanto a condição for verdadeira", a: ["while [ $i -lt 10 ]; do echo $i; done"], dica: "while [ condição ]; do ...; done" },
+      { q: "Salve a saída do comando date dentro de uma variável", a: ["DATA=$(date)"], dica: "$( ) captura a saída de um comando" },
+    ]
+  },
+  {
+    name: "Processos",
+    label: "Gerenciamento",
+    desc: "Monitoramento e controle de processos: listagem, encerramento, prioridades e execução em background.",
+    exercises: [
+      { q: "Liste todos os processos em execução com detalhes", a: ["ps aux"], dica: "ps aux = all users, user-oriented, extra" },
+      { q: "Liste processos no formato System V (ps -ef)", a: ["ps -ef"], dica: "ps -ef = every process, full format" },
+      { q: "Monitore os processos em tempo real", a: ["top"], dica: "top atualiza a lista continuamente" },
+      { q: "Busque o PID do processo chamado 'nginx'", a: ["pgrep nginx"], dica: "pgrep <nome> retorna o PID" },
+      { q: "Finalize o processo com PID 1234", a: ["kill 1234"], dica: "kill <PID>" },
+      { q: "Force o encerramento do processo com PID 1234", a: ["kill -9 1234"], dica: "kill -9 = SIGKILL (sem possibilidade de ignorar)" },
+      { q: "Encerre todos os processos chamados 'nginx'", a: ["killall nginx"], dica: "killall <nome-do-processo>" },
+      { q: "Encerre processos pelo nome usando pkill", a: ["pkill nginx"], dica: "pkill funciona como killall mas aceita padrões" },
+      { q: "Execute um comando com prioridade reduzida (nice 10)", a: ["nice -n 10 comando"], dica: "nice -n <valor> <comando> (10 = menos prioritário)" },
+      { q: "Altere a prioridade do processo PID 1234 para 5", a: ["renice -n 5 -p 1234"], dica: "renice -n <valor> -p <PID>" },
+      { q: "Execute um comando em background e ignore o hangup", a: ["nohup comando &"], dica: "nohup = no hang up; & = background" },
+      { q: "Liste os jobs rodando em background na sessão atual", a: ["jobs"], dica: "jobs exibe processos enviados ao background" },
+      { q: "Traga o job 1 de volta para o foreground", a: ["fg %1"], dica: "fg %<número-do-job>" },
+      { q: "Envie o job 1 para rodar em background", a: ["bg %1"], dica: "bg %<número-do-job>" },
+      { q: "Veja a árvore de processos do sistema", a: ["pstree"], dica: "pstree mostra hierarquia pai-filho" },
+      { q: "Exiba os processos em tempo real ordenados por CPU", a: ["top -o %CPU"], dica: "top -o <coluna> define a ordenação" },
+      { q: "Veja detalhes do processo com PID 1234 em /proc", a: ["cat /proc/1234/status"], dica: "/proc/<PID>/status contém info do processo" },
+      { q: "Suspenda temporariamente o processo com PID 1234", a: ["kill -STOP 1234"], dica: "kill -STOP = sinal SIGSTOP" },
+      { q: "Retome o processo suspenso com PID 1234", a: ["kill -CONT 1234"], dica: "kill -CONT = sinal SIGCONT" },
+      { q: "Veja quantas threads o processo 1234 possui", a: ["ls /proc/1234/task | wc -l"], dica: "Cada subdiretório em /proc/<PID>/task é uma thread" },
+    ]
+  },
+  {
+    name: "Memória",
+    label: "RAM / Swap",
+    desc: "Monitoramento de memória RAM e swap: uso atual, estatísticas e gerenciamento de cache.",
+    exercises: [
+      { q: "Veja a memória disponível de forma legível", a: ["free -h"], dica: "free -h (h = human readable)" },
+      { q: "Veja a memória disponível em megabytes", a: ["free -m"], dica: "free -m (m = megabytes)" },
+      { q: "Exiba o arquivo de informações detalhadas de memória", a: ["cat /proc/meminfo"], dica: "cat no arquivo /proc/meminfo" },
+      { q: "Veja estatísticas de memória virtual e CPU", a: ["vmstat"], dica: "vmstat = virtual memory statistics" },
+      { q: "Veja as estatísticas de vmstat de forma resumida", a: ["vmstat -s"], dica: "vmstat -s = summary" },
+      { q: "Exiba informações sobre o swap ativo", a: ["swapon --show"], dica: "swapon --show mostra swap ativo" },
+      { q: "Desative toda a memória swap", a: ["swapoff -a"], dica: "swapoff -a = desativa todas as partições swap" },
+      { q: "Ative as partições swap definidas em /etc/fstab", a: ["swapon -a"], dica: "swapon -a = ativa todas as definidas no fstab" },
+      { q: "Veja o uso de memória dos processos com ps", a: ["ps aux --sort=-%mem"], dica: "ps aux com ordenação por %mem decrescente" },
+      { q: "Monitore a memória em tempo real ordenando por uso", a: ["top -o %MEM"], dica: "top -o %MEM ordena por uso de memória" },
+      { q: "Veja o total de memória física do sistema", a: ["grep MemTotal /proc/meminfo"], dica: "grep MemTotal no arquivo /proc/meminfo" },
+      { q: "Veja somente a memória livre disponível", a: ["grep MemAvailable /proc/meminfo"], dica: "grep MemAvailable /proc/meminfo" },
+      { q: "Crie um arquivo de swap de 1GB chamado /swapfile", a: ["fallocate -l 1G /swapfile"], dica: "fallocate -l <tamanho> <arquivo>" },
+      { q: "Formate o arquivo /swapfile como área de swap", a: ["mkswap /swapfile"], dica: "mkswap <arquivo>" },
+      { q: "Ative o arquivo /swapfile como swap", a: ["swapon /swapfile"], dica: "swapon <arquivo>" },
+      { q: "Veja o uso de memória em intervalos de 2 segundos (vmstat)", a: ["vmstat 2"], dica: "vmstat <intervalo-em-segundos>" },
+      { q: "Exiba o cache de página usado pelo kernel", a: ["grep Cached /proc/meminfo"], dica: "grep Cached /proc/meminfo" },
+      { q: "Verifique se o sistema está usando huge pages", a: ["grep HugePages /proc/meminfo"], dica: "grep HugePages /proc/meminfo" },
+      { q: "Veja a memória usada por shared memory", a: ["ipcs -m"], dica: "ipcs -m = IPC shared memory segments" },
+      { q: "Exiba uso de memória detalhado por processo (smaps)", a: ["cat /proc/1/smaps"], dica: "/proc/<PID>/smaps detalha o mapa de memória" },
+    ]
+  },
+  {
+    name: "Permissões",
+    label: "chmod/chown",
+    desc: "Controle de acesso a arquivos e diretórios: permissões numéricas, simbólicas, donos e grupos.",
+    exercises: [
+      { q: "Veja as permissões do arquivo.txt", a: ["ls -l arquivo.txt"], dica: "ls -l exibe permissões, dono e grupo" },
+      { q: "Veja informações detalhadas de permissão do arquivo.txt", a: ["stat arquivo.txt"], dica: "stat exibe permissões em formato octal e simbólico" },
+      { q: "Dê permissão 644 ao arquivo.txt", a: ["chmod 644 arquivo.txt"], dica: "644 = rw-r--r-- (dono lê/escreve, resto só lê)" },
+      { q: "Dê permissão 755 ao script.sh", a: ["chmod 755 script.sh"], dica: "755 = rwxr-xr-x (todos executam)" },
+      { q: "Dê permissão total (777) ao arquivo.txt", a: ["chmod 777 arquivo.txt"], dica: "777 = rwxrwxrwx (todos têm tudo)" },
+      { q: "Adicione permissão de execução ao arquivo.txt", a: ["chmod +x arquivo.txt"], dica: "chmod +x adiciona execução para todos" },
+      { q: "Remova a permissão de escrita do arquivo.txt", a: ["chmod -w arquivo.txt"], dica: "chmod -w remove escrita" },
+      { q: "Dê execução ao dono do arquivo.txt (modo simbólico)", a: ["chmod u+x arquivo.txt"], dica: "u = user (dono), g = group, o = others" },
+      { q: "Remova permissão de leitura para outros (o)", a: ["chmod o-r arquivo.txt"], dica: "chmod o-r remove leitura de 'others'" },
+      { q: "Aplique permissão 755 recursivamente na pasta/", a: ["chmod -R 755 pasta/"], dica: "chmod -R aplica recursivamente" },
+      { q: "Mude o dono do arquivo.txt para o usuário 'user'", a: ["chown user arquivo.txt"], dica: "chown <usuário> <arquivo>" },
+      { q: "Mude o dono e o grupo do arquivo.txt", a: ["chown user:grupo arquivo.txt"], dica: "chown <usuário>:<grupo> <arquivo>" },
+      { q: "Mude o grupo do arquivo.txt para 'admin'", a: ["chgrp admin arquivo.txt"], dica: "chgrp <grupo> <arquivo>" },
+      { q: "Aplique chown recursivamente na pasta/", a: ["chown -R user:grupo pasta/"], dica: "chown -R <u>:<g> <dir>" },
+      { q: "Veja a máscara padrão de criação de arquivos", a: ["umask"], dica: "umask sem argumentos exibe o valor atual" },
+      { q: "Defina a máscara padrão como 022", a: ["umask 022"], dica: "umask 022 = arquivos com 644, diretórios com 755" },
+      { q: "Encontre arquivos com permissão 777 em /var", a: ["find /var -perm 777"], dica: "find <diretório> -perm <permissão>" },
+      { q: "Encontre arquivos pertencentes ao usuário 'root'", a: ["find / -user root"], dica: "find / -user <nome>" },
+      { q: "Defina o bit SUID no arquivo programa", a: ["chmod u+s programa"], dica: "u+s = seta o SUID (executa como dono)" },
+      { q: "Defina o sticky bit na pasta /tmp/compartilhado", a: ["chmod +t /tmp/compartilhado"], dica: "+t = sticky bit (só o dono pode deletar)" },
+    ]
+  },
+  {
+    name: "Redes",
+    label: "Básicas Linux",
+    desc: "Configuração e diagnóstico de redes no Linux: IPs, rotas, DNS, portas, SSH e firewall.",
+    exercises: [
+      { q: "Exiba os endereços IP de todas as interfaces", a: ["ip addr"], dica: "ip addr (substituto do ifconfig)" },
+      { q: "Exiba o IP somente da interface eth0", a: ["ip addr show eth0"], dica: "ip addr show <interface>" },
+      { q: "Veja a tabela de rotas do sistema", a: ["ip route"], dica: "ip route mostra as rotas configuradas" },
+      { q: "Veja as interfaces de rede disponíveis", a: ["ip link"], dica: "ip link mostra as interfaces e seu estado" },
+      { q: "Ative a interface eth0", a: ["ip link set eth0 up"], dica: "ip link set <interface> up" },
+      { q: "Desative a interface eth0", a: ["ip link set eth0 down"], dica: "ip link set <interface> down" },
+      { q: "Teste a conectividade com o host 8.8.8.8", a: ["ping 8.8.8.8"], dica: "ping <host>" },
+      { q: "Envie exatamente 4 pings para o host 8.8.8.8", a: ["ping -c 4 8.8.8.8"], dica: "ping -c <quantidade> <host>" },
+      { q: "Veja as portas TCP e UDP abertas no sistema", a: ["ss -tuln"], dica: "ss -tuln = TCP, UDP, listening, numeric" },
+      { q: "Rastreie a rota até o host 8.8.8.8", a: ["traceroute 8.8.8.8"], dica: "traceroute <host>" },
+      { q: "Resolva o DNS do domínio google.com", a: ["nslookup google.com"], dica: "nslookup <domínio>" },
+      { q: "Consulte o DNS do domínio google.com com dig", a: ["dig google.com"], dica: "dig <domínio>" },
+      { q: "Veja o IP do host atual", a: ["hostname -I"], dica: "hostname -I (I maiúsculo) exibe o(s) IP(s)" },
+      { q: "Conecte ao servidor 192.168.1.10 via SSH como 'admin'", a: ["ssh admin@192.168.1.10"], dica: "ssh <usuário>@<host>" },
+      { q: "Copie arquivo.txt para o servidor via SCP", a: ["scp arquivo.txt admin@192.168.1.10:/tmp"], dica: "scp <arquivo> <user>@<host>:<destino>" },
+      { q: "Baixe um arquivo de uma URL com wget", a: ["wget url"], dica: "wget <endereço-da-URL>" },
+      { q: "Faça uma requisição HTTP GET com curl", a: ["curl url"], dica: "curl <endereço-da-URL>" },
+      { q: "Veja os mapeamentos de host locais do sistema", a: ["cat /etc/hosts"], dica: "cat /etc/hosts" },
+      { q: "Veja os servidores DNS configurados no sistema", a: ["cat /etc/resolv.conf"], dica: "cat /etc/resolv.conf" },
+      { q: "Veja o status do firewall UFW", a: ["ufw status"], dica: "ufw status (UFW = Uncomplicated Firewall)" },
+    ]
+  }
+];
+
+let current = 0;
+let scores = levels.map(l => ({ ok: 0, total: l.exercises.length, answered: {} }));
+
+function globalOk() {
+  return scores.reduce((s, l) => s + l.ok, 0);
+}
+
+function updateGlobal() {
+  document.getElementById('global-score').textContent = globalOk() + ' corretos';
+}
+
+function showLevel(n) {
+  current = n;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n));
+  document.querySelectorAll('.level-block').forEach((b, i) => b.classList.toggle('visible', i === n));
+  updateProgress(n);
+}
+
+function updateProgress(n) {
+  const s = scores[n];
+  const pct = s.total > 0 ? Math.round((s.ok / s.total) * 100) : 0;
+  const bar = document.getElementById('pbar-' + n);
+  const lbl = document.getElementById('plabel-' + n);
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = s.ok + ' / ' + s.total;
+}
+
+function check(lv, i) {
+  if (scores[lv].answered[i]) return;
+  const inp = document.getElementById('inp-' + lv + '-' + i);
+  const fb = document.getElementById('fb-' + lv + '-' + i);
+  const status = document.getElementById('status-' + lv + '-' + i);
+  const card = document.getElementById('ex-' + lv + '-' + i);
+  const val = inp.value.trim().toLowerCase();
+  const answers = levels[lv].exercises[i].a.map(a => a.toLowerCase());
+  const ok = answers.includes(val);
+
+  if (ok) {
+    inp.classList.add('input-ok');
+    inp.disabled = true;
+    fb.textContent = '✓ Correto!';
+    fb.className = 'feedback ok';
+    status.textContent = '✓';
+    status.className = 'ex-status ok';
+    card.classList.add('correct');
+    scores[lv].answered[i] = true;
+    scores[lv].ok++;
+    updateProgress(lv);
+    updateGlobal();
+  } else {
+    inp.classList.add('input-err');
+    fb.textContent = '✗ Tente novamente.';
+    fb.className = 'feedback err';
+    status.textContent = '✗';
+    status.className = 'ex-status err';
+    card.classList.remove('wrong-anim');
+    void card.offsetWidth;
+    card.classList.add('wrong-anim');
+    setTimeout(() => {
+      inp.classList.remove('input-err');
+      status.className = 'ex-status';
+      status.textContent = '';
+    }, 1200);
+  }
+}
+
+function toggleDica(lv, i) {
+  const d = document.getElementById('dica-' + lv + '-' + i);
+  d.style.display = d.style.display === 'block' ? 'none' : 'block';
+}
+
+function init() {
+  const tabs = document.getElementById('tabs');
+  const content = document.getElementById('content');
+
+  levels.forEach((lv, li) => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (li === 0 ? ' active' : '');
+    tab.innerHTML = `<span class="dot"></span>${lv.name} <span style="opacity:0.5;font-size:11px;">${lv.label}</span>`;
+    tab.onclick = () => showLevel(li);
+    tabs.appendChild(tab);
+
+    const block = document.createElement('div');
+    block.className = 'level-block' + (li === 0 ? ' visible' : '');
+    block.id = 'level-' + li;
+
+    block.innerHTML = `
+      <div class="level-header">
+        <div class="level-title">${lv.name} — ${lv.label}</div>
+        <div class="level-desc">${lv.desc}</div>
+      </div>
+      <div class="progress-section">
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="pbar-${li}" style="width:0%"></div>
+        </div>
+        <div class="progress-label" id="plabel-${li}">0 / ${lv.exercises.length}</div>
+      </div>
+    `;
+
+    lv.exercises.forEach((ex, i) => {
+      const div = document.createElement('div');
+      div.className = 'exercise';
+      div.id = 'ex-' + li + '-' + i;
+      div.innerHTML = `
+        <div class="ex-top">
+          <div>
+            <div class="ex-num">EXERCÍCIO ${String(i + 1).padStart(2, '0')}</div>
+            <div class="ex-q">${ex.q}</div>
+          </div>
+          <div class="ex-status" id="status-${li}-${i}"></div>
+        </div>
+        <div class="ex-input-row">
+          <input class="ex-input" type="text" id="inp-${li}-${i}" placeholder="$ digite o comando..." autocomplete="off" autocorrect="off" spellcheck="false" />
+          <button class="btn-check" onclick="check(${li},${i})">Verificar</button>
+        </div>
+        <div class="ex-footer">
+          <button class="btn-dica" onclick="toggleDica(${li},${i})">💡 Ver dica</button>
+          <span class="feedback" id="fb-${li}-${i}"></span>
+        </div>
+        <div class="dica-box" id="dica-${li}-${i}">💡 ${ex.dica}</div>
+      `;
+      block.appendChild(div);
+
+      div.querySelector('input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') check(li, i);
+      });
+    });
+
+    content.appendChild(block);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
