@@ -1,374 +1,574 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Título da Página</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Sentence Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-page:      #F5F2EC;
+      --bg-card:      #FFFFFF;
+      --bg-muted:     #F0EDE7;
+      --bg-dark:      #1C1917;
+      --accent:       #2A6B4F;
+      --accent-light: #E4F0EB;
+      --accent-dark:  #1A4A35;
+      --blue:         #1D4E89;
+      --blue-light:   #E3EEF9;
+      --amber:        #92580A;
+      --amber-light:  #FEF3E2;
+      --red:          #B91C1C;
+      --red-light:    #FEE2E2;
+      --text-primary: #1C1917;
+      --text-sec:     #57534E;
+      --text-muted:   #A8A29E;
+      --border:       rgba(28,25,23,0.10);
+      --shadow-sm:    0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app { min-height: 100vh; padding: 24px 16px 56px; }
+
+    .container { max-width: 760px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .header {
+      background: var(--bg-card);
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 22px 24px;
+      margin-bottom: 22px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .header-title {
+      font-family: 'Lora', serif;
+      font-size: clamp(20px, 5vw, 26px);
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--accent-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .header-sub {
+      font-size: 14px;
+      color: var(--text-sec);
+      margin-top: 5px;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Speed */
+    .speed-group {
+      display: flex;
+      background: var(--bg-muted);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .speed-btn {
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      background: transparent;
+      color: var(--text-sec);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .speed-btn:hover { background: rgba(0,0,0,0.06); color: var(--text-primary); }
+
+    .speed-btn.active {
+      background: var(--bg-dark);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Status */
+    .status {
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .status.ready  { background: var(--accent-light); color: var(--accent-dark); border-color: rgba(42,107,79,0.2); }
+    .status.loading { background: var(--amber-light); color: var(--amber); border-color: rgba(146,88,10,0.2); }
+
+    /* Stop */
+    .stop-btn {
+      padding: 6px 16px;
+      border-radius: 14px;
+      background: var(--red-light);
+      color: var(--red);
+      border: 1px solid rgba(185,28,28,0.2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.18s;
+    }
+
+    .stop-btn:hover { background: #FCA5A5; }
+
+    /* ── Cards ── */
+    .cards-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .phrase-card {
+      background: var(--bg-card);
+      border-radius: 24px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 20px;
+      transition: box-shadow 0.25s, border-color 0.25s;
+    }
+
+    .phrase-card:hover { box-shadow: var(--shadow-md); }
+
+    .phrase-card.playing {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md), 0 0 0 3px rgba(42,107,79,0.10);
+    }
+
+    .card-inner { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Badges */
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-num  { background: var(--bg-dark); color: #fff; }
+    .badge-svo  { background: var(--blue-light); color: var(--blue); }
+    .badge-play {
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+    /* Texto */
+    .phrase-en {
+      font-family: 'Lora', serif;
+      font-size: clamp(18px, 4vw, 22px);
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.35;
+    }
+
+    .phrase-pt {
+      font-family: 'Lora', serif;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--text-sec);
+      margin-top: 4px;
+    }
+
+    /* Estrutura */
+    .structure {
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-top: 12px;
+    }
+
+    .structure-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .structure-text {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--text-sec);
+      line-height: 1.6;
+    }
+
+    /* Botões */
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .action-btn {
+      flex: 1;
+      min-width: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 11px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+
+    .action-btn:active { transform: scale(0.97); }
+
+    .btn-listen             { background: var(--bg-dark); color: #fff; }
+    .btn-listen:hover       { background: #292524; }
+    .btn-listen.is-playing  { background: var(--accent); }
+    .btn-slow               { background: var(--bg-muted); color: var(--text-sec); }
+    .btn-slow:hover         { background: #E7E4DC; color: var(--text-primary); }
+    .btn-copy               { background: var(--bg-muted); color: var(--text-sec); }
+    .btn-copy:hover         { background: #E7E4DC; color: var(--text-primary); }
+    .btn-copy.copied        { background: var(--accent-light); color: var(--accent-dark); }
+
+    /* Footer */
+    .footer {
+      margin-top: 36px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .dot { width: 3px; height: 3px; background: var(--text-muted); border-radius: 50%; }
+
+    /* Desktop */
+    @media (min-width: 640px) {
+      .app { padding: 40px 24px 64px; }
+      .header-top { flex-direction: row; align-items: flex-start; justify-content: space-between; }
+      .card-inner { flex-direction: row; align-items: center; }
+      .card-content { flex: 1; min-width: 0; }
+      .actions { flex-direction: column; min-width: 148px; flex-wrap: nowrap; }
+      .action-btn { flex: unset; min-width: unset; }
+    }
+  </style>
 </head>
 <body>
- import { useState, useEffect, useRef } from "react";
+  <div id="root"></div>
 
-export default function EnglishStudyApp() {
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-  /* =====================================================
-      COMO ADICIONAR NOVAS FRASES
-  =====================================================
+    function App() {
 
-  Copie um bloco abaixo e altere:
+      /* =====================================================
+          COMO ADICIONAR NOVAS FRASES
+      =====================================================
 
-  id:
-    Número da frase
+      Copie um bloco abaixo e altere:
 
-  english:
-    Frase em inglês que será lida
+        id:          Número da frase (ex: '11')
+        english:     Frase em inglês
+        portuguese:  Tradução em português
+        structure:   Estrutura da frase
 
-  portuguese:
-    Tradução em português
+      EXEMPLO:
 
-  structure:
-    Estrutura da frase
+      {
+        id: '11',
+        english: 'I study English every day.',
+        portuguese: 'Eu estudo inglês todos os dias.',
+        structure: 'I + study + English + every day [time]'
+      },
 
-  EXEMPLO:
+      */
 
-  {
-    id: '11',
-    english: 'I study English every day.',
-    portuguese: 'Eu estudo inglês todos os dias.',
-    structure: 'I + study + English + every day [time]'
-  },
+      const frases = [
+        {
+          id: '01',
+          english: 'I drink water every day.',
+          portuguese: 'Eu bebo água todo dia.',
+          structure: 'I [subject] + drink [verb] + water [object] + every day [time]'
+        },
+        {
+          id: '02',
+          english: 'He works at a big company.',
+          portuguese: 'Ele trabalha em uma grande empresa.',
+          structure: 'He + works + at a big company [place]'
+        },
+        {
+          id: '03',
+          english: 'We watch movies on the weekend.',
+          portuguese: 'Nós assistimos filmes no fim de semana.',
+          structure: 'We + watch + movies + on the weekend [time/place]'
+        },
+        {
+          id: '04',
+          english: 'She buys food at the market.',
+          portuguese: 'Ela compra comida no mercado.',
+          structure: 'She + buys + food + at the market [place]'
+        },
+        {
+          id: '05',
+          english: 'They live in São Paulo.',
+          portuguese: 'Eles moram em São Paulo.',
+          structure: 'They + live + in São Paulo [place]'
+        },
+        {
+          id: '06',
+          english: 'I use my phone on the bus.',
+          portuguese: 'Eu uso meu celular no ônibus.',
+          structure: 'I + use + my phone + on the bus [place]'
+        },
+        {
+          id: '07',
+          english: 'She studies English at night.',
+          portuguese: 'Ela estuda inglês à noite.',
+          structure: 'She + studies + English + at night [time]'
+        },
+        {
+          id: '08',
+          english: 'My brother cooks really well.',
+          portuguese: 'Meu irmão cozinha muito bem.',
+          structure: 'My brother [subject] + cooks + really well [adverb]'
+        },
+        {
+          id: '09',
+          english: 'We drink coffee in the morning.',
+          portuguese: 'Nós bebemos café de manhã.',
+          structure: 'We + drink + coffee + in the morning [time]'
+        },
+        {
+          id: '10',
+          english: 'I take the subway every day.',
+          portuguese: 'Eu pego o metrô todo dia.',
+          structure: 'I + take + the subway + every day [time]'
+        }
+      ];
 
-  */
+      /* =====================================================
+          CONFIGURAÇÕES DE VOZ
+      =====================================================
+        rate:  velocidade — 0.7 lento | 0.9 normal | 1.2 rápido
+        pitch: tom da voz (1 = padrão)
+        lang:  idioma
+      */
+      const voiceConfig = { lang: 'en-US', rate: 0.85, pitch: 1 };
 
-  const frases = [
-    {
-      id: '01',
-      english: 'I drink water every day.',
-      portuguese: 'Eu bebo água todo dia.',
-      structure: 'I [subject] + drink [verb] + water [object] + every day [time]'
-    },
-    {
-      id: '02',
-      english: 'He works at a big company.',
-      portuguese: 'Ele trabalha em uma grande empresa.',
-      structure: 'He + works + at a big company [place]'
-    },
-    {
-      id: '03',
-      english: 'We watch movies on the weekend.',
-      portuguese: 'Nós assistimos filmes no fim de semana.',
-      structure: 'We + watch + movies + on the weekend [time/place]'
-    },
-    {
-      id: '04',
-      english: 'She buys food at the market.',
-      portuguese: 'Ela compra comida no mercado.',
-      structure: 'She + buys + food + at the market [place]'
-    },
-    {
-      id: '05',
-      english: 'They live in São Paulo.',
-      portuguese: 'Eles moram em São Paulo.',
-      structure: 'They + live + in São Paulo [place]'
-    },
-    {
-      id: '06',
-      english: 'I use my phone on the bus.',
-      portuguese: 'Eu uso meu celular no ônibus.',
-      structure: 'I + use + my phone + on the bus [place]'
-    },
-    {
-      id: '07',
-      english: 'She studies English at night.',
-      portuguese: 'Ela estuda inglês à noite.',
-      structure: 'She + studies + English + at night [time]'
-    },
-    {
-      id: '08',
-      english: 'My brother cooks really well.',
-      portuguese: 'Meu irmão cozinha muito bem.',
-      structure: 'My brother [subject] + cooks + really well [adverb]'
-    },
-    {
-      id: '09',
-      english: 'We drink coffee in the morning.',
-      portuguese: 'Nós bebemos café de manhã.',
-      structure: 'We + drink + coffee + in the morning [time]'
-    },
-    {
-      id: '10',
-      english: 'I take the subway every day.',
-      portuguese: 'Eu pego o metrô todo dia.',
-      structure: 'I + take + the subway + every day [time]'
-    }
-  ];
+      const [playing, setPlaying]         = useState(null);
+      const [copied,  setCopied]          = useState(null);
+      const [voicesReady, setVoicesReady] = useState(false);
+      const [speed, setSpeed]             = useState(voiceConfig.rate);
+      const voiceRef = useRef(null);
 
-  /* =====================================================
-      CONFIGURAÇÕES GERAIS DE VOZ
-  =====================================================
+      useEffect(() => {
+        const load = () => {
+          const voices = speechSynthesis.getVoices();
+          if (voices.length > 0) {
+            voiceRef.current =
+              voices.find(v => v.lang === 'en-US' && v.name.includes('Female')) ||
+              voices.find(v => v.lang === 'en-US') ||
+              voices[0];
+            setVoicesReady(true);
+          }
+        };
+        load();
+        speechSynthesis.addEventListener('voiceschanged', load);
+        return () => speechSynthesis.removeEventListener('voiceschanged', load);
+      }, []);
 
-  rate:
-    Velocidade da fala
-    1 = normal | 0.8 = mais lento | 1.2 = mais rápido
+      const speak = (text, id) => {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang  = voiceConfig.lang;
+        u.rate  = speed;
+        u.pitch = voiceConfig.pitch;
+        if (voiceRef.current) u.voice = voiceRef.current;
+        u.onstart = () => setPlaying(id);
+        u.onend   = () => setPlaying(null);
+        u.onerror = () => setPlaying(null);
+        speechSynthesis.speak(u);
+      };
 
-  pitch:
-    Tom da voz (1 = padrão)
+      const stopAudio = () => { speechSynthesis.cancel(); setPlaying(null); };
 
-  lang:
-    Idioma da voz
+      const copyText = (text, id) => {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopied(id);
+          setTimeout(() => setCopied(null), 2000);
+        });
+      };
 
-  */
+      const speeds = [
+        { label: 'Slow',   value: 0.7 },
+        { label: 'Normal', value: 0.9 },
+        { label: 'Fast',   value: 1.2 },
+      ];
 
-  const voiceConfig = { lang: 'en-US', rate: 0.85, pitch: 1 };
+      return (
+        <div className="app">
+          <div className="container">
 
-  // ─── Estado da aplicação ─────────────────────────────
-  const [playing, setPlaying]           = useState(null);   // id da frase tocando
-  const [copied, setCopied]             = useState(null);   // id do botão copiado
-  const [voicesReady, setVoicesReady]   = useState(false);  // vozes do browser carregadas
-  const [speed, setSpeed]               = useState(voiceConfig.rate);
-  const voiceRef = useRef(null);
+            {/* Header */}
+            <div className="header">
+              <div className="header-top">
+                <div>
+                  <h1 className="header-title">
+                    <span className="header-icon">🎧</span>
+                    English Sentence Study
+                  </h1>
+                  <p className="header-sub">
+                    Ouça, leia a estrutura e pratique os sons do inglês.
+                  </p>
+                </div>
 
-  // ─── Carrega vozes do browser (necessário no Chrome) ─
-  useEffect(() => {
-    const load = () => {
-      const voices = speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        // prefere voz feminina americana, fallback para qualquer en-US
-        voiceRef.current =
-          voices.find(v => v.lang === 'en-US' && v.name.includes('Female')) ||
-          voices.find(v => v.lang === 'en-US') ||
-          voices[0];
-        setVoicesReady(true);
-      }
-    };
-    load();
-    speechSynthesis.addEventListener('voiceschanged', load);
-    return () => speechSynthesis.removeEventListener('voiceschanged', load);
-  }, []);
-
-  /* =====================================================
-      FUNÇÃO DE LEITURA DE ÁUDIO
-  ===================================================== */
-  const speak = (text, id) => {
-    speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang  = voiceConfig.lang;
-    utterance.rate  = speed;
-    utterance.pitch = voiceConfig.pitch;
-    if (voiceRef.current) utterance.voice = voiceRef.current;
-
-    utterance.onstart = () => setPlaying(id);
-    utterance.onend   = () => setPlaying(null);
-    utterance.onerror = () => setPlaying(null);
-
-    speechSynthesis.speak(utterance);
-  };
-
-  /* =====================================================
-      BOTÃO PARA PARAR O ÁUDIO
-  ===================================================== */
-  const stopAudio = () => {
-    speechSynthesis.cancel();
-    setPlaying(null);
-  };
-
-  /* =====================================================
-      COPIAR FRASE
-  ===================================================== */
-  const copyText = (text, id) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(id);
-      setTimeout(() => setCopied(null), 2000);
-    });
-  };
-
-  // ─── Speeds disponíveis ───────────────────────────────
-  const speeds = [
-    { label: 'Slow',   value: 0.7 },
-    { label: 'Normal', value: 0.9 },
-    { label: 'Fast',   value: 1.2 },
-  ];
-
-  return (
-    <div style={{ fontFamily: "'Georgia', serif" }} className="min-h-screen bg-slate-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-
-        {/* =====================================================
-            CABEÇALHO
-        ===================================================== */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-1">
-                🎧 English Sentence Study
-              </h1>
-              <p className="text-slate-500 text-sm">
-                Ouça, leia a estrutura e pratique os sons do inglês.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-
-              {/* Velocidade */}
-              <div className="flex bg-slate-100 rounded-2xl p-1 gap-1">
-                {speeds.map(s => (
-                  <button
-                    key={s.value}
-                    onClick={() => setSpeed(s.value)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                      speed === s.value
-                        ? 'bg-slate-900 text-white shadow'
-                        : 'text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Status voz */}
-              <div className={`px-3 py-1.5 rounded-2xl text-xs font-medium border ${
-                voicesReady
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-amber-50 text-amber-600 border-amber-200'
-              }`}>
-                {voicesReady ? '🔊 Voice ready' : '⏳ Loading voice…'}
-              </div>
-
-              {/* Stop */}
-              {playing && (
-                <button
-                  onClick={stopAudio}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-semibold transition-all hover:scale-105"
-                >
-                  ■ Stop
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* =====================================================
-            LISTA DE FRASES
-        ===================================================== */}
-        <div className="space-y-4">
-          {frases.map((frase) => {
-            const isPlaying = playing === frase.id;
-            const isCopied  = copied  === frase.id;
-
-            return (
-              <div
-                key={frase.id}
-                className={`bg-white rounded-3xl border transition-all duration-300 p-5 md:p-6 ${
-                  isPlaying
-                    ? 'border-slate-900 shadow-lg ring-2 ring-slate-900/10'
-                    : 'border-slate-200 shadow-sm hover:shadow-md'
-                }`}
-              >
-                <div className="flex flex-col lg:flex-row lg:items-center gap-5">
-
-                  {/* =====================================================
-                      INFORMAÇÕES DA FRASE
-                  ===================================================== */}
-                  <div className="flex-1 min-w-0">
-                    {/* Badges */}
-                    <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className="bg-slate-900 text-white text-xs font-bold px-3 py-1 rounded-full">
-                        {frase.id}
-                      </span>
-                      <span className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-medium">
-                        SVO Structure
-                      </span>
-                      {isPlaying && (
-                        <span className="bg-emerald-100 text-emerald-700 text-xs px-3 py-1 rounded-full font-medium animate-pulse">
-                          ♪ Playing…
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Frase em inglês */}
-                    <h2 className="text-xl md:text-2xl font-semibold text-slate-900 mb-1 leading-snug">
-                      {frase.english}
-                    </h2>
-
-                    {/* Tradução */}
-                    <p className="text-slate-500 text-sm mb-3 italic">
-                      {frase.portuguese}
-                    </p>
-
-                    {/* Estrutura */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                        Structure
-                      </span>
-                      <p className="text-slate-700 text-sm leading-relaxed font-mono">
-                        {frase.structure}
-                      </p>
-                    </div>
+                <div className="header-controls">
+                  <div className="speed-group">
+                    {speeds.map(s => (
+                      <button
+                        key={s.value}
+                        onClick={() => setSpeed(s.value)}
+                        className={`speed-btn${speed === s.value ? ' active' : ''}`}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
                   </div>
 
-                  {/* =====================================================
-                      BOTÕES DE AÇÃO
-                  ===================================================== */}
-                  <div className="flex flex-row lg:flex-col gap-3 lg:min-w-[160px]">
+                  <span className={`status ${voicesReady ? 'ready' : 'loading'}`}>
+                    {voicesReady ? '🔊 Voice ready' : '⏳ Loading…'}
+                  </span>
 
-                    {/* Ouvir frase completa */}
-                    <button
-                      onClick={() => speak(frase.english, frase.id)}
-                      className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 hover:scale-105 ${
-                        isPlaying
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-900 text-white hover:bg-slate-700'
-                      }`}
-                    >
-                      {isPlaying ? '♪ Playing' : '▶ Listen'}
-                    </button>
-
-                    {/* Ouvir devagar */}
-                    <button
-                      onClick={() => {
-                        speechSynthesis.cancel();
-                        const u = new SpeechSynthesisUtterance(frase.english);
-                        u.lang  = voiceConfig.lang;
-                        u.rate  = 0.6;
-                        u.pitch = voiceConfig.pitch;
-                        if (voiceRef.current) u.voice = voiceRef.current;
-                        u.onstart = () => setPlaying(frase.id + '_slow');
-                        u.onend   = () => setPlaying(null);
-                        u.onerror = () => setPlaying(null);
-                        speechSynthesis.speak(u);
-                      }}
-                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all duration-200 hover:scale-105"
-                    >
-                      🐢 Slow
-                    </button>
-
-                    {/* Copiar */}
-                    <button
-                      onClick={() => copyText(frase.english, frase.id)}
-                      className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 hover:scale-105 ${
-                        isCopied
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
-                    >
-                      {isCopied ? '✓ Copied!' : '⎘ Copy'}
-                    </button>
-                  </div>
+                  {playing && (
+                    <button className="stop-btn" onClick={stopAudio}>■ Stop</button>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
 
-        {/* =====================================================
-            RODAPÉ
-        ===================================================== */}
-        <div className="mt-10 text-center text-xs text-slate-400">
-          Built with React + Web Speech API &nbsp;·&nbsp; {frases.length} sentences
+            {/* Frases */}
+            <div className="cards-list">
+              {frases.map((frase) => {
+                const isPlaying = playing === frase.id;
+                const isCopied  = copied  === frase.id;
+
+                return (
+                  <div key={frase.id} className={`phrase-card${isPlaying ? ' playing' : ''}`}>
+                    <div className="card-inner">
+
+                      <div className="card-content">
+                        <div className="badges">
+                          <span className="badge badge-num">{frase.id}</span>
+                          <span className="badge badge-svo">SVO Structure</span>
+                          {isPlaying && <span className="badge badge-play">♪ Playing</span>}
+                        </div>
+
+                        <p className="phrase-en">{frase.english}</p>
+                        <p className="phrase-pt">{frase.portuguese}</p>
+
+                        <div className="structure">
+                          <div className="structure-label">Structure</div>
+                          <p className="structure-text">{frase.structure}</p>
+                        </div>
+                      </div>
+
+                      <div className="actions">
+                        <button
+                          className={`action-btn btn-listen${isPlaying ? ' is-playing' : ''}`}
+                          onClick={() => speak(frase.english, frase.id)}
+                        >
+                          {isPlaying ? '♪ Playing' : '▶ Listen'}
+                        </button>
+
+                        <button
+                          className="action-btn btn-slow"
+                          onClick={() => {
+                            speechSynthesis.cancel();
+                            const u = new SpeechSynthesisUtterance(frase.english);
+                            u.lang  = voiceConfig.lang;
+                            u.rate  = 0.6;
+                            u.pitch = voiceConfig.pitch;
+                            if (voiceRef.current) u.voice = voiceRef.current;
+                            u.onstart = () => setPlaying(frase.id + '_slow');
+                            u.onend   = () => setPlaying(null);
+                            u.onerror = () => setPlaying(null);
+                            speechSynthesis.speak(u);
+                          }}
+                        >
+                          🐢 Slow
+                        </button>
+
+                        <button
+                          className={`action-btn btn-copy${isCopied ? ' copied' : ''}`}
+                          onClick={() => copyText(frase.english, frase.id)}
+                        >
+                          {isCopied ? '✓ Copied!' : '⎘ Copy'}
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer */}
+            <div className="footer">
+              <span>React + Web Speech API</span>
+              <span className="dot"></span>
+              <span>{frases.length} sentences</span>
+            </div>
+
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
