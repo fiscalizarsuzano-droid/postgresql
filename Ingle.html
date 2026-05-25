@@ -1,174 +1,374 @@
-export default function EnglishStudyApp() { /* ===================================================== COMO ADICIONAR NOVAS FRASES =====================================================
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Título da Página</title>
+</head>
+<body>
+ import { useState, useEffect, useRef } from "react";
 
-Copie um bloco abaixo e altere:
+export default function EnglishStudyApp() {
 
-id:
-  Número da frase
+  /* =====================================================
+      COMO ADICIONAR NOVAS FRASES
+  =====================================================
 
-english:
-  Frase em inglês que será lida
+  Copie um bloco abaixo e altere:
 
-structure:
-  Estrutura da frase
+  id:
+    Número da frase
 
-EXEMPLO:
+  english:
+    Frase em inglês que será lida
 
-{
-  id: '11',
-  english: 'I study English every day.',
-  structure: 'I + study + English + every day [time]'
-},
+  portuguese:
+    Tradução em português
 
-*/
+  structure:
+    Estrutura da frase
 
-const frases = [ { id: '01', english: 'I drink water every day.', structure: 'I [subject] + drink [verb] + water [object] + every day [time]' }, { id: '02', english: 'He works at a big company.', structure: 'He + works + at a big company' }, { id: '03', english: 'We watch movies on the weekend.', structure: 'We + watch + movies + on the weekend [time/place]' }, { id: '04', english: 'She buys food at the market.', structure: 'She + buys + food + at the market [place]' }, { id: '05', english: 'They live in São Paulo.', structure: 'They + live + in São Paulo [place]' }, { id: '06', english: 'I use my phone on the bus.', structure: 'I + use + my phone + on the bus [place]' }, { id: '07', english: 'She studies English at night.', structure: 'She + studies + English + at night [time]' }, { id: '08', english: 'My brother cooks really well.', structure: 'My brother + cooks + really well' }, { id: '09', english: 'We drink coffee in the morning.', structure: 'We + drink + coffee + in the morning [time]' }, { id: '10', english: 'I take the subway every day.', structure: 'I + take + the subway + every day [time]' } ];
+  EXEMPLO:
 
-/* ===================================================== CONFIGURAÇÕES GERAIS DE VOZ =====================================================
+  {
+    id: '11',
+    english: 'I study English every day.',
+    portuguese: 'Eu estudo inglês todos os dias.',
+    structure: 'I + study + English + every day [time]'
+  },
 
-rate:
-  velocidade da fala
-  1 = normal
-  0.8 = mais lento
-  1.2 = mais rápido
+  */
 
-pitch:
-  tom da voz
+  const frases = [
+    {
+      id: '01',
+      english: 'I drink water every day.',
+      portuguese: 'Eu bebo água todo dia.',
+      structure: 'I [subject] + drink [verb] + water [object] + every day [time]'
+    },
+    {
+      id: '02',
+      english: 'He works at a big company.',
+      portuguese: 'Ele trabalha em uma grande empresa.',
+      structure: 'He + works + at a big company [place]'
+    },
+    {
+      id: '03',
+      english: 'We watch movies on the weekend.',
+      portuguese: 'Nós assistimos filmes no fim de semana.',
+      structure: 'We + watch + movies + on the weekend [time/place]'
+    },
+    {
+      id: '04',
+      english: 'She buys food at the market.',
+      portuguese: 'Ela compra comida no mercado.',
+      structure: 'She + buys + food + at the market [place]'
+    },
+    {
+      id: '05',
+      english: 'They live in São Paulo.',
+      portuguese: 'Eles moram em São Paulo.',
+      structure: 'They + live + in São Paulo [place]'
+    },
+    {
+      id: '06',
+      english: 'I use my phone on the bus.',
+      portuguese: 'Eu uso meu celular no ônibus.',
+      structure: 'I + use + my phone + on the bus [place]'
+    },
+    {
+      id: '07',
+      english: 'She studies English at night.',
+      portuguese: 'Ela estuda inglês à noite.',
+      structure: 'She + studies + English + at night [time]'
+    },
+    {
+      id: '08',
+      english: 'My brother cooks really well.',
+      portuguese: 'Meu irmão cozinha muito bem.',
+      structure: 'My brother [subject] + cooks + really well [adverb]'
+    },
+    {
+      id: '09',
+      english: 'We drink coffee in the morning.',
+      portuguese: 'Nós bebemos café de manhã.',
+      structure: 'We + drink + coffee + in the morning [time]'
+    },
+    {
+      id: '10',
+      english: 'I take the subway every day.',
+      portuguese: 'Eu pego o metrô todo dia.',
+      structure: 'I + take + the subway + every day [time]'
+    }
+  ];
 
-lang:
-  idioma da voz
+  /* =====================================================
+      CONFIGURAÇÕES GERAIS DE VOZ
+  =====================================================
 
-*/
+  rate:
+    Velocidade da fala
+    1 = normal | 0.8 = mais lento | 1.2 = mais rápido
 
-const voiceConfig = { lang: 'en-US', rate: 0.9, pitch: 1 };
+  pitch:
+    Tom da voz (1 = padrão)
 
-/* ===================================================== FUNÇÃO DE LEITURA DE ÁUDIO ===================================================== */
+  lang:
+    Idioma da voz
 
-const speak = (text) => { const utterance = new SpeechSynthesisUtterance(text);
+  */
 
-utterance.lang = voiceConfig.lang;
-utterance.rate = voiceConfig.rate;
-utterance.pitch = voiceConfig.pitch;
+  const voiceConfig = { lang: 'en-US', rate: 0.85, pitch: 1 };
 
-speechSynthesis.cancel();
-speechSynthesis.speak(utterance);
+  // ─── Estado da aplicação ─────────────────────────────
+  const [playing, setPlaying]           = useState(null);   // id da frase tocando
+  const [copied, setCopied]             = useState(null);   // id do botão copiado
+  const [voicesReady, setVoicesReady]   = useState(false);  // vozes do browser carregadas
+  const [speed, setSpeed]               = useState(voiceConfig.rate);
+  const voiceRef = useRef(null);
 
-};
+  // ─── Carrega vozes do browser (necessário no Chrome) ─
+  useEffect(() => {
+    const load = () => {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        // prefere voz feminina americana, fallback para qualquer en-US
+        voiceRef.current =
+          voices.find(v => v.lang === 'en-US' && v.name.includes('Female')) ||
+          voices.find(v => v.lang === 'en-US') ||
+          voices[0];
+        setVoicesReady(true);
+      }
+    };
+    load();
+    speechSynthesis.addEventListener('voiceschanged', load);
+    return () => speechSynthesis.removeEventListener('voiceschanged', load);
+  }, []);
 
-/* ===================================================== BOTÃO PARA PARAR O ÁUDIO ===================================================== */
+  /* =====================================================
+      FUNÇÃO DE LEITURA DE ÁUDIO
+  ===================================================== */
+  const speak = (text, id) => {
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang  = voiceConfig.lang;
+    utterance.rate  = speed;
+    utterance.pitch = voiceConfig.pitch;
+    if (voiceRef.current) utterance.voice = voiceRef.current;
 
-const stopAudio = () => { speechSynthesis.cancel(); };
+    utterance.onstart = () => setPlaying(id);
+    utterance.onend   = () => setPlaying(null);
+    utterance.onerror = () => setPlaying(null);
 
-return ( <div className="min-h-screen bg-gray-100 p-6"> <div className="max-w-6xl mx-auto">
+    speechSynthesis.speak(utterance);
+  };
 
-{/* =====================================================
-        MENU SUPERIOR
-    ===================================================== */}
+  /* =====================================================
+      BOTÃO PARA PARAR O ÁUDIO
+  ===================================================== */
+  const stopAudio = () => {
+    speechSynthesis.cancel();
+    setPlaying(null);
+  };
 
-    <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-200">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            English Sentence Audio Study
-          </h1>
+  /* =====================================================
+      COPIAR FRASE
+  ===================================================== */
+  const copyText = (text, id) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(id);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  };
 
-          <p className="text-gray-600">
-            Study English sentence structure and pronunciation.
-          </p>
+  // ─── Speeds disponíveis ───────────────────────────────
+  const speeds = [
+    { label: 'Slow',   value: 0.7 },
+    { label: 'Normal', value: 0.9 },
+    { label: 'Fast',   value: 1.2 },
+  ];
+
+  return (
+    <div style={{ fontFamily: "'Georgia', serif" }} className="min-h-screen bg-slate-50 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+
+        {/* =====================================================
+            CABEÇALHO
+        ===================================================== */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-1">
+                🎧 English Sentence Study
+              </h1>
+              <p className="text-slate-500 text-sm">
+                Ouça, leia a estrutura e pratique os sons do inglês.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+
+              {/* Velocidade */}
+              <div className="flex bg-slate-100 rounded-2xl p-1 gap-1">
+                {speeds.map(s => (
+                  <button
+                    key={s.value}
+                    onClick={() => setSpeed(s.value)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                      speed === s.value
+                        ? 'bg-slate-900 text-white shadow'
+                        : 'text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Status voz */}
+              <div className={`px-3 py-1.5 rounded-2xl text-xs font-medium border ${
+                voicesReady
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-amber-50 text-amber-600 border-amber-200'
+              }`}>
+                {voicesReady ? '🔊 Voice ready' : '⏳ Loading voice…'}
+              </div>
+
+              {/* Stop */}
+              {playing && (
+                <button
+                  onClick={stopAudio}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-semibold transition-all hover:scale-105"
+                >
+                  ■ Stop
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <div className="bg-gray-100 px-4 py-2 rounded-2xl border text-sm">
-            Structure: SVO
-          </div>
+        {/* =====================================================
+            LISTA DE FRASES
+        ===================================================== */}
+        <div className="space-y-4">
+          {frases.map((frase) => {
+            const isPlaying = playing === frase.id;
+            const isCopied  = copied  === frase.id;
 
-          <div className="bg-gray-100 px-4 py-2 rounded-2xl border text-sm">
-            Voice: English US
-          </div>
+            return (
+              <div
+                key={frase.id}
+                className={`bg-white rounded-3xl border transition-all duration-300 p-5 md:p-6 ${
+                  isPlaying
+                    ? 'border-slate-900 shadow-lg ring-2 ring-slate-900/10'
+                    : 'border-slate-200 shadow-sm hover:shadow-md'
+                }`}
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center gap-5">
 
-          <div className="bg-gray-100 px-4 py-2 rounded-2xl border text-sm">
-            Speed: {voiceConfig.rate}x
-          </div>
+                  {/* =====================================================
+                      INFORMAÇÕES DA FRASE
+                  ===================================================== */}
+                  <div className="flex-1 min-w-0">
+                    {/* Badges */}
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <span className="bg-slate-900 text-white text-xs font-bold px-3 py-1 rounded-full">
+                        {frase.id}
+                      </span>
+                      <span className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-medium">
+                        SVO Structure
+                      </span>
+                      {isPlaying && (
+                        <span className="bg-emerald-100 text-emerald-700 text-xs px-3 py-1 rounded-full font-medium animate-pulse">
+                          ♪ Playing…
+                        </span>
+                      )}
+                    </div>
 
-          <button
-            onClick={stopAudio}
-            className="bg-red-500 text-white px-4 py-2 rounded-2xl hover:scale-105 transition-all"
-          >
-            Stop Audio
-          </button>
+                    {/* Frase em inglês */}
+                    <h2 className="text-xl md:text-2xl font-semibold text-slate-900 mb-1 leading-snug">
+                      {frase.english}
+                    </h2>
+
+                    {/* Tradução */}
+                    <p className="text-slate-500 text-sm mb-3 italic">
+                      {frase.portuguese}
+                    </p>
+
+                    {/* Estrutura */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">
+                        Structure
+                      </span>
+                      <p className="text-slate-700 text-sm leading-relaxed font-mono">
+                        {frase.structure}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* =====================================================
+                      BOTÕES DE AÇÃO
+                  ===================================================== */}
+                  <div className="flex flex-row lg:flex-col gap-3 lg:min-w-[160px]">
+
+                    {/* Ouvir frase completa */}
+                    <button
+                      onClick={() => speak(frase.english, frase.id)}
+                      className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 hover:scale-105 ${
+                        isPlaying
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-slate-900 text-white hover:bg-slate-700'
+                      }`}
+                    >
+                      {isPlaying ? '♪ Playing' : '▶ Listen'}
+                    </button>
+
+                    {/* Ouvir devagar */}
+                    <button
+                      onClick={() => {
+                        speechSynthesis.cancel();
+                        const u = new SpeechSynthesisUtterance(frase.english);
+                        u.lang  = voiceConfig.lang;
+                        u.rate  = 0.6;
+                        u.pitch = voiceConfig.pitch;
+                        if (voiceRef.current) u.voice = voiceRef.current;
+                        u.onstart = () => setPlaying(frase.id + '_slow');
+                        u.onend   = () => setPlaying(null);
+                        u.onerror = () => setPlaying(null);
+                        speechSynthesis.speak(u);
+                      }}
+                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-semibold text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all duration-200 hover:scale-105"
+                    >
+                      🐢 Slow
+                    </button>
+
+                    {/* Copiar */}
+                    <button
+                      onClick={() => copyText(frase.english, frase.id)}
+                      className={`flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 hover:scale-105 ${
+                        isCopied
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      {isCopied ? '✓ Copied!' : '⎘ Copy'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* =====================================================
+            RODAPÉ
+        ===================================================== */}
+        <div className="mt-10 text-center text-xs text-slate-400">
+          Built with React + Web Speech API &nbsp;·&nbsp; {frases.length} sentences
         </div>
       </div>
     </div>
-
-    {/* =====================================================
-        LISTA DE FRASES
-    ===================================================== */}
-
-    <div className="space-y-5">
-      {frases.map((frase) => (
-        <div
-          key={frase.id}
-          className="bg-white rounded-3xl shadow-md border border-gray-200 p-6"
-        >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
-            {/* =====================================================
-                INFORMAÇÕES DA FRASE
-            ===================================================== */}
-
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <span className="bg-black text-white text-sm font-bold px-4 py-1 rounded-full">
-                  {frase.id}
-                </span>
-
-                <span className="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full">
-                  SVO Structure
-                </span>
-              </div>
-
-              <h2 className="text-2xl font-semibold text-gray-900 mb-3 leading-relaxed">
-                {frase.english}
-              </h2>
-
-              <div className="bg-gray-50 border rounded-2xl p-4">
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  {frase.structure}
-                </p>
-              </div>
-            </div>
-
-            {/* =====================================================
-                BOTÕES DE AÇÃO
-            ===================================================== */}
-
-            <div className="flex flex-col gap-3 min-w-[180px]">
-              <button
-                onClick={() => speak(frase.english)}
-                className="bg-black text-white px-5 py-4 rounded-2xl hover:scale-105 transition-all duration-200 font-medium"
-              >
-                ▶ Listen Sentence
-              </button>
-
-              <button
-                onClick={() => navigator.clipboard.writeText(frase.english)}
-                className="bg-gray-200 text-gray-800 px-5 py-4 rounded-2xl hover:scale-105 transition-all duration-200 font-medium"
-              >
-                Copy Sentence
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-
-    {/* =====================================================
-        RODAPÉ
-    ===================================================== */}
-
-    <div className="mt-10 text-center text-sm text-gray-500">
-      Built with React + Web Speech API
-    </div>
-  </div>
-</div>
-
-); }
+  );
+}
+</body>
+</html>
