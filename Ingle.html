@@ -1,0 +1,174 @@
+export default function EnglishStudyApp() { /* ===================================================== COMO ADICIONAR NOVAS FRASES =====================================================
+
+Copie um bloco abaixo e altere:
+
+id:
+  Número da frase
+
+english:
+  Frase em inglês que será lida
+
+structure:
+  Estrutura da frase
+
+EXEMPLO:
+
+{
+  id: '11',
+  english: 'I study English every day.',
+  structure: 'I + study + English + every day [time]'
+},
+
+*/
+
+const frases = [ { id: '01', english: 'I drink water every day.', structure: 'I [subject] + drink [verb] + water [object] + every day [time]' }, { id: '02', english: 'He works at a big company.', structure: 'He + works + at a big company' }, { id: '03', english: 'We watch movies on the weekend.', structure: 'We + watch + movies + on the weekend [time/place]' }, { id: '04', english: 'She buys food at the market.', structure: 'She + buys + food + at the market [place]' }, { id: '05', english: 'They live in São Paulo.', structure: 'They + live + in São Paulo [place]' }, { id: '06', english: 'I use my phone on the bus.', structure: 'I + use + my phone + on the bus [place]' }, { id: '07', english: 'She studies English at night.', structure: 'She + studies + English + at night [time]' }, { id: '08', english: 'My brother cooks really well.', structure: 'My brother + cooks + really well' }, { id: '09', english: 'We drink coffee in the morning.', structure: 'We + drink + coffee + in the morning [time]' }, { id: '10', english: 'I take the subway every day.', structure: 'I + take + the subway + every day [time]' } ];
+
+/* ===================================================== CONFIGURAÇÕES GERAIS DE VOZ =====================================================
+
+rate:
+  velocidade da fala
+  1 = normal
+  0.8 = mais lento
+  1.2 = mais rápido
+
+pitch:
+  tom da voz
+
+lang:
+  idioma da voz
+
+*/
+
+const voiceConfig = { lang: 'en-US', rate: 0.9, pitch: 1 };
+
+/* ===================================================== FUNÇÃO DE LEITURA DE ÁUDIO ===================================================== */
+
+const speak = (text) => { const utterance = new SpeechSynthesisUtterance(text);
+
+utterance.lang = voiceConfig.lang;
+utterance.rate = voiceConfig.rate;
+utterance.pitch = voiceConfig.pitch;
+
+speechSynthesis.cancel();
+speechSynthesis.speak(utterance);
+
+};
+
+/* ===================================================== BOTÃO PARA PARAR O ÁUDIO ===================================================== */
+
+const stopAudio = () => { speechSynthesis.cancel(); };
+
+return ( <div className="min-h-screen bg-gray-100 p-6"> <div className="max-w-6xl mx-auto">
+
+{/* =====================================================
+        MENU SUPERIOR
+    ===================================================== */}
+
+    <div className="bg-white rounded-3xl shadow-lg p-6 mb-6 border border-gray-200">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            English Sentence Audio Study
+          </h1>
+
+          <p className="text-gray-600">
+            Study English sentence structure and pronunciation.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <div className="bg-gray-100 px-4 py-2 rounded-2xl border text-sm">
+            Structure: SVO
+          </div>
+
+          <div className="bg-gray-100 px-4 py-2 rounded-2xl border text-sm">
+            Voice: English US
+          </div>
+
+          <div className="bg-gray-100 px-4 py-2 rounded-2xl border text-sm">
+            Speed: {voiceConfig.rate}x
+          </div>
+
+          <button
+            onClick={stopAudio}
+            className="bg-red-500 text-white px-4 py-2 rounded-2xl hover:scale-105 transition-all"
+          >
+            Stop Audio
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {/* =====================================================
+        LISTA DE FRASES
+    ===================================================== */}
+
+    <div className="space-y-5">
+      {frases.map((frase) => (
+        <div
+          key={frase.id}
+          className="bg-white rounded-3xl shadow-md border border-gray-200 p-6"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+            {/* =====================================================
+                INFORMAÇÕES DA FRASE
+            ===================================================== */}
+
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <span className="bg-black text-white text-sm font-bold px-4 py-1 rounded-full">
+                  {frase.id}
+                </span>
+
+                <span className="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full">
+                  SVO Structure
+                </span>
+              </div>
+
+              <h2 className="text-2xl font-semibold text-gray-900 mb-3 leading-relaxed">
+                {frase.english}
+              </h2>
+
+              <div className="bg-gray-50 border rounded-2xl p-4">
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  {frase.structure}
+                </p>
+              </div>
+            </div>
+
+            {/* =====================================================
+                BOTÕES DE AÇÃO
+            ===================================================== */}
+
+            <div className="flex flex-col gap-3 min-w-[180px]">
+              <button
+                onClick={() => speak(frase.english)}
+                className="bg-black text-white px-5 py-4 rounded-2xl hover:scale-105 transition-all duration-200 font-medium"
+              >
+                ▶ Listen Sentence
+              </button>
+
+              <button
+                onClick={() => navigator.clipboard.writeText(frase.english)}
+                className="bg-gray-200 text-gray-800 px-5 py-4 rounded-2xl hover:scale-105 transition-all duration-200 font-medium"
+              >
+                Copy Sentence
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* =====================================================
+        RODAPÉ
+    ===================================================== */}
+
+    <div className="mt-10 text-center text-sm text-gray-500">
+      Built with React + Web Speech API
+    </div>
+  </div>
+</div>
+
+); }
