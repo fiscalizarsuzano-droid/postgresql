@@ -328,66 +328,69 @@
       */
 
       const frases = [
-        {
-          id: '01',
-          english: 'I drink water every day.',
-          portuguese: 'Eu bebo água todo dia.',
-          structure: 'I [subject] + drink [verb] + water [object] + every day [time]'
-        },
-        {
-          id: '02',
-          english: 'He works at a big company.',
-          portuguese: 'Ele trabalha em uma grande empresa.',
-          structure: 'He + works + at a big company [place]'
-        },
-        {
-          id: '03',
-          english: 'We watch movies on the weekend.',
-          portuguese: 'Nós assistimos filmes no fim de semana.',
-          structure: 'We + watch + movies + on the weekend [time/place]'
-        },
-        {
-          id: '04',
-          english: 'She buys food at the market.',
-          portuguese: 'Ela compra comida no mercado.',
-          structure: 'She + buys + food + at the market [place]'
-        },
-        {
-          id: '05',
-          english: 'They live in São Paulo.',
-          portuguese: 'Eles moram em São Paulo.',
-          structure: 'They + live + in São Paulo [place]'
-        },
-        {
-          id: '06',
-          english: 'I use my phone on the bus.',
-          portuguese: 'Eu uso meu celular no ônibus.',
-          structure: 'I + use + my phone + on the bus [place]'
-        },
-        {
-          id: '07',
-          english: 'She studies English at night.',
-          portuguese: 'Ela estuda inglês à noite.',
-          structure: 'She + studies + English + at night [time]'
-        },
-        {
-          id: '08',
-          english: 'My brother cooks really well.',
-          portuguese: 'Meu irmão cozinha muito bem.',
-          structure: 'My brother [subject] + cooks + really well [adverb]'
-        },
-        {
-          id: '09',
-          english: 'We drink coffee in the morning.',
-          portuguese: 'Nós bebemos café de manhã.',
-          structure: 'We + drink + coffee + in the morning [time]'
-        },
-        {
-          id: '10',
-          english: 'I take the subway every day.',
-          portuguese: 'Eu pego o metrô todo dia.',
-          structure: 'I + take + the subway + every day [time]'
-        }
+    // Estrutura SVO
+    { id: '01', english: 'I drink water every day.', portuguese: 'Eu bebo água todo dia.', structure: 'I + drink + water + every day [tempo]' },
+    { id: '02', english: 'He works at a big company.', portuguese: 'Ele trabalha numa empresa grande.', structure: 'He + works + at a big company' },
+    { id: '03', english: 'We watch movies on the weekend.', portuguese: 'Nós assistimos filmes no fim de semana.', structure: 'We + watch + movies + on the weekend [tempo/lugar]' },
+    { id: '04', english: 'She buys food at the market.', portuguese: 'Ela compra comida no mercado.', structure: 'She + buys + food + at the market [lugar]' },
+    { id: '05', english: 'They live in São Paulo.', portuguese: 'Eles moram em São Paulo.', structure: 'They + live + in São Paulo [lugar]' },
+    { id: '06', english: 'I use my phone on the bus.', portuguese: 'Eu uso o celular no transporte.', structure: 'I + use + my phone + on the bus [lugar]' },
+    { id: '07', english: 'She studies English at night.', portuguese: 'Ela estuda inglês de noite.', structure: 'She + studies + English + at night [tempo]' },
+    { id: '08', english: 'My brother cooks really well.', portuguese: 'Meu irmão cozinha muito bem.', structure: 'My brother + cooks + really well' },
+    { id: '09', english: 'We drink coffee in the morning.', portuguese: 'Nós tomamos café de manhã.', structure: 'We + drink + coffee + in the morning [tempo]' },
+    { id: '10', english: 'I take the subway every day.', portuguese: 'Eu pego o metrô todo dia.', structure: 'I + take + the subway + every day [tempo]' },
+    { id: '11', english: 'He reads books before sleeping.', portuguese: 'Ele lê livros antes de dormir.', structure: 'He + reads + books + before sleeping [tempo]' },
+    { id: '12', english: 'They eat pizza on Fridays.', portuguese: 'Eles comem pizza na sexta.', structure: 'They + eat + pizza + on Fridays [tempo]' },
+    
+    // Negação
+    { id: '01', english: "I don't like cold weather.", portuguese: 'Eu não gosto de frio.', structure: "I + don't + like + cold weather" },
+    { id: '02', english: "She doesn't eat meat.", portuguese: 'Ela não come carne.', structure: "She + doesn't + eat + meat" },
+    { id: '03', english: "We didn't go to the party.", portuguese: 'Nós não fomos à festa.', structure: "We + didn't + go + to the party" },
+    { id: '04', english: "He doesn't work on Saturdays.", portuguese: 'Ele não trabalha aos sábados.', structure: "He + doesn't + work + on Saturdays" },
+    { id: '05', english: "I didn't hear the alarm.", portuguese: 'Eu não ouvi o alarme.', structure: "I + didn't + hear + the alarm" },
+    { id: '06', english: "They didn't study yesterday.", portuguese: 'Eles não estudaram ontem.', structure: "They + didn't + study + yesterday [tempo]" },
+    { id: '07', english: "She won't go to work tomorrow.", portuguese: 'Ela não vai ao trabalho amanhã.', structure: "She + won't + go + to work + tomorrow" },
+    { id: '08', english: "I don't understand this word.", portuguese: 'Eu não entendo essa palavra.', structure: "I + don't + understand + this word" },
+    { id: '09', english: "My phone doesn't have signal.", portuguese: 'Meu celular não tem sinal.', structure: "My phone + doesn't + have + signal" },
+    { id: '10', english: "We haven't seen that movie yet.", portuguese: 'Nós não vimos aquele filme ainda.', structure: "We + haven't + seen + that movie + yet" },
+    
+    // Perguntas
+    { id: '01', english: 'Do you like music?', portuguese: 'Você gosta de música?', structure: 'Do + you + like + music?' },
+    { id: '02', english: 'Does she work here?', portuguese: 'Ela trabalha aqui?', structure: 'Does + she + work + here?' },
+    { id: '03', english: 'Did you go to the market?', portuguese: 'Você foi ao mercado?', structure: 'Did + you + go + to the market?' },
+    { id: '04', english: 'Do they live nearby?', portuguese: 'Eles moram perto?', structure: 'Do + they + live + nearby?' },
+    { id: '05', english: 'Can you help me?', portuguese: 'Você pode me ajudar?', structure: 'Can + you + help + me?' },
+    { id: '06', english: 'Will she come tomorrow?', portuguese: 'Ela vai vir amanhã?', structure: 'Will + she + come + tomorrow?' },
+    { id: '07', english: 'Do you have a phone?', portuguese: 'Você tem um celular?', structure: 'Do + you + have + a phone?' },
+    { id: '08', english: 'Did he eat already?', portuguese: 'Ele comeu já?', structure: 'Did + he + eat + already?' },
+    { id: '09', english: 'Do you speak English?', portuguese: 'Você fala inglês?', structure: 'Do + you + speak + English?' },
+    { id: '10', english: 'Where do you live?', portuguese: 'Onde você mora?', structure: 'Where + do + you + live?' },
+    { id: '11', english: 'What time is it?', portuguese: 'Que horas são?', structure: 'What time + is + it?' },
+    { id: '12', english: 'What is your name?', portuguese: 'Qual é o seu nome?', structure: 'What + is + your name?' },
+    
+    // Adjetivos antes do substantivo
+    { id: '01', english: 'A long day.', portuguese: 'Um dia longo.', structure: 'adjetivo [long] + substantivo [day]' },
+    { id: '02', english: 'A delicious meal.', portuguese: 'Uma comida gostosa.', structure: 'adjetivo [delicious] + substantivo [meal]' },
+    { id: '03', english: 'A noisy stretch.', portuguese: 'Um trecho barulhento.', structure: 'adjetivo [noisy] + substantivo [stretch]' },
+    { id: '04', english: 'I have an old phone.', portuguese: 'Eu tenho um celular velho.', structure: 'I + have + adjetivo [old] + substantivo [phone]' },
+    { id: '05', english: 'She uses a black backpack.', portuguese: 'Ela usa uma mochila preta.', structure: 'She + uses + adjetivo [black] + substantivo [backpack]' },
+    { id: '06', english: 'We live in a big city.', portuguese: 'Nós moramos numa cidade grande.', structure: 'We + live in + adjetivo [big] + substantivo [city]' },
+    { id: '07', english: 'He has a difficult job.', portuguese: 'Ele tem um trabalho difícil.', structure: 'He + has + adjetivo [difficult] + substantivo [job]' },
+    { id: '08', english: 'She is a smart person.', portuguese: 'Ela é uma pessoa inteligente.', structure: 'She + is + adjetivo [smart] + substantivo [person]' },
+    { id: '09', english: 'Today was a hot day.', portuguese: 'Hoje foi um dia quente.', structure: 'Today + was + adjetivo [hot] + substantivo [day]' },
+    { id: '10', english: 'I need a comfortable chair.', portuguese: 'Eu preciso de uma cadeira confortável.', structure: 'I + need + adjetivo [comfortable] + substantivo [chair]' },
+    
+    // Tempos verbais
+    { id: '01', english: 'I work every day.', portuguese: 'Eu trabalho todos os dias.', structure: 'sujeito + verbo simples → presente' },
+    { id: '02', english: 'She is working now.', portuguese: 'Ela está trabalhando agora.', structure: 'She + is + working [verbo-ing] → presente contínuo' },
+    { id: '03', english: 'We went to the cinema yesterday.', portuguese: 'Nós fomos ao cinema ontem.', structure: 'We + went [irregular] + yesterday → passado' },
+    { id: '04', english: 'I will study tomorrow.', portuguese: 'Eu vou estudar amanhã.', structure: 'I + will + study + tomorrow → futuro' },
+    { id: '05', english: 'He is eating right now.', portuguese: 'Ele está comendo agora.', structure: 'He + is + eating [verbo-ing] → presente contínuo' },
+    { id: '06', english: 'They traveled last week.', portuguese: 'Eles viajaram na semana passada.', structure: 'They + traveled [verbo-ed] + last week → passado' },
+    { id: '07', english: 'You will learn English.', portuguese: 'Você vai aprender inglês.', structure: 'You + will + learn → futuro' },
+    { id: '08', english: 'I am listening to music.', portuguese: 'Eu estou ouvindo música.', structure: 'I + am + listening [verbo-ing] → presente contínuo' },
+    { id: '09', english: 'She arrived late yesterday.', portuguese: 'Ela chegou tarde ontem.', structure: 'She + arrived [verbo-ed] + late + yesterday → passado' },
+    { id: '10', english: 'We will travel in July.', portuguese: 'Nós vamos viajar em julho.', structure: 'We + will + travel + in July → futuro' },
       ];
 
       /* =====================================================
