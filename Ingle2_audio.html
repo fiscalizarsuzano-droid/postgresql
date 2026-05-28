@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabulário Inglês — 1000 Palavras</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #16181f;
+    --card: #1e2130;
+    --border: #2a2d3e;
+    --text: #e8eaf0;
+    --muted: #7a7f99;
+    --num:     #f9a03f;
+    --pro:     #7c6af7;
+    --verb:    #3fb8f9;
+    --noun:    #3ff9a0;
+    --conn:    #f94f6a;
+    --adj:     #f9e03f;
+    --adv:     #d03ff9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1a1c2e 0%, #0e0f14 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 20px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #7c6af7, #3fb8f9, #3ff9a0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 4px;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    padding: 16px 16px 0;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-wrap input:focus { border-color: #7c6af7; }
+  .search-wrap input::placeholder { color: var(--muted); }
+
+  /* TABS */
+  .tabs-wrap {
+    padding: 14px 16px 0;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    width: max-content;
+    padding-bottom: 4px;
+  }
+  .tab {
+    padding: 7px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+    font-weight: 500;
+  }
+  .tab:hover { color: var(--text); border-color: #444; }
+  .tab.active { color: #0e0f14; font-weight: 700; }
+  .tab[data-cat="all"].active    { background: #e8eaf0; border-color: #e8eaf0; }
+  .tab[data-cat="num"].active    { background: var(--num); border-color: var(--num); }
+  .tab[data-cat="pro"].active    { background: var(--pro); border-color: var(--pro); }
+  .tab[data-cat="verb"].active   { background: var(--verb); border-color: var(--verb); }
+  .tab[data-cat="noun"].active   { background: var(--noun); border-color: var(--noun); }
+  .tab[data-cat="conn"].active   { background: var(--conn); border-color: var(--conn); }
+  .tab[data-cat="adj"].active    { background: var(--adj); border-color: var(--adj); }
+  .tab[data-cat="adv"].active    { background: var(--adv); border-color: var(--adv); }
+
+  /* COUNTER */
+  .counter {
+    text-align: center;
+    padding: 12px 16px 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 10px;
+    padding: 14px 16px 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px 12px;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 14px 0 0 14px;
+  }
+  .card[data-cat="num"]::before  { background: var(--num); }
+  .card[data-cat="pro"]::before  { background: var(--pro); }
+  .card[data-cat="verb"]::before { background: var(--verb); }
+  .card[data-cat="noun"]::before { background: var(--noun); }
+  .card[data-cat="conn"]::before { background: var(--conn); }
+  .card[data-cat="adj"]::before  { background: var(--adj); }
+  .card[data-cat="adv"]::before  { background: var(--adv); }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    border-color: #3a3d50;
+  }
+  .card.revealed { border-color: #3a3d50; }
+
+  .card-en {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .card-pt {
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-height: 1em;
+    transition: color .2s;
+    line-height: 1.3;
+  }
+  .card.revealed .card-pt,
+  .card:hover .card-pt { color: #c8cadf; }
+
+  .cat-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 100px;
+    opacity: .7;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .card[data-cat="num"] .cat-badge  { background: #f9a03f22; color: var(--num); }
+  .card[data-cat="pro"] .cat-badge  { background: #7c6af722; color: var(--pro); }
+  .card[data-cat="verb"] .cat-badge { background: #3fb8f922; color: var(--verb); }
+  .card[data-cat="noun"] .cat-badge { background: #3ff9a022; color: var(--noun); }
+  .card[data-cat="conn"] .cat-badge { background: #f94f6a22; color: var(--conn); }
+  .card[data-cat="adj"] .cat-badge  { background: #f9e03f22; color: var(--adj); }
+  .card[data-cat="adv"] .cat-badge  { background: #d03ff922; color: var(--adv); }
+
+  .hint { font-size: 0.65rem; color: #555; margin-top: 2px; font-style: italic; }
+
+.audio-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 4px 7px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all .2s;
+}
+
+.audio-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.05);
+}
+
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 0 16px 16px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .no-results {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+    font-size: 0.9rem;
+    display: none;
+    grid-column: 1/-1;
+  }
+
+  @media (max-width: 400px) {
+    .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; padding: 12px 10px 28px; }
+    .card { padding: 12px 10px 10px; }
+    .card-en { font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 Vocabulário Inglês</h1>
+  <p>Toque no 🔊 para ouvir lentamente a pronúncia</p>
+</header>
+
+<div class="search-wrap">
+  <input type="text" id="searchInput" placeholder="🔍 Buscar palavra em inglês ou português..." />
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" data-cat="all">Todas</button>
+    <button class="tab" data-cat="num">🔢 Números</button>
+    <button class="tab" data-cat="pro">👤 Pronomes</button>
+    <button class="tab" data-cat="verb">⚡ Verbos</button>
+    <button class="tab" data-cat="noun">📝 Substantivos</button>
+    <button class="tab" data-cat="conn">🔗 Conexão</button>
+    <button class="tab" data-cat="adj">🎨 Adjetivos</button>
+    <button class="tab" data-cat="adv">🚀 Advérbios</button>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--num)"></div>Número</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--pro)"></div>Pronome</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--verb)"></div>Verbo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--noun)"></div>Substantivo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--conn)"></div>Conexão</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--adj)"></div>Adjetivo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--adv)"></div>Advérbio</div>
+</div>
+
+<div class="counter" id="counter"></div>
+
+<div class="grid" id="grid">
+  <div class="no-results" id="noResults">Nenhuma palavra encontrada.</div>
+</div>
+
+<script>
+const words = [
+  // NÚMEROS
+  {en:"one",pt:"um / uma",cat:"num"},
+  {en:"two",pt:"dois / duas",cat:"num"},
+  {en:"three",pt:"três",cat:"num"},
+  {en:"four",pt:"quatro",cat:"num"},
+  {en:"five",pt:"cinco",cat:"num"},
+  {en:"six",pt:"seis",cat:"num"},
+  {en:"seven",pt:"sete",cat:"num"},
+  {en:"eight",pt:"oito",cat:"num"},
+  {en:"nine",pt:"nove",cat:"num"},
+  {en:"ten",pt:"dez",cat:"num"},
+  {en:"hundred",pt:"cem / cento",cat:"num"},
+  {en:"thousand",pt:"mil",cat:"num"},
+
+  // PRONOMES
+  {en:"I",pt:"eu",cat:"pro"},
+  {en:"you",pt:"você / tu",cat:"pro"},
+  {en:"he",pt:"ele",cat:"pro"},
+  {en:"she",pt:"ela",cat:"pro"},
+  {en:"it",pt:"isso (neutro)",cat:"pro"},
+  {en:"we",pt:"nós",cat:"pro"},
+  {en:"they",pt:"eles / elas",cat:"pro"},
+  {en:"me",pt:"me / mim",cat:"pro"},
+  {en:"him",pt:"ele / o",cat:"pro"},
+  {en:"her",pt:"ela / a",cat:"pro"},
+  {en:"us",pt:"nós",cat:"pro"},
+  {en:"them",pt:"eles / as",cat:"pro"},
+  {en:"my",pt:"meu / minha",cat:"pro"},
+  {en:"your",pt:"seu / sua",cat:"pro"},
+  {en:"his",pt:"dele",cat:"pro"},
+  {en:"our",pt:"nosso / nossa",cat:"pro"},
+  {en:"their",pt:"deles / delas",cat:"pro"},
+  {en:"this",pt:"este / esta / isso",cat:"pro"},
+  {en:"that",pt:"aquele / aquela",cat:"pro"},
+  {en:"these",pt:"estes / estas",cat:"pro"},
+  {en:"those",pt:"aqueles / aquelas",cat:"pro"},
+
+  // VERBOS
+  {en:"be",pt:"ser / estar",cat:"verb"},
+  {en:"have",pt:"ter",cat:"verb"},
+  {en:"do",pt:"fazer",cat:"verb"},
+  {en:"say",pt:"dizer",cat:"verb"},
+  {en:"go",pt:"ir",cat:"verb"},
+  {en:"get",pt:"obter / pegar",cat:"verb"},
+  {en:"make",pt:"fazer / criar",cat:"verb"},
+  {en:"know",pt:"saber / conhecer",cat:"verb"},
+  {en:"think",pt:"pensar",cat:"verb"},
+  {en:"take",pt:"pegar / levar",cat:"verb"},
+  {en:"come",pt:"vir",cat:"verb"},
+  {en:"see",pt:"ver",cat:"verb"},
+  {en:"want",pt:"querer",cat:"verb"},
+  {en:"look",pt:"olhar / parecer",cat:"verb"},
+  {en:"use",pt:"usar",cat:"verb"},
+  {en:"find",pt:"encontrar",cat:"verb"},
+  {en:"give",pt:"dar",cat:"verb"},
+  {en:"tell",pt:"contar / dizer",cat:"verb"},
+  {en:"work",pt:"trabalhar",cat:"verb"},
+  {en:"call",pt:"chamar / ligar",cat:"verb"},
+  {en:"try",pt:"tentar",cat:"verb"},
+  {en:"ask",pt:"perguntar / pedir",cat:"verb"},
+  {en:"need",pt:"precisar",cat:"verb"},
+  {en:"feel",pt:"sentir",cat:"verb"},
+  {en:"become",pt:"tornar-se",cat:"verb"},
+  {en:"leave",pt:"partir / sair",cat:"verb"},
+  {en:"put",pt:"colocar",cat:"verb"},
+  {en:"mean",pt:"significar",cat:"verb"},
+  {en:"keep",pt:"manter",cat:"verb"},
+  {en:"let",pt:"deixar",cat:"verb"},
+  {en:"begin",pt:"começar",cat:"verb"},
+  {en:"show",pt:"mostrar",cat:"verb"},
+  {en:"hear",pt:"ouvir",cat:"verb"},
+  {en:"play",pt:"jogar / brincar",cat:"verb"},
+  {en:"run",pt:"correr",cat:"verb"},
+  {en:"move",pt:"mover",cat:"verb"},
+  {en:"live",pt:"viver / morar",cat:"verb"},
+  {en:"happen",pt:"acontecer",cat:"verb"},
+  {en:"bring",pt:"trazer",cat:"verb"},
+  {en:"write",pt:"escrever",cat:"verb"},
+  {en:"provide",pt:"fornecer",cat:"verb"},
+  {en:"sit",pt:"sentar",cat:"verb"},
+  {en:"stand",pt:"ficar de pé",cat:"verb"},
+  {en:"lose",pt:"perder",cat:"verb"},
+  {en:"pay",pt:"pagar",cat:"verb"},
+  {en:"meet",pt:"encontrar / conhecer",cat:"verb"},
+  {en:"include",pt:"incluir",cat:"verb"},
+  {en:"continue",pt:"continuar",cat:"verb"},
+  {en:"set",pt:"definir / configurar",cat:"verb"},
+  {en:"learn",pt:"aprender",cat:"verb"},
+  {en:"change",pt:"mudar",cat:"verb"},
+  {en:"lead",pt:"liderar",cat:"verb"},
+  {en:"understand",pt:"entender",cat:"verb"},
+  {en:"watch",pt:"assistir / observar",cat:"verb"},
+  {en:"follow",pt:"seguir",cat:"verb"},
+  {en:"stop",pt:"parar",cat:"verb"},
+  {en:"create",pt:"criar",cat:"verb"},
+  {en:"speak",pt:"falar",cat:"verb"},
+  {en:"read",pt:"ler",cat:"verb"},
+  {en:"spend",pt:"gastar / passar (tempo)",cat:"verb"},
+  {en:"grow",pt:"crescer",cat:"verb"},
+  {en:"open",pt:"abrir",cat:"verb"},
+  {en:"walk",pt:"caminhar",cat:"verb"},
+  {en:"win",pt:"ganhar / vencer",cat:"verb"},
+  {en:"offer",pt:"oferecer",cat:"verb"},
+  {en:"remember",pt:"lembrar",cat:"verb"},
+  {en:"love",pt:"amar",cat:"verb"},
+  {en:"consider",pt:"considerar",cat:"verb"},
+  {en:"appear",pt:"aparecer",cat:"verb"},
+  {en:"buy",pt:"comprar",cat:"verb"},
+  {en:"wait",pt:"esperar",cat:"verb"},
+  {en:"serve",pt:"servir",cat:"verb"},
+  {en:"die",pt:"morrer",cat:"verb"},
+  {en:"send",pt:"enviar",cat:"verb"},
+  {en:"expect",pt:"esperar / aguardar",cat:"verb"},
+  {en:"build",pt:"construir",cat:"verb"},
+  {en:"stay",pt:"ficar",cat:"verb"},
+  {en:"fall",pt:"cair",cat:"verb"},
+  {en:"cut",pt:"cortar",cat:"verb"},
+  {en:"reach",pt:"alcançar",cat:"verb"},
+  {en:"kill",pt:"matar",cat:"verb"},
+  {en:"remain",pt:"permanecer",cat:"verb"},
+  {en:"suggest",pt:"sugerir",cat:"verb"},
+  {en:"raise",pt:"levantar / criar",cat:"verb"},
+  {en:"pass",pt:"passar",cat:"verb"},
+  {en:"sell",pt:"vender",cat:"verb"},
+  {en:"require",pt:"exigir",cat:"verb"},
+  {en:"report",pt:"relatar / reportar",cat:"verb"},
+  {en:"decide",pt:"decidir",cat:"verb"},
+  {en:"pull",pt:"puxar",cat:"verb"},
+
+  // SUBSTANTIVOS
+  {en:"time",pt:"tempo",cat:"noun"},
+  {en:"year",pt:"ano",cat:"noun"},
+  {en:"people",pt:"pessoas",cat:"noun"},
+  {en:"way",pt:"caminho / jeito",cat:"noun"},
+  {en:"day",pt:"dia",cat:"noun"},
+  {en:"man",pt:"homem",cat:"noun"},
+  {en:"woman",pt:"mulher",cat:"noun"},
+  {en:"child",pt:"criança",cat:"noun"},
+  {en:"world",pt:"mundo",cat:"noun"},
+  {en:"life",pt:"vida",cat:"noun"},
+  {en:"hand",pt:"mão",cat:"noun"},
+  {en:"part",pt:"parte",cat:"noun"},
+  {en:"place",pt:"lugar",cat:"noun"},
+  {en:"case",pt:"caso",cat:"noun"},
+  {en:"week",pt:"semana",cat:"noun"},
+  {en:"company",pt:"empresa",cat:"noun"},
+  {en:"system",pt:"sistema",cat:"noun"},
+  {en:"program",pt:"programa",cat:"noun"},
+  {en:"question",pt:"pergunta",cat:"noun"},
+  {en:"government",pt:"governo",cat:"noun"},
+  {en:"number",pt:"número",cat:"noun"},
+  {en:"night",pt:"noite",cat:"noun"},
+  {en:"point",pt:"ponto",cat:"noun"},
+  {en:"home",pt:"lar / casa",cat:"noun"},
+  {en:"water",pt:"água",cat:"noun"},
+  {en:"room",pt:"quarto / sala",cat:"noun"},
+  {en:"mother",pt:"mãe",cat:"noun"},
+  {en:"area",pt:"área",cat:"noun"},
+  {en:"money",pt:"dinheiro",cat:"noun"},
+  {en:"story",pt:"história",cat:"noun"},
+  {en:"fact",pt:"fato",cat:"noun"},
+  {en:"month",pt:"mês",cat:"noun"},
+  {en:"lot",pt:"muito / bastante",cat:"noun"},
+  {en:"right",pt:"direito / certo",cat:"noun"},
+  {en:"study",pt:"estudo",cat:"noun"},
+  {en:"book",pt:"livro",cat:"noun"},
+  {en:"eye",pt:"olho",cat:"noun"},
+  {en:"job",pt:"trabalho / emprego",cat:"noun"},
+  {en:"word",pt:"palavra",cat:"noun"},
+  {en:"business",pt:"negócio",cat:"noun"},
+  {en:"issue",pt:"questão / problema",cat:"noun"},
+  {en:"side",pt:"lado",cat:"noun"},
+  {en:"kind",pt:"tipo",cat:"noun"},
+  {en:"head",pt:"cabeça",cat:"noun"},
+  {en:"house",pt:"casa",cat:"noun"},
+  {en:"service",pt:"serviço",cat:"noun"},
+  {en:"friend",pt:"amigo / amiga",cat:"noun"},
+  {en:"father",pt:"pai",cat:"noun"},
+  {en:"power",pt:"poder",cat:"noun"},
+  {en:"hour",pt:"hora",cat:"noun"},
+  {en:"game",pt:"jogo",cat:"noun"},
+  {en:"line",pt:"linha",cat:"noun"},
+  {en:"end",pt:"fim",cat:"noun"},
+  {en:"course",pt:"curso",cat:"noun"},
+  {en:"state",pt:"estado",cat:"noun"},
+  {en:"group",pt:"grupo",cat:"noun"},
+  {en:"idea",pt:"ideia",cat:"noun"},
+  {en:"body",pt:"corpo",cat:"noun"},
+  {en:"information",pt:"informação",cat:"noun"},
+  {en:"back",pt:"costas / volta",cat:"noun"},
+  {en:"parent",pt:"pai / mãe",cat:"noun"},
+  {en:"face",pt:"rosto",cat:"noun"},
+  {en:"level",pt:"nível",cat:"noun"},
+  {en:"office",pt:"escritório",cat:"noun"},
+  {en:"door",pt:"porta",cat:"noun"},
+  {en:"health",pt:"saúde",cat:"noun"},
+  {en:"person",pt:"pessoa",cat:"noun"},
+  {en:"art",pt:"arte",cat:"noun"},
+  {en:"war",pt:"guerra",cat:"noun"},
+  {en:"history",pt:"história",cat:"noun"},
+  {en:"party",pt:"festa / partido",cat:"noun"},
+  {en:"result",pt:"resultado",cat:"noun"},
+  {en:"morning",pt:"manhã",cat:"noun"},
+  {en:"reason",pt:"razão / motivo",cat:"noun"},
+  {en:"research",pt:"pesquisa",cat:"noun"},
+  {en:"girl",pt:"menina",cat:"noun"},
+  {en:"guy",pt:"cara / rapaz",cat:"noun"},
+  {en:"moment",pt:"momento",cat:"noun"},
+  {en:"air",pt:"ar",cat:"noun"},
+  {en:"teacher",pt:"professor / professora",cat:"noun"},
+  {en:"force",pt:"força",cat:"noun"},
+  {en:"education",pt:"educação",cat:"noun"},
+  {en:"others",pt:"outros / outras",cat:"noun"},
+
+  // CONEXÃO
+  {en:"the",pt:"o / a (artigo)",cat:"conn"},
+  {en:"a",pt:"um / uma",cat:"conn"},
+  {en:"an",pt:"um / uma (vogal)",cat:"conn"},
+  {en:"and",pt:"e",cat:"conn"},
+  {en:"or",pt:"ou",cat:"conn"},
+  {en:"but",pt:"mas",cat:"conn"},
+  {en:"in",pt:"em",cat:"conn"},
+  {en:"on",pt:"em / sobre",cat:"conn"},
+  {en:"at",pt:"em / às",cat:"conn"},
+  {en:"to",pt:"para / a",cat:"conn"},
+  {en:"for",pt:"para / por",cat:"conn"},
+  {en:"of",pt:"de",cat:"conn"},
+  {en:"with",pt:"com",cat:"conn"},
+  {en:"by",pt:"por / pelo",cat:"conn"},
+  {en:"from",pt:"de / desde",cat:"conn"},
+  {en:"as",pt:"como / enquanto",cat:"conn"},
+  {en:"is",pt:"é",cat:"conn"},
+  {en:"was",pt:"era / foi",cat:"conn"},
+  {en:"are",pt:"são",cat:"conn"},
+  {en:"were",pt:"eram / foram",cat:"conn"},
+  {en:"been",pt:"sido / estado",cat:"conn"},
+  {en:"being",pt:"sendo / estando",cat:"conn"},
+  {en:"its",pt:"seu / sua (neutro)",cat:"conn"},
+  {en:"not",pt:"não",cat:"conn"},
+  {en:"no",pt:"não",cat:"conn"},
+  {en:"so",pt:"então / portanto",cat:"conn"},
+  {en:"if",pt:"se",cat:"conn"},
+  {en:"about",pt:"sobre / acerca",cat:"conn"},
+  {en:"up",pt:"para cima",cat:"conn"},
+  {en:"out",pt:"fora",cat:"conn"},
+  {en:"than",pt:"do que",cat:"conn"},
+  {en:"then",pt:"então",cat:"conn"},
+  {en:"when",pt:"quando",cat:"conn"},
+  {en:"where",pt:"onde",cat:"conn"},
+  {en:"who",pt:"quem",cat:"conn"},
+  {en:"which",pt:"qual",cat:"conn"},
+  {en:"how",pt:"como",cat:"conn"},
+  {en:"what",pt:"o que",cat:"conn"},
+  {en:"all",pt:"todo / tudo",cat:"conn"},
+  {en:"each",pt:"cada",cat:"conn"},
+  {en:"other",pt:"outro / outra",cat:"conn"},
+  {en:"into",pt:"dentro de",cat:"conn"},
+  {en:"through",pt:"através de",cat:"conn"},
+  {en:"during",pt:"durante",cat:"conn"},
+  {en:"before",pt:"antes",cat:"conn"},
+  {en:"after",pt:"depois",cat:"conn"},
+  {en:"above",pt:"acima",cat:"conn"},
+  {en:"below",pt:"abaixo",cat:"conn"},
+  {en:"between",pt:"entre",cat:"conn"},
+  {en:"more",pt:"mais",cat:"conn"},
+  {en:"most",pt:"a maioria / mais",cat:"conn"},
+  {en:"also",pt:"também",cat:"conn"},
+  {en:"just",pt:"apenas / justo",cat:"conn"},
+  {en:"because",pt:"porque",cat:"conn"},
+  {en:"while",pt:"enquanto",cat:"conn"},
+  {en:"although",pt:"embora",cat:"conn"},
+  {en:"however",pt:"porém / no entanto",cat:"conn"},
+  {en:"therefore",pt:"portanto",cat:"conn"},
+  {en:"since",pt:"desde / já que",cat:"conn"},
+  {en:"both",pt:"ambos",cat:"conn"},
+  {en:"either",pt:"qualquer / ou",cat:"conn"},
+  {en:"neither",pt:"nenhum dos dois",cat:"conn"},
+  {en:"whether",pt:"se / quer",cat:"conn"},
+
+  // ADJETIVOS
+  {en:"good",pt:"bom / boa",cat:"adj"},
+  {en:"new",pt:"novo / nova",cat:"adj"},
+  {en:"first",pt:"primeiro / primeira",cat:"adj"},
+  {en:"last",pt:"último / última",cat:"adj"},
+  {en:"long",pt:"longo / longa",cat:"adj"},
+  {en:"great",pt:"ótimo / grande",cat:"adj"},
+  {en:"little",pt:"pequeno / pouco",cat:"adj"},
+  {en:"own",pt:"próprio / própria",cat:"adj"},
+  {en:"old",pt:"velho / antigo",cat:"adj"},
+  {en:"big",pt:"grande",cat:"adj"},
+  {en:"high",pt:"alto",cat:"adj"},
+  {en:"different",pt:"diferente",cat:"adj"},
+  {en:"small",pt:"pequeno",cat:"adj"},
+  {en:"large",pt:"grande",cat:"adj"},
+  {en:"next",pt:"próximo",cat:"adj"},
+  {en:"early",pt:"cedo / antecipado",cat:"adj"},
+  {en:"young",pt:"jovem",cat:"adj"},
+  {en:"important",pt:"importante",cat:"adj"},
+  {en:"public",pt:"público",cat:"adj"},
+  {en:"bad",pt:"ruim / mau",cat:"adj"},
+  {en:"same",pt:"mesmo / igual",cat:"adj"},
+  {en:"able",pt:"capaz",cat:"adj"},
+  {en:"free",pt:"livre / grátis",cat:"adj"},
+  {en:"real",pt:"real / verdadeiro",cat:"adj"},
+  {en:"best",pt:"melhor",cat:"adj"},
+  {en:"sure",pt:"certo / seguro",cat:"adj"},
+  {en:"every",pt:"cada / todo",cat:"adj"},
+  {en:"possible",pt:"possível",cat:"adj"},
+  {en:"major",pt:"principal / grande",cat:"adj"},
+  {en:"late",pt:"tarde / atrasado",cat:"adj"},
+  {en:"hard",pt:"difícil / duro",cat:"adj"},
+  {en:"low",pt:"baixo",cat:"adj"},
+  {en:"various",pt:"vários",cat:"adj"},
+  {en:"difficult",pt:"difícil",cat:"adj"},
+  {en:"several",pt:"vários",cat:"adj"},
+  {en:"full",pt:"cheio",cat:"adj"},
+  {en:"special",pt:"especial",cat:"adj"},
+  {en:"easy",pt:"fácil",cat:"adj"},
+  {en:"clear",pt:"claro",cat:"adj"},
+  {en:"recent",pt:"recente",cat:"adj"},
+  {en:"strong",pt:"forte",cat:"adj"},
+  {en:"whole",pt:"inteiro / todo",cat:"adj"},
+  {en:"true",pt:"verdadeiro",cat:"adj"},
+  {en:"far",pt:"longe",cat:"adj"},
+  {en:"ready",pt:"pronto",cat:"adj"},
+  {en:"past",pt:"passado",cat:"adj"},
+  {en:"main",pt:"principal",cat:"adj"},
+  {en:"short",pt:"curto / baixo",cat:"adj"},
+  {en:"personal",pt:"pessoal",cat:"adj"},
+  {en:"available",pt:"disponível",cat:"adj"},
+  {en:"simple",pt:"simples",cat:"adj"},
+  {en:"left",pt:"esquerdo / restante",cat:"adj"},
+  {en:"certain",pt:"certo / determinado",cat:"adj"},
+  {en:"present",pt:"presente / atual",cat:"adj"},
+  {en:"local",pt:"local",cat:"adj"},
+  {en:"international",pt:"internacional",cat:"adj"},
+  {en:"social",pt:"social",cat:"adj"},
+  {en:"common",pt:"comum",cat:"adj"},
+  {en:"human",pt:"humano",cat:"adj"},
+  {en:"dark",pt:"escuro",cat:"adj"},
+  {en:"natural",pt:"natural",cat:"adj"},
+  {en:"financial",pt:"financeiro",cat:"adj"},
+  {en:"political",pt:"político",cat:"adj"},
+  {en:"national",pt:"nacional",cat:"adj"},
+  {en:"economic",pt:"econômico",cat:"adj"},
+
+  // ADVÉRBIOS
+  {en:"very",pt:"muito",cat:"adv"},
+  {en:"too",pt:"também / demais",cat:"adv"},
+  {en:"well",pt:"bem",cat:"adv"},
+  {en:"even",pt:"até / mesmo",cat:"adv"},
+  {en:"still",pt:"ainda",cat:"adv"},
+  {en:"already",pt:"já",cat:"adv"},
+  {en:"enough",pt:"suficiente",cat:"adv"},
+  {en:"yet",pt:"ainda / já",cat:"adv"},
+  {en:"now",pt:"agora",cat:"adv"},
+  {en:"only",pt:"somente / apenas",cat:"adv"},
+  {en:"often",pt:"frequentemente",cat:"adv"},
+  {en:"always",pt:"sempre",cat:"adv"},
+  {en:"sometimes",pt:"às vezes",cat:"adv"},
+  {en:"never",pt:"nunca",cat:"adv"},
+  {en:"here",pt:"aqui",cat:"adv"},
+  {en:"there",pt:"lá / ali",cat:"adv"},
+  {en:"again",pt:"novamente",cat:"adv"},
+  {en:"once",pt:"uma vez",cat:"adv"},
+  {en:"around",pt:"ao redor",cat:"adv"},
+  {en:"actually",pt:"na verdade",cat:"adv"},
+  {en:"probably",pt:"provavelmente",cat:"adv"},
+  {en:"certainly",pt:"certamente",cat:"adv"},
+  {en:"usually",pt:"geralmente",cat:"adv"},
+  {en:"nearly",pt:"quase",cat:"adv"},
+  {en:"especially",pt:"especialmente",cat:"adv"},
+  {en:"together",pt:"juntos",cat:"adv"},
+  {en:"quickly",pt:"rapidamente",cat:"adv"},
+  {en:"slowly",pt:"lentamente",cat:"adv"},
+  {en:"finally",pt:"finalmente",cat:"adv"},
+  {en:"recently",pt:"recentemente",cat:"adv"},
+  {en:"exactly",pt:"exatamente",cat:"adv"},
+  {en:"simply",pt:"simplesmente",cat:"adv"},
+  {en:"perhaps",pt:"talvez",cat:"adv"},
+  {en:"suddenly",pt:"de repente",cat:"adv"},
+  {en:"soon",pt:"em breve",cat:"adv"},
+  {en:"later",pt:"mais tarde",cat:"adv"},
+  {en:"today",pt:"hoje",cat:"adv"},
+  {en:"almost",pt:"quase",cat:"adv"},
+];
+
+const catLabels = {
+  num:"Número", pro:"Pronome", verb:"Verbo",
+  noun:"Subst.", conn:"Conexão", adj:"Adj.", adv:"Adv."
+};
+
+const grid = document.getElementById('grid');
+const noResults = document.getElementById('noResults');
+const counter = document.getElementById('counter');
+let activeCat = 'all';
+let searchTerm = '';
+
+function renderCards() {
+  const existing = grid.querySelectorAll('.card');
+  existing.forEach(c => c.remove());
+
+  const filtered = words.filter(w => {
+    const catOk = activeCat === 'all' || w.cat === activeCat;
+    const q = searchTerm.toLowerCase();
+    const termOk = !q || w.en.toLowerCase().includes(q) || w.pt.toLowerCase().includes(q);
+    return catOk && termOk;
+  });
+
+  counter.textContent = `${filtered.length} palavra${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  filtered.forEach((w, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.cat = w.cat;
+    card.style.animationDelay = `${i * 18}ms`;
+    card.innerHTML = `
+      <span class="cat-badge">${catLabels[w.cat]}</span>
+      <div class="card-en">${w.en}</div>
+      <div class="card-pt">${w.pt}</div>
+      <button class="audio-btn" title="Ouvir pronúncia">🔊</button>
+    `;
+
+    const audioBtn = card.querySelector('.audio-btn');
+
+    audioBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      speechSynthesis.cancel();
+
+      const utter = new SpeechSynthesisUtterance(w.en);
+      utter.lang = 'en-US';
+      utter.rate = 0.65; // mais lento
+      utter.pitch = 1;
+
+      const voices = speechSynthesis.getVoices();
+      const englishVoice = voices.find(v =>
+        v.lang.includes('en')
+      );
+
+      if (englishVoice) {
+        utter.voice = englishVoice;
+      }
+
+      speechSynthesis.speak(utter);
+    });
+
+    card.addEventListener('click', () => card.classList.toggle('revealed'));
+    grid.appendChild(card);
+  });
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeCat = tab.dataset.cat;
+    renderCards();
+  });
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchTerm = e.target.value;
+  renderCards();
+});
+
+renderCards();
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabulário Inglês — 1000 Palavras</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #16181f;
+    --card: #1e2130;
+    --border: #2a2d3e;
+    --text: #e8eaf0;
+    --muted: #7a7f99;
+    --num:     #f9a03f;
+    --pro:     #7c6af7;
+    --verb:    #3fb8f9;
+    --noun:    #3ff9a0;
+    --conn:    #f94f6a;
+    --adj:     #f9e03f;
+    --adv:     #d03ff9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1a1c2e 0%, #0e0f14 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 20px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #7c6af7, #3fb8f9, #3ff9a0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 4px;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    padding: 16px 16px 0;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-wrap input:focus { border-color: #7c6af7; }
+  .search-wrap input::placeholder { color: var(--muted); }
+
+  /* TABS */
+  .tabs-wrap {
+    padding: 14px 16px 0;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    width: max-content;
+    padding-bottom: 4px;
+  }
+  .tab {
+    padding: 7px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+    font-weight: 500;
+  }
+  .tab:hover { color: var(--text); border-color: #444; }
+  .tab.active { color: #0e0f14; font-weight: 700; }
+  .tab[data-cat="all"].active    { background: #e8eaf0; border-color: #e8eaf0; }
+  .tab[data-cat="num"].active    { background: var(--num); border-color: var(--num); }
+  .tab[data-cat="pro"].active    { background: var(--pro); border-color: var(--pro); }
+  .tab[data-cat="verb"].active   { background: var(--verb); border-color: var(--verb); }
+  .tab[data-cat="noun"].active   { background: var(--noun); border-color: var(--noun); }
+  .tab[data-cat="conn"].active   { background: var(--conn); border-color: var(--conn); }
+  .tab[data-cat="adj"].active    { background: var(--adj); border-color: var(--adj); }
+  .tab[data-cat="adv"].active    { background: var(--adv); border-color: var(--adv); }
+
+  /* COUNTER */
+  .counter {
+    text-align: center;
+    padding: 12px 16px 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 10px;
+    padding: 14px 16px 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px 12px;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 14px 0 0 14px;
+  }
+  .card[data-cat="num"]::before  { background: var(--num); }
+  .card[data-cat="pro"]::before  { background: var(--pro); }
+  .card[data-cat="verb"]::before { background: var(--verb); }
+  .card[data-cat="noun"]::before { background: var(--noun); }
+  .card[data-cat="conn"]::before { background: var(--conn); }
+  .card[data-cat="adj"]::before  { background: var(--adj); }
+  .card[data-cat="adv"]::before  { background: var(--adv); }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    border-color: #3a3d50;
+  }
+  .card.revealed { border-color: #3a3d50; }
+
+  .card-en {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .card-pt {
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-height: 1em;
+    transition: color .2s;
+    line-height: 1.3;
+  }
+  .card.revealed .card-pt,
+  .card:hover .card-pt { color: #c8cadf; }
+
+  .cat-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 100px;
+    opacity: .7;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .card[data-cat="num"] .cat-badge  { background: #f9a03f22; color: var(--num); }
+  .card[data-cat="pro"] .cat-badge  { background: #7c6af722; color: var(--pro); }
+  .card[data-cat="verb"] .cat-badge { background: #3fb8f922; color: var(--verb); }
+  .card[data-cat="noun"] .cat-badge { background: #3ff9a022; color: var(--noun); }
+  .card[data-cat="conn"] .cat-badge { background: #f94f6a22; color: var(--conn); }
+  .card[data-cat="adj"] .cat-badge  { background: #f9e03f22; color: var(--adj); }
+  .card[data-cat="adv"] .cat-badge  { background: #d03ff922; color: var(--adv); }
+
+  .hint { font-size: 0.65rem; color: #555; margin-top: 2px; font-style: italic; }
+
+.audio-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 4px 7px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all .2s;
+}
+
+.audio-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.05);
+}
+
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 0 16px 16px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .no-results {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+    font-size: 0.9rem;
+    display: none;
+    grid-column: 1/-1;
+  }
+
+  @media (max-width: 400px) {
+    .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; padding: 12px 10px 28px; }
+    .card { padding: 12px 10px 10px; }
+    .card-en { font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 Vocabulário Inglês</h1>
+  <p>Toque no 🔊 para ouvir lentamente a pronúncia</p>
+</header>
+
+<div class="search-wrap">
+  <input type="text" id="searchInput" placeholder="🔍 Buscar palavra em inglês ou português..." />
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" data-cat="all">Todas</button>
+    <button class="tab" data-cat="num">🔢 Números</button>
+    <button class="tab" data-cat="pro">👤 Pronomes</button>
+    <button class="tab" data-cat="verb">⚡ Verbos</button>
+    <button class="tab" data-cat="noun">📝 Substantivos</button>
+    <button class="tab" data-cat="conn">🔗 Conexão</button>
+    <button class="tab" data-cat="adj">🎨 Adjetivos</button>
+    <button class="tab" data-cat="adv">🚀 Advérbios</button>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--num)"></div>Número</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--pro)"></div>Pronome</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--verb)"></div>Verbo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--noun)"></div>Substantivo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--conn)"></div>Conexão</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--adj)"></div>Adjetivo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--adv)"></div>Advérbio</div>
+</div>
+
+<div class="counter" id="counter"></div>
+
+<div class="grid" id="grid">
+  <div class="no-results" id="noResults">Nenhuma palavra encontrada.</div>
+</div>
+
+<script>
+const words = [
+  // NÚMEROS
+  {en:"one",pt:"um / uma",cat:"num"},
+  {en:"two",pt:"dois / duas",cat:"num"},
+  {en:"three",pt:"três",cat:"num"},
+  {en:"four",pt:"quatro",cat:"num"},
+  {en:"five",pt:"cinco",cat:"num"},
+  {en:"six",pt:"seis",cat:"num"},
+  {en:"seven",pt:"sete",cat:"num"},
+  {en:"eight",pt:"oito",cat:"num"},
+  {en:"nine",pt:"nove",cat:"num"},
+  {en:"ten",pt:"dez",cat:"num"},
+  {en:"hundred",pt:"cem / cento",cat:"num"},
+  {en:"thousand",pt:"mil",cat:"num"},
+
+  // PRONOMES
+  {en:"I",pt:"eu",cat:"pro"},
+  {en:"you",pt:"você / tu",cat:"pro"},
+  {en:"he",pt:"ele",cat:"pro"},
+  {en:"she",pt:"ela",cat:"pro"},
+  {en:"it",pt:"isso (neutro)",cat:"pro"},
+  {en:"we",pt:"nós",cat:"pro"},
+  {en:"they",pt:"eles / elas",cat:"pro"},
+  {en:"me",pt:"me / mim",cat:"pro"},
+  {en:"him",pt:"ele / o",cat:"pro"},
+  {en:"her",pt:"ela / a",cat:"pro"},
+  {en:"us",pt:"nós",cat:"pro"},
+  {en:"them",pt:"eles / as",cat:"pro"},
+  {en:"my",pt:"meu / minha",cat:"pro"},
+  {en:"your",pt:"seu / sua",cat:"pro"},
+  {en:"his",pt:"dele",cat:"pro"},
+  {en:"our",pt:"nosso / nossa",cat:"pro"},
+  {en:"their",pt:"deles / delas",cat:"pro"},
+  {en:"this",pt:"este / esta / isso",cat:"pro"},
+  {en:"that",pt:"aquele / aquela",cat:"pro"},
+  {en:"these",pt:"estes / estas",cat:"pro"},
+  {en:"those",pt:"aqueles / aquelas",cat:"pro"},
+
+  // VERBOS
+  {en:"be",pt:"ser / estar",cat:"verb"},
+  {en:"have",pt:"ter",cat:"verb"},
+  {en:"do",pt:"fazer",cat:"verb"},
+  {en:"say",pt:"dizer",cat:"verb"},
+  {en:"go",pt:"ir",cat:"verb"},
+  {en:"get",pt:"obter / pegar",cat:"verb"},
+  {en:"make",pt:"fazer / criar",cat:"verb"},
+  {en:"know",pt:"saber / conhecer",cat:"verb"},
+  {en:"think",pt:"pensar",cat:"verb"},
+  {en:"take",pt:"pegar / levar",cat:"verb"},
+  {en:"come",pt:"vir",cat:"verb"},
+  {en:"see",pt:"ver",cat:"verb"},
+  {en:"want",pt:"querer",cat:"verb"},
+  {en:"look",pt:"olhar / parecer",cat:"verb"},
+  {en:"use",pt:"usar",cat:"verb"},
+  {en:"find",pt:"encontrar",cat:"verb"},
+  {en:"give",pt:"dar",cat:"verb"},
+  {en:"tell",pt:"contar / dizer",cat:"verb"},
+  {en:"work",pt:"trabalhar",cat:"verb"},
+  {en:"call",pt:"chamar / ligar",cat:"verb"},
+  {en:"try",pt:"tentar",cat:"verb"},
+  {en:"ask",pt:"perguntar / pedir",cat:"verb"},
+  {en:"need",pt:"precisar",cat:"verb"},
+  {en:"feel",pt:"sentir",cat:"verb"},
+  {en:"become",pt:"tornar-se",cat:"verb"},
+  {en:"leave",pt:"partir / sair",cat:"verb"},
+  {en:"put",pt:"colocar",cat:"verb"},
+  {en:"mean",pt:"significar",cat:"verb"},
+  {en:"keep",pt:"manter",cat:"verb"},
+  {en:"let",pt:"deixar",cat:"verb"},
+  {en:"begin",pt:"começar",cat:"verb"},
+  {en:"show",pt:"mostrar",cat:"verb"},
+  {en:"hear",pt:"ouvir",cat:"verb"},
+  {en:"play",pt:"jogar / brincar",cat:"verb"},
+  {en:"run",pt:"correr",cat:"verb"},
+  {en:"move",pt:"mover",cat:"verb"},
+  {en:"live",pt:"viver / morar",cat:"verb"},
+  {en:"happen",pt:"acontecer",cat:"verb"},
+  {en:"bring",pt:"trazer",cat:"verb"},
+  {en:"write",pt:"escrever",cat:"verb"},
+  {en:"provide",pt:"fornecer",cat:"verb"},
+  {en:"sit",pt:"sentar",cat:"verb"},
+  {en:"stand",pt:"ficar de pé",cat:"verb"},
+  {en:"lose",pt:"perder",cat:"verb"},
+  {en:"pay",pt:"pagar",cat:"verb"},
+  {en:"meet",pt:"encontrar / conhecer",cat:"verb"},
+  {en:"include",pt:"incluir",cat:"verb"},
+  {en:"continue",pt:"continuar",cat:"verb"},
+  {en:"set",pt:"definir / configurar",cat:"verb"},
+  {en:"learn",pt:"aprender",cat:"verb"},
+  {en:"change",pt:"mudar",cat:"verb"},
+  {en:"lead",pt:"liderar",cat:"verb"},
+  {en:"understand",pt:"entender",cat:"verb"},
+  {en:"watch",pt:"assistir / observar",cat:"verb"},
+  {en:"follow",pt:"seguir",cat:"verb"},
+  {en:"stop",pt:"parar",cat:"verb"},
+  {en:"create",pt:"criar",cat:"verb"},
+  {en:"speak",pt:"falar",cat:"verb"},
+  {en:"read",pt:"ler",cat:"verb"},
+  {en:"spend",pt:"gastar / passar (tempo)",cat:"verb"},
+  {en:"grow",pt:"crescer",cat:"verb"},
+  {en:"open",pt:"abrir",cat:"verb"},
+  {en:"walk",pt:"caminhar",cat:"verb"},
+  {en:"win",pt:"ganhar / vencer",cat:"verb"},
+  {en:"offer",pt:"oferecer",cat:"verb"},
+  {en:"remember",pt:"lembrar",cat:"verb"},
+  {en:"love",pt:"amar",cat:"verb"},
+  {en:"consider",pt:"considerar",cat:"verb"},
+  {en:"appear",pt:"aparecer",cat:"verb"},
+  {en:"buy",pt:"comprar",cat:"verb"},
+  {en:"wait",pt:"esperar",cat:"verb"},
+  {en:"serve",pt:"servir",cat:"verb"},
+  {en:"die",pt:"morrer",cat:"verb"},
+  {en:"send",pt:"enviar",cat:"verb"},
+  {en:"expect",pt:"esperar / aguardar",cat:"verb"},
+  {en:"build",pt:"construir",cat:"verb"},
+  {en:"stay",pt:"ficar",cat:"verb"},
+  {en:"fall",pt:"cair",cat:"verb"},
+  {en:"cut",pt:"cortar",cat:"verb"},
+  {en:"reach",pt:"alcançar",cat:"verb"},
+  {en:"kill",pt:"matar",cat:"verb"},
+  {en:"remain",pt:"permanecer",cat:"verb"},
+  {en:"suggest",pt:"sugerir",cat:"verb"},
+  {en:"raise",pt:"levantar / criar",cat:"verb"},
+  {en:"pass",pt:"passar",cat:"verb"},
+  {en:"sell",pt:"vender",cat:"verb"},
+  {en:"require",pt:"exigir",cat:"verb"},
+  {en:"report",pt:"relatar / reportar",cat:"verb"},
+  {en:"decide",pt:"decidir",cat:"verb"},
+  {en:"pull",pt:"puxar",cat:"verb"},
+
+  // SUBSTANTIVOS
+  {en:"time",pt:"tempo",cat:"noun"},
+  {en:"year",pt:"ano",cat:"noun"},
+  {en:"people",pt:"pessoas",cat:"noun"},
+  {en:"way",pt:"caminho / jeito",cat:"noun"},
+  {en:"day",pt:"dia",cat:"noun"},
+  {en:"man",pt:"homem",cat:"noun"},
+  {en:"woman",pt:"mulher",cat:"noun"},
+  {en:"child",pt:"criança",cat:"noun"},
+  {en:"world",pt:"mundo",cat:"noun"},
+  {en:"life",pt:"vida",cat:"noun"},
+  {en:"hand",pt:"mão",cat:"noun"},
+  {en:"part",pt:"parte",cat:"noun"},
+  {en:"place",pt:"lugar",cat:"noun"},
+  {en:"case",pt:"caso",cat:"noun"},
+  {en:"week",pt:"semana",cat:"noun"},
+  {en:"company",pt:"empresa",cat:"noun"},
+  {en:"system",pt:"sistema",cat:"noun"},
+  {en:"program",pt:"programa",cat:"noun"},
+  {en:"question",pt:"pergunta",cat:"noun"},
+  {en:"government",pt:"governo",cat:"noun"},
+  {en:"number",pt:"número",cat:"noun"},
+  {en:"night",pt:"noite",cat:"noun"},
+  {en:"point",pt:"ponto",cat:"noun"},
+  {en:"home",pt:"lar / casa",cat:"noun"},
+  {en:"water",pt:"água",cat:"noun"},
+  {en:"room",pt:"quarto / sala",cat:"noun"},
+  {en:"mother",pt:"mãe",cat:"noun"},
+  {en:"area",pt:"área",cat:"noun"},
+  {en:"money",pt:"dinheiro",cat:"noun"},
+  {en:"story",pt:"história",cat:"noun"},
+  {en:"fact",pt:"fato",cat:"noun"},
+  {en:"month",pt:"mês",cat:"noun"},
+  {en:"lot",pt:"muito / bastante",cat:"noun"},
+  {en:"right",pt:"direito / certo",cat:"noun"},
+  {en:"study",pt:"estudo",cat:"noun"},
+  {en:"book",pt:"livro",cat:"noun"},
+  {en:"eye",pt:"olho",cat:"noun"},
+  {en:"job",pt:"trabalho / emprego",cat:"noun"},
+  {en:"word",pt:"palavra",cat:"noun"},
+  {en:"business",pt:"negócio",cat:"noun"},
+  {en:"issue",pt:"questão / problema",cat:"noun"},
+  {en:"side",pt:"lado",cat:"noun"},
+  {en:"kind",pt:"tipo",cat:"noun"},
+  {en:"head",pt:"cabeça",cat:"noun"},
+  {en:"house",pt:"casa",cat:"noun"},
+  {en:"service",pt:"serviço",cat:"noun"},
+  {en:"friend",pt:"amigo / amiga",cat:"noun"},
+  {en:"father",pt:"pai",cat:"noun"},
+  {en:"power",pt:"poder",cat:"noun"},
+  {en:"hour",pt:"hora",cat:"noun"},
+  {en:"game",pt:"jogo",cat:"noun"},
+  {en:"line",pt:"linha",cat:"noun"},
+  {en:"end",pt:"fim",cat:"noun"},
+  {en:"course",pt:"curso",cat:"noun"},
+  {en:"state",pt:"estado",cat:"noun"},
+  {en:"group",pt:"grupo",cat:"noun"},
+  {en:"idea",pt:"ideia",cat:"noun"},
+  {en:"body",pt:"corpo",cat:"noun"},
+  {en:"information",pt:"informação",cat:"noun"},
+  {en:"back",pt:"costas / volta",cat:"noun"},
+  {en:"parent",pt:"pai / mãe",cat:"noun"},
+  {en:"face",pt:"rosto",cat:"noun"},
+  {en:"level",pt:"nível",cat:"noun"},
+  {en:"office",pt:"escritório",cat:"noun"},
+  {en:"door",pt:"porta",cat:"noun"},
+  {en:"health",pt:"saúde",cat:"noun"},
+  {en:"person",pt:"pessoa",cat:"noun"},
+  {en:"art",pt:"arte",cat:"noun"},
+  {en:"war",pt:"guerra",cat:"noun"},
+  {en:"history",pt:"história",cat:"noun"},
+  {en:"party",pt:"festa / partido",cat:"noun"},
+  {en:"result",pt:"resultado",cat:"noun"},
+  {en:"morning",pt:"manhã",cat:"noun"},
+  {en:"reason",pt:"razão / motivo",cat:"noun"},
+  {en:"research",pt:"pesquisa",cat:"noun"},
+  {en:"girl",pt:"menina",cat:"noun"},
+  {en:"guy",pt:"cara / rapaz",cat:"noun"},
+  {en:"moment",pt:"momento",cat:"noun"},
+  {en:"air",pt:"ar",cat:"noun"},
+  {en:"teacher",pt:"professor / professora",cat:"noun"},
+  {en:"force",pt:"força",cat:"noun"},
+  {en:"education",pt:"educação",cat:"noun"},
+  {en:"others",pt:"outros / outras",cat:"noun"},
+
+  // CONEXÃO
+  {en:"the",pt:"o / a (artigo)",cat:"conn"},
+  {en:"a",pt:"um / uma",cat:"conn"},
+  {en:"an",pt:"um / uma (vogal)",cat:"conn"},
+  {en:"and",pt:"e",cat:"conn"},
+  {en:"or",pt:"ou",cat:"conn"},
+  {en:"but",pt:"mas",cat:"conn"},
+  {en:"in",pt:"em",cat:"conn"},
+  {en:"on",pt:"em / sobre",cat:"conn"},
+  {en:"at",pt:"em / às",cat:"conn"},
+  {en:"to",pt:"para / a",cat:"conn"},
+  {en:"for",pt:"para / por",cat:"conn"},
+  {en:"of",pt:"de",cat:"conn"},
+  {en:"with",pt:"com",cat:"conn"},
+  {en:"by",pt:"por / pelo",cat:"conn"},
+  {en:"from",pt:"de / desde",cat:"conn"},
+  {en:"as",pt:"como / enquanto",cat:"conn"},
+  {en:"is",pt:"é",cat:"conn"},
+  {en:"was",pt:"era / foi",cat:"conn"},
+  {en:"are",pt:"são",cat:"conn"},
+  {en:"were",pt:"eram / foram",cat:"conn"},
+  {en:"been",pt:"sido / estado",cat:"conn"},
+  {en:"being",pt:"sendo / estando",cat:"conn"},
+  {en:"its",pt:"seu / sua (neutro)",cat:"conn"},
+  {en:"not",pt:"não",cat:"conn"},
+  {en:"no",pt:"não",cat:"conn"},
+  {en:"so",pt:"então / portanto",cat:"conn"},
+  {en:"if",pt:"se",cat:"conn"},
+  {en:"about",pt:"sobre / acerca",cat:"conn"},
+  {en:"up",pt:"para cima",cat:"conn"},
+  {en:"out",pt:"fora",cat:"conn"},
+  {en:"than",pt:"do que",cat:"conn"},
+  {en:"then",pt:"então",cat:"conn"},
+  {en:"when",pt:"quando",cat:"conn"},
+  {en:"where",pt:"onde",cat:"conn"},
+  {en:"who",pt:"quem",cat:"conn"},
+  {en:"which",pt:"qual",cat:"conn"},
+  {en:"how",pt:"como",cat:"conn"},
+  {en:"what",pt:"o que",cat:"conn"},
+  {en:"all",pt:"todo / tudo",cat:"conn"},
+  {en:"each",pt:"cada",cat:"conn"},
+  {en:"other",pt:"outro / outra",cat:"conn"},
+  {en:"into",pt:"dentro de",cat:"conn"},
+  {en:"through",pt:"através de",cat:"conn"},
+  {en:"during",pt:"durante",cat:"conn"},
+  {en:"before",pt:"antes",cat:"conn"},
+  {en:"after",pt:"depois",cat:"conn"},
+  {en:"above",pt:"acima",cat:"conn"},
+  {en:"below",pt:"abaixo",cat:"conn"},
+  {en:"between",pt:"entre",cat:"conn"},
+  {en:"more",pt:"mais",cat:"conn"},
+  {en:"most",pt:"a maioria / mais",cat:"conn"},
+  {en:"also",pt:"também",cat:"conn"},
+  {en:"just",pt:"apenas / justo",cat:"conn"},
+  {en:"because",pt:"porque",cat:"conn"},
+  {en:"while",pt:"enquanto",cat:"conn"},
+  {en:"although",pt:"embora",cat:"conn"},
+  {en:"however",pt:"porém / no entanto",cat:"conn"},
+  {en:"therefore",pt:"portanto",cat:"conn"},
+  {en:"since",pt:"desde / já que",cat:"conn"},
+  {en:"both",pt:"ambos",cat:"conn"},
+  {en:"either",pt:"qualquer / ou",cat:"conn"},
+  {en:"neither",pt:"nenhum dos dois",cat:"conn"},
+  {en:"whether",pt:"se / quer",cat:"conn"},
+
+  // ADJETIVOS
+  {en:"good",pt:"bom / boa",cat:"adj"},
+  {en:"new",pt:"novo / nova",cat:"adj"},
+  {en:"first",pt:"primeiro / primeira",cat:"adj"},
+  {en:"last",pt:"último / última",cat:"adj"},
+  {en:"long",pt:"longo / longa",cat:"adj"},
+  {en:"great",pt:"ótimo / grande",cat:"adj"},
+  {en:"little",pt:"pequeno / pouco",cat:"adj"},
+  {en:"own",pt:"próprio / própria",cat:"adj"},
+  {en:"old",pt:"velho / antigo",cat:"adj"},
+  {en:"big",pt:"grande",cat:"adj"},
+  {en:"high",pt:"alto",cat:"adj"},
+  {en:"different",pt:"diferente",cat:"adj"},
+  {en:"small",pt:"pequeno",cat:"adj"},
+  {en:"large",pt:"grande",cat:"adj"},
+  {en:"next",pt:"próximo",cat:"adj"},
+  {en:"early",pt:"cedo / antecipado",cat:"adj"},
+  {en:"young",pt:"jovem",cat:"adj"},
+  {en:"important",pt:"importante",cat:"adj"},
+  {en:"public",pt:"público",cat:"adj"},
+  {en:"bad",pt:"ruim / mau",cat:"adj"},
+  {en:"same",pt:"mesmo / igual",cat:"adj"},
+  {en:"able",pt:"capaz",cat:"adj"},
+  {en:"free",pt:"livre / grátis",cat:"adj"},
+  {en:"real",pt:"real / verdadeiro",cat:"adj"},
+  {en:"best",pt:"melhor",cat:"adj"},
+  {en:"sure",pt:"certo / seguro",cat:"adj"},
+  {en:"every",pt:"cada / todo",cat:"adj"},
+  {en:"possible",pt:"possível",cat:"adj"},
+  {en:"major",pt:"principal / grande",cat:"adj"},
+  {en:"late",pt:"tarde / atrasado",cat:"adj"},
+  {en:"hard",pt:"difícil / duro",cat:"adj"},
+  {en:"low",pt:"baixo",cat:"adj"},
+  {en:"various",pt:"vários",cat:"adj"},
+  {en:"difficult",pt:"difícil",cat:"adj"},
+  {en:"several",pt:"vários",cat:"adj"},
+  {en:"full",pt:"cheio",cat:"adj"},
+  {en:"special",pt:"especial",cat:"adj"},
+  {en:"easy",pt:"fácil",cat:"adj"},
+  {en:"clear",pt:"claro",cat:"adj"},
+  {en:"recent",pt:"recente",cat:"adj"},
+  {en:"strong",pt:"forte",cat:"adj"},
+  {en:"whole",pt:"inteiro / todo",cat:"adj"},
+  {en:"true",pt:"verdadeiro",cat:"adj"},
+  {en:"far",pt:"longe",cat:"adj"},
+  {en:"ready",pt:"pronto",cat:"adj"},
+  {en:"past",pt:"passado",cat:"adj"},
+  {en:"main",pt:"principal",cat:"adj"},
+  {en:"short",pt:"curto / baixo",cat:"adj"},
+  {en:"personal",pt:"pessoal",cat:"adj"},
+  {en:"available",pt:"disponível",cat:"adj"},
+  {en:"simple",pt:"simples",cat:"adj"},
+  {en:"left",pt:"esquerdo / restante",cat:"adj"},
+  {en:"certain",pt:"certo / determinado",cat:"adj"},
+  {en:"present",pt:"presente / atual",cat:"adj"},
+  {en:"local",pt:"local",cat:"adj"},
+  {en:"international",pt:"internacional",cat:"adj"},
+  {en:"social",pt:"social",cat:"adj"},
+  {en:"common",pt:"comum",cat:"adj"},
+  {en:"human",pt:"humano",cat:"adj"},
+  {en:"dark",pt:"escuro",cat:"adj"},
+  {en:"natural",pt:"natural",cat:"adj"},
+  {en:"financial",pt:"financeiro",cat:"adj"},
+  {en:"political",pt:"político",cat:"adj"},
+  {en:"national",pt:"nacional",cat:"adj"},
+  {en:"economic",pt:"econômico",cat:"adj"},
+
+  // ADVÉRBIOS
+  {en:"very",pt:"muito",cat:"adv"},
+  {en:"too",pt:"também / demais",cat:"adv"},
+  {en:"well",pt:"bem",cat:"adv"},
+  {en:"even",pt:"até / mesmo",cat:"adv"},
+  {en:"still",pt:"ainda",cat:"adv"},
+  {en:"already",pt:"já",cat:"adv"},
+  {en:"enough",pt:"suficiente",cat:"adv"},
+  {en:"yet",pt:"ainda / já",cat:"adv"},
+  {en:"now",pt:"agora",cat:"adv"},
+  {en:"only",pt:"somente / apenas",cat:"adv"},
+  {en:"often",pt:"frequentemente",cat:"adv"},
+  {en:"always",pt:"sempre",cat:"adv"},
+  {en:"sometimes",pt:"às vezes",cat:"adv"},
+  {en:"never",pt:"nunca",cat:"adv"},
+  {en:"here",pt:"aqui",cat:"adv"},
+  {en:"there",pt:"lá / ali",cat:"adv"},
+  {en:"again",pt:"novamente",cat:"adv"},
+  {en:"once",pt:"uma vez",cat:"adv"},
+  {en:"around",pt:"ao redor",cat:"adv"},
+  {en:"actually",pt:"na verdade",cat:"adv"},
+  {en:"probably",pt:"provavelmente",cat:"adv"},
+  {en:"certainly",pt:"certamente",cat:"adv"},
+  {en:"usually",pt:"geralmente",cat:"adv"},
+  {en:"nearly",pt:"quase",cat:"adv"},
+  {en:"especially",pt:"especialmente",cat:"adv"},
+  {en:"together",pt:"juntos",cat:"adv"},
+  {en:"quickly",pt:"rapidamente",cat:"adv"},
+  {en:"slowly",pt:"lentamente",cat:"adv"},
+  {en:"finally",pt:"finalmente",cat:"adv"},
+  {en:"recently",pt:"recentemente",cat:"adv"},
+  {en:"exactly",pt:"exatamente",cat:"adv"},
+  {en:"simply",pt:"simplesmente",cat:"adv"},
+  {en:"perhaps",pt:"talvez",cat:"adv"},
+  {en:"suddenly",pt:"de repente",cat:"adv"},
+  {en:"soon",pt:"em breve",cat:"adv"},
+  {en:"later",pt:"mais tarde",cat:"adv"},
+  {en:"today",pt:"hoje",cat:"adv"},
+  {en:"almost",pt:"quase",cat:"adv"},
+];
+
+const catLabels = {
+  num:"Número", pro:"Pronome", verb:"Verbo",
+  noun:"Subst.", conn:"Conexão", adj:"Adj.", adv:"Adv."
+};
+
+const grid = document.getElementById('grid');
+const noResults = document.getElementById('noResults');
+const counter = document.getElementById('counter');
+let activeCat = 'all';
+let searchTerm = '';
+
+function renderCards() {
+  const existing = grid.querySelectorAll('.card');
+  existing.forEach(c => c.remove());
+
+  const filtered = words.filter(w => {
+    const catOk = activeCat === 'all' || w.cat === activeCat;
+    const q = searchTerm.toLowerCase();
+    const termOk = !q || w.en.toLowerCase().includes(q) || w.pt.toLowerCase().includes(q);
+    return catOk && termOk;
+  });
+
+  counter.textContent = `${filtered.length} palavra${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  filtered.forEach((w, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.cat = w.cat;
+    card.style.animationDelay = `${i * 18}ms`;
+    card.innerHTML = `
+      <span class="cat-badge">${catLabels[w.cat]}</span>
+      <div class="card-en">${w.en}</div>
+      <div class="card-pt">${w.pt}</div>
+      <button class="audio-btn" title="Ouvir pronúncia">🔊</button>
+    `;
+
+    const audioBtn = card.querySelector('.audio-btn');
+
+    audioBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      speechSynthesis.cancel();
+
+      const utter = new SpeechSynthesisUtterance(w.en);
+      utter.lang = 'en-US';
+      utter.rate = 0.65; // mais lento
+      utter.pitch = 1;
+
+      const voices = speechSynthesis.getVoices();
+      const englishVoice = voices.find(v =>
+        v.lang.includes('en')
+      );
+
+      if (englishVoice) {
+        utter.voice = englishVoice;
+      }
+
+      speechSynthesis.speak(utter);
+    });
+
+    card.addEventListener('click', () => card.classList.toggle('revealed'));
+    grid.appendChild(card);
+  });
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeCat = tab.dataset.cat;
+    renderCards();
+  });
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchTerm = e.target.value;
+  renderCards();
+});
+
+renderCards();
+</script>
+</body>
+</html>
+
