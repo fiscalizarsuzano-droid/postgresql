@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tipos SQL — Colinha</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d0f14;
+    --surface:   #151820;
+    --card:      #1b1f2b;
+    --border:    #252a38;
+    --text:      #e2e6f0;
+    --muted:     #7a8099;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'Syne', sans-serif;
+
+    --num:    #4dd9ac;  /* verde-água  — numérico    */
+    --str:    #7eb8f7;  /* azul claro  — texto       */
+    --dt:     #f7c948;  /* amarelo     — data/hora   */
+    --bin:    #f07cba;  /* rosa        — binário     */
+    --bool:   #b07ef8;  /* lilás       — lógico      */
+    --json:   #fb923c;  /* laranja     — json/outros */
+    --pg:     #67e8f9;  /* ciano       — postgresql  */
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    background: linear-gradient(180deg, #10131c 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 0%, var(--muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    color: var(--muted);
+    font-size: .9rem;
+    margin-top: .5rem;
+    font-weight: 400;
+    font-family: var(--mono);
+  }
+
+  /* ── BUSCA ── */
+  .search-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1.8rem 1rem 1rem;
+  }
+  .search-wrap input {
+    width: min(540px, 100%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: .95rem;
+    padding: .75rem 1.2rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: #4a5070; }
+
+  /* ── LEGENDA ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: .6rem;
+    justify-content: center;
+    padding: 0 1.5rem 2rem;
+  }
+  .leg-item {
+    display: flex; align-items: center; gap: .4rem;
+    font-family: var(--mono); font-size: .75rem; color: var(--muted);
+    cursor: pointer; padding: .3rem .7rem;
+    border-radius: 6px; border: 1px solid var(--border);
+    transition: border-color .2s, color .2s;
+  }
+  .leg-item:hover { color: var(--text); border-color: #4a5070; }
+  .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── MAIN ── */
+  main { padding: 0 1.5rem 4rem; max-width: 1400px; margin: 0 auto; }
+
+  /* ── SEÇÃO ── */
+  .section { margin-bottom: 3rem; }
+  .section-header {
+    display: flex; align-items: center; gap: .8rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: .7rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .section-title {
+    font-size: 1.1rem; font-weight: 700; letter-spacing: .5px;
+  }
+  .section-count {
+    margin-left: auto;
+    font-family: var(--mono); font-size: .75rem; color: var(--muted);
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1rem;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent, #fff);
+    border-radius: 12px 0 0 12px;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: #2e344a;
+    box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  .card-top {
+    display: flex; align-items: flex-start; gap: .7rem;
+    margin-bottom: .65rem;
+  }
+  .card-name {
+    font-family: var(--mono);
+    font-size: 1rem; font-weight: 700;
+    color: var(--accent, var(--text));
+    line-height: 1.2;
+    flex: 1;
+  }
+  .card-badges {
+    display: flex; flex-wrap: wrap; gap: .3rem;
+    margin-left: auto; flex-shrink: 0;
+  }
+  .badge {
+    font-family: var(--mono); font-size: .65rem; font-weight: 600;
+    padding: .15rem .45rem; border-radius: 4px;
+    border: 1px solid currentColor; opacity: .8;
+    white-space: nowrap;
+  }
+  .badge.mysql   { color: #f7a35c; }
+  .badge.pgsql   { color: var(--pg); }
+  .badge.ansi    { color: var(--muted); }
+  .badge.mssql   { color: #b07ef8; }
+
+  .card-desc {
+    font-size: .82rem;
+    color: #c4c9d8;
+    line-height: 1.55;
+    font-family: var(--sans);
+    font-weight: 400;
+    margin-bottom: .7rem;
+  }
+
+  .card-detail {
+    background: var(--bg);
+    border-radius: 7px;
+    padding: .55rem .8rem;
+    font-family: var(--mono);
+    font-size: .74rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .card-detail span { color: var(--accent, var(--text)); font-weight: 600; }
+
+  /* hidden */
+  .card.hidden { display: none; }
+  .section.all-hidden { display: none; }
+
+  /* ── NO RESULT ── */
+  #no-result {
+    display: none; text-align: center;
+    padding: 3rem; color: var(--muted);
+    font-family: var(--mono); font-size: .9rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 1.5rem;
+    font-family: var(--mono); font-size: .72rem;
+    color: var(--muted); border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Tipos SQL — Colinha Completa</h1>
+  <p>MySQL · PostgreSQL · SQL Server · ANSI SQL</p>
+</header>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="Buscar tipo... ex: VARCHAR, DATE, BOOLEAN" autocomplete="off" spellcheck="false">
+</div>
+
+<div class="legend">
+  <div class="leg-item" data-filter="num">
+    <div class="leg-dot" style="background:var(--num)"></div>Numérico
+  </div>
+  <div class="leg-item" data-filter="str">
+    <div class="leg-dot" style="background:var(--str)"></div>Texto / String
+  </div>
+  <div class="leg-item" data-filter="dt">
+    <div class="leg-dot" style="background:var(--dt)"></div>Data e Hora
+  </div>
+  <div class="leg-item" data-filter="bin">
+    <div class="leg-dot" style="background:var(--bin)"></div>Binário / BLOB
+  </div>
+  <div class="leg-item" data-filter="bool">
+    <div class="leg-dot" style="background:var(--bool)"></div>Lógico / Especial
+  </div>
+  <div class="leg-item" data-filter="json">
+    <div class="leg-dot" style="background:var(--json)"></div>JSON / Outros
+  </div>
+  <div class="leg-item" data-filter="pg">
+    <div class="leg-dot" style="background:var(--pg)"></div>PostgreSQL Extra
+  </div>
+</div>
+
+<main id="main">
+
+<!-- ═══════════════════════════════════════════
+     NUMÉRICOS
+═══════════════════════════════════════════ -->
+<section class="section" data-cat="num">
+  <div class="section-header">
+    <div class="section-dot" style="background:var(--num)"></div>
+    <span class="section-title" style="color:var(--num)">Numéricos</span>
+    <span class="section-count">Inteiros · Decimais · Ponto flutuante</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--num)" data-tags="int inteiro numero">
+      <div class="card-top">
+        <div class="card-name">INT</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Número inteiro padrão. O tipo mais usado para IDs, contadores e quantidades do dia a dia.</div>
+      <div class="card-detail">
+        Tamanho: <span>4 bytes</span><br>
+        Faixa: <span>-2.147.483.648 até 2.147.483.647</span><br>
+        Unsigned: <span>0 até 4.294.967.295</span><br>
+        Exemplo: <span>id INT NOT NULL AUTO_INCREMENT</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="bigint inteiro grande numero">
+      <div class="card-top">
+        <div class="card-name">BIGINT</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Inteiro grande. Use quando INT não é suficiente — timestamps Unix em milissegundos, IDs de redes sociais.</div>
+      <div class="card-detail">
+        Tamanho: <span>8 bytes</span><br>
+        Faixa: <span>±9.223.372.036.854.775.807</span><br>
+        Exemplo: <span>user_id BIGINT UNSIGNED</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="smallint inteiro pequeno numero">
+      <div class="card-top">
+        <div class="card-name">SMALLINT</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Inteiro menor. Economiza espaço quando os valores são pequenos — idades, notas, classificações.</div>
+      <div class="card-detail">
+        Tamanho: <span>2 bytes</span><br>
+        Faixa: <span>-32.768 até 32.767</span><br>
+        Exemplo: <span>idade SMALLINT UNSIGNED</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="tinyint inteiro minimo numero boolean">
+      <div class="card-top">
+        <div class="card-name">TINYINT</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge mssql">MSSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Inteiro mínimo. Muito usado como substituto de BOOLEAN no MySQL (0 = false, 1 = true). Flags e status simples.</div>
+      <div class="card-detail">
+        Tamanho: <span>1 byte</span><br>
+        Faixa: <span>-128 até 127</span><br>
+        Unsigned: <span>0 até 255</span><br>
+        Exemplo: <span>ativo TINYINT(1) DEFAULT 1</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="mediumint inteiro medio numero">
+      <div class="card-top">
+        <div class="card-name">MEDIUMINT</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Inteiro médio. Pouco usado, mas útil quando SMALLINT é pequeno e INT é grande demais — economia de armazenamento em colunas de alta cardinalidade.</div>
+      <div class="card-detail">
+        Tamanho: <span>3 bytes</span><br>
+        Faixa: <span>-8.388.608 até 8.388.607</span><br>
+        Unsigned: <span>0 até 16.777.215</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="decimal numeric numero exato dinheiro moeda">
+      <div class="card-top">
+        <div class="card-name">DECIMAL / NUMERIC</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Número decimal de precisão exata. Perfeito para dinheiro, preços e qualquer valor onde arredondamento não é tolerado.</div>
+      <div class="card-detail">
+        Sintaxe: <span>DECIMAL(precisão, escala)</span><br>
+        Ex dinheiro: <span>preco DECIMAL(10, 2)</span><br>
+        Armazena: <span>até 65 dígitos no total</span><br>
+        ⚠ Nunca use FLOAT para valores financeiros
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="float numero aproximado ponto flutuante">
+      <div class="card-top">
+        <div class="card-name">FLOAT</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Número de ponto flutuante de precisão simples. Use para medidas físicas, coordenadas ou valores científicos onde pequenos erros de arredondamento são aceitáveis.</div>
+      <div class="card-detail">
+        Tamanho: <span>4 bytes</span><br>
+        Precisão: <span>~7 dígitos significativos</span><br>
+        Exemplo: <span>temperatura FLOAT</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="double numero aproximado ponto flutuante duplo">
+      <div class="card-top">
+        <div class="card-name">DOUBLE</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge ansi">ANSI</span>
+        </div>
+      </div>
+      <div class="card-desc">Ponto flutuante de precisão dupla. Mais preciso que FLOAT — usado em cálculos científicos, coordenadas GPS e estatísticas.</div>
+      <div class="card-detail">
+        Tamanho: <span>8 bytes</span><br>
+        Precisão: <span>~15 dígitos significativos</span><br>
+        PgSQL equiv: <span>DOUBLE PRECISION ou FLOAT8</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="bit bitfield binario numero">
+      <div class="card-top">
+        <div class="card-name">BIT</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+          <span class="badge mssql">MSSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Armazena valores em bit. Útil para flags de permissão ou campos booleanos no SQL Server.</div>
+      <div class="card-detail">
+        Sintaxe MySQL: <span>BIT(n)</span> — n = 1 a 64 bits<br>
+        SQL Server: <span>BIT</span> = 0 ou 1 (equivale a bool)<br>
+        Exemplo: <span>permissoes BIT(8)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--num)" data-tags="serial autoincrement sequencia postgres">
+      <div class="card-top">
+        <div class="card-name">SERIAL</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Atalho do PostgreSQL para criar sequência automática + inteiro. Equivale ao AUTO_INCREMENT do MySQL. Muito usado como chave primária.</div>
+      <div class="card-detail">
+        Tipos: <span>SMALLSERIAL · SERIAL · BIGSERIAL</span><br>
+        Equivale a: <span>INT + SEQUENCE + DEFAULT</span><br>
+        Exemplo: <span>id SERIAL PRIMARY KEY</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TEXTO / STRING
+═══════════════════════════════════════════ -->
+<section class="section" data-cat="str">
+  <div class="section-header">
+    <div class="section-dot" style="background:var(--str)"></div>
+    <span class="section-title" style="color:var(--str)">Texto / String</span>
+    <span class="section-count">Caracteres · Texto livre · Listas</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--str)" data-tags="char string texto fixo">
+      <div class="card-top">
+        <div class="card-name">CHAR(n)</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">String de tamanho FIXO. Sempre ocupa n caracteres, preenchendo com espaços se necessário. Ideal quando o valor tem sempre o mesmo comprimento.</div>
+      <div class="card-detail">
+        Máximo: <span>255 caracteres</span><br>
+        Uso típico: <span>CPF CHAR(11), UF CHAR(2), CEP CHAR(8)</span><br>
+        ⚠ Espaços extras são removidos na leitura (MySQL)
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="varchar string texto variavel nome email">
+      <div class="card-top">
+        <div class="card-name">VARCHAR(n)</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">String de tamanho VARIÁVEL. O tipo de texto mais usado — nomes, e-mails, títulos. Ocupa apenas o espaço necessário.</div>
+      <div class="card-detail">
+        Máximo MySQL: <span>65.535 bytes</span><br>
+        Máximo PgSQL: <span>sem limite prático (= TEXT)</span><br>
+        Uso típico: <span>nome VARCHAR(100), email VARCHAR(255)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="text string texto longo livre">
+      <div class="card-top">
+        <div class="card-name">TEXT</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Texto longo sem tamanho definido. Use para descrições, artigos, comentários longos, HTML, markdown — qualquer conteúdo extenso.</div>
+      <div class="card-detail">
+        MySQL máximo: <span>65.535 bytes</span><br>
+        PgSQL: <span>ilimitado (sem overhead de VARCHAR)</span><br>
+        Uso típico: <span>descricao TEXT, conteudo TEXT</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="tinytext string texto pequeno">
+      <div class="card-top">
+        <div class="card-name">TINYTEXT</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Texto muito curto. Raramente necessário — na prática, VARCHAR(255) é preferido pois é mais flexível para índices.</div>
+      <div class="card-detail">
+        Máximo: <span>255 bytes</span><br>
+        ⚠ Prefira: <span>VARCHAR(255) na maioria dos casos</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="mediumtext string texto medio">
+      <div class="card-top">
+        <div class="card-name">MEDIUMTEXT</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Texto médio. Ótimo para artigos de blog, posts longos, ou conteúdo gerado pelo usuário que pode ultrapassar o TEXT comum.</div>
+      <div class="card-detail">
+        Máximo: <span>16.777.215 bytes (~16 MB)</span><br>
+        Uso típico: <span>artigo MEDIUMTEXT, html_content MEDIUMTEXT</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="longtext string texto longo grande">
+      <div class="card-top">
+        <div class="card-name">LONGTEXT</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Texto gigante. Use para logs completos de sistema, dumps de código-fonte, ou qualquer conteúdo massivo em texto.</div>
+      <div class="card-detail">
+        Máximo: <span>4.294.967.295 bytes (≈ 4 GB)</span><br>
+        Uso típico: <span>log_completo LONGTEXT</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="enum lista opcoes status string">
+      <div class="card-top">
+        <div class="card-name">ENUM</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Lista de valores permitidos. O banco rejeita qualquer valor fora da lista. Ótimo para status, categorias fixas, tipos de usuário.</div>
+      <div class="card-detail">
+        Sintaxe: <span>ENUM('val1', 'val2', 'val3')</span><br>
+        Exemplo: <span>status ENUM('ativo','inativo','pendente')</span><br>
+        ⚠ Alterar a lista exige ALTER TABLE
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="set lista multipla string mysql">
+      <div class="card-top">
+        <div class="card-name">SET</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Como ENUM, mas permite múltiplos valores de uma lista. A coluna guarda zero, um ou vários itens da lista ao mesmo tempo.</div>
+      <div class="card-detail">
+        Sintaxe: <span>SET('opcao1', 'opcao2', 'opcao3')</span><br>
+        Exemplo: <span>dias SET('seg','ter','qua','qui','sex')</span><br>
+        Máximo: <span>64 membros</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--str)" data-tags="nchar nvarchar unicode string sqlserver">
+      <div class="card-top">
+        <div class="card-name">NCHAR / NVARCHAR</div>
+        <div class="card-badges">
+          <span class="badge mssql">MSSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Versões Unicode de CHAR e VARCHAR no SQL Server. Use quando precisa armazenar caracteres de múltiplos idiomas (chinês, árabe, etc.).</div>
+      <div class="card-detail">
+        Codificação: <span>UTF-16 (2 bytes por caractere)</span><br>
+        Exemplo: <span>nome NVARCHAR(100)</span><br>
+        NVARCHAR(MAX): <span>até 2 GB de texto</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     DATA E HORA
+═══════════════════════════════════════════ -->
+<section class="section" data-cat="dt">
+  <div class="section-header">
+    <div class="section-dot" style="background:var(--dt)"></div>
+    <span class="section-title" style="color:var(--dt)">Data e Hora</span>
+    <span class="section-count">Datas · Horários · Timestamps</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--dt)" data-tags="date data">
+      <div class="card-top">
+        <div class="card-name">DATE</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Somente data, sem hora. Ideal para datas de nascimento, vencimentos, datas de eventos, aniversários.</div>
+      <div class="card-detail">
+        Formato: <span>YYYY-MM-DD</span><br>
+        Faixa MySQL: <span>1000-01-01 até 9999-12-31</span><br>
+        Exemplo: <span>data_nascimento DATE</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--dt)" data-tags="time hora horario">
+      <div class="card-top">
+        <div class="card-name">TIME</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Somente horário, sem data. Útil para horários de funcionamento, duração de algo, ou hora de uma tarefa recorrente.</div>
+      <div class="card-detail">
+        Formato: <span>HH:MM:SS</span><br>
+        Faixa MySQL: <span>-838:59:59 até 838:59:59</span><br>
+        Exemplo: <span>horario_abertura TIME</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--dt)" data-tags="datetime data hora combinado">
+      <div class="card-top">
+        <div class="card-name">DATETIME</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge mssql">MSSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Data e hora juntas, sem fuso horário. Use para registrar quando algo aconteceu — pedidos, postagens, cadastros. Não se ajusta ao timezone do servidor.</div>
+      <div class="card-detail">
+        Formato: <span>YYYY-MM-DD HH:MM:SS</span><br>
+        Faixa: <span>1000-01-01 00:00:00 até 9999-12-31 23:59:59</span><br>
+        Exemplo: <span>criado_em DATETIME DEFAULT NOW()</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--dt)" data-tags="timestamp data hora automatico fuso">
+      <div class="card-top">
+        <div class="card-name">TIMESTAMP</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Data e hora com fuso horário. Converte para UTC ao salvar e converte de volta ao ler. Ideal para logs, auditoria e sistemas multi-fuso.</div>
+      <div class="card-detail">
+        Formato MySQL: <span>YYYY-MM-DD HH:MM:SS</span><br>
+        Faixa MySQL: <span>1970-01-01 até 2038-01-19</span><br>
+        PgSQL: <span>TIMESTAMPTZ (inclui tz na leitura)</span><br>
+        Exemplo: <span>atualizado_em TIMESTAMP ON UPDATE NOW()</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--dt)" data-tags="year ano mysql">
+      <div class="card-top">
+        <div class="card-name">YEAR</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Armazena apenas o ano com 4 dígitos. Útil para ano de fabricação, modelo, safra, ano de publicação.</div>
+      <div class="card-detail">
+        Tamanho: <span>1 byte</span><br>
+        Faixa: <span>1901 até 2155</span><br>
+        Exemplo: <span>ano_fabricacao YEAR</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--dt)" data-tags="interval intervalo duracao postgres">
+      <div class="card-top">
+        <div class="card-name">INTERVAL</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+          <span class="badge ansi">ANSI</span>
+        </div>
+      </div>
+      <div class="card-desc">Representa uma duração ou diferença de tempo, não um ponto específico. Ideal para cálculos como "adicionar 30 dias a uma data".</div>
+      <div class="card-detail">
+        Exemplos: <span>'3 days', '2 hours', '1 year 2 months'</span><br>
+        Uso: <span>NOW() + INTERVAL '7 days'</span><br>
+        MySQL: <span>usa INTERVAL em expressões, não como tipo</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BINÁRIO / BLOB
+═══════════════════════════════════════════ -->
+<section class="section" data-cat="bin">
+  <div class="section-header">
+    <div class="section-dot" style="background:var(--bin)"></div>
+    <span class="section-title" style="color:var(--bin)">Binário / BLOB</span>
+    <span class="section-count">Arquivos · Imagens · Bytes</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--bin)" data-tags="binary binario fixo bytes">
+      <div class="card-top">
+        <div class="card-name">BINARY(n)</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge mssql">MSSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Dados binários de tamanho fixo. Análogo ao CHAR, mas para bytes. Use para hashes de tamanho fixo como MD5 (16 bytes) ou SHA1 (20 bytes).</div>
+      <div class="card-detail">
+        Máximo: <span>255 bytes</span><br>
+        Exemplo: <span>hash_md5 BINARY(16)</span><br>
+        Diferença: <span>comparação case-sensitive por padrão</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--bin)" data-tags="varbinary binario variavel bytes">
+      <div class="card-top">
+        <div class="card-name">VARBINARY(n)</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge mssql">MSSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Dados binários de tamanho variável. Use para senhas criptografadas, tokens de sessão, chaves de autenticação com comprimentos variados.</div>
+      <div class="card-detail">
+        Máximo: <span>65.535 bytes</span><br>
+        Exemplo: <span>token VARBINARY(64)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--bin)" data-tags="blob binario grande arquivo imagem">
+      <div class="card-top">
+        <div class="card-name">BLOB</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Binary Large Object. Armazena dados binários brutos — imagens, PDFs, arquivos de áudio. Na prática, muitos preferem guardar o arquivo em disco e só o caminho no banco.</div>
+      <div class="card-detail">
+        MySQL máximo: <span>65.535 bytes</span><br>
+        Tipos maiores: <span>TINYBLOB · MEDIUMBLOB · LONGBLOB</span><br>
+        PgSQL: <span>BYTEA (equivalente nativo)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--bin)" data-tags="tinyblob blob binario pequeno">
+      <div class="card-top">
+        <div class="card-name">TINYBLOB</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">BLOB pequeno. Para arquivos minúsculos ou thumbnails de baixíssima resolução — quase sempre BLOB ou MEDIUMBLOB é mais adequado.</div>
+      <div class="card-detail">Máximo: <span>255 bytes</span></div>
+    </div>
+
+    <div class="card" style="--accent:var(--bin)" data-tags="mediumblob blob binario medio">
+      <div class="card-top">
+        <div class="card-name">MEDIUMBLOB</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">BLOB médio. Comporta imagens comuns, documentos, ícones — a escolha mais prática quando BLOB básico é insuficiente.</div>
+      <div class="card-detail">Máximo: <span>16.777.215 bytes (≈ 16 MB)</span></div>
+    </div>
+
+    <div class="card" style="--accent:var(--bin)" data-tags="longblob blob binario grande arquivo video">
+      <div class="card-top">
+        <div class="card-name">LONGBLOB</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">BLOB gigante. Para vídeos, backups, exports de banco inteiros. Use com cuidado — guardar arquivos grandes no banco impacta performance.</div>
+      <div class="card-detail">Máximo: <span>4.294.967.295 bytes (≈ 4 GB)</span></div>
+    </div>
+
+    <div class="card" style="--accent:var(--bin)" data-tags="bytea binario postgres bytes">
+      <div class="card-top">
+        <div class="card-name">BYTEA</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Equivalente do BLOB no PostgreSQL. Armazena sequências de bytes de tamanho variável — imagens, arquivos, hashes, dados encriptados.</div>
+      <div class="card-detail">
+        Máximo: <span>1 GB</span><br>
+        Exemplo: <span>foto BYTEA, senha_hash BYTEA</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LÓGICO / ESPECIAL
+═══════════════════════════════════════════ -->
+<section class="section" data-cat="bool">
+  <div class="section-header">
+    <div class="section-dot" style="background:var(--bool)"></div>
+    <span class="section-title" style="color:var(--bool)">Lógico / Especial</span>
+    <span class="section-count">Boolean · NULL · UUID</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--bool)" data-tags="boolean bool logico verdadeiro falso">
+      <div class="card-top">
+        <div class="card-name">BOOLEAN / BOOL</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+          <span class="badge pgsql">PgSQL</span>
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Valor lógico verdadeiro ou falso. No PostgreSQL é um tipo real. No MySQL é apenas um alias para TINYINT(1).</div>
+      <div class="card-detail">
+        PgSQL valores: <span>TRUE, FALSE, NULL</span><br>
+        MySQL: <span>alias de TINYINT(1) — 1 = true, 0 = false</span><br>
+        Exemplo: <span>ativo BOOLEAN DEFAULT TRUE</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--bool)" data-tags="uuid identificador unico chave">
+      <div class="card-top">
+        <div class="card-name">UUID</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+          <span class="badge mysql">MySQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Identificador único universal de 128 bits. Garante unicidade mesmo entre servidores diferentes — ideal para IDs de sistemas distribuídos e APIs públicas.</div>
+      <div class="card-detail">
+        Formato: <span>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</span><br>
+        PgSQL tipo nativo: <span>UUID (16 bytes)</span><br>
+        MySQL: <span>VARCHAR(36) ou BINARY(16) + função UUID()</span><br>
+        Exemplo: <span>id UUID DEFAULT gen_random_uuid()</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--bool)" data-tags="null nulo ausente valor especial">
+      <div class="card-top">
+        <div class="card-name">NULL</div>
+        <div class="card-badges">
+          <span class="badge ansi">ANSI</span>
+        </div>
+      </div>
+      <div class="card-desc">Não é um tipo, mas um estado especial que significa "valor ausente ou desconhecido". Qualquer coluna pode conter NULL a não ser que tenha NOT NULL.</div>
+      <div class="card-detail">
+        Comportamento: <span>NULL ≠ NULL (use IS NULL para comparar)</span><br>
+        Restringir: <span>coluna TIPO NOT NULL</span><br>
+        Tratar: <span>COALESCE(col, 'padrão')</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--bool)" data-tags="money dinheiro moeda sqlserver postgres">
+      <div class="card-top">
+        <div class="card-name">MONEY / SMALLMONEY</div>
+        <div class="card-badges">
+          <span class="badge mssql">MSSQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Tipo monetário com símbolo de moeda e 4 casas decimais. Prático, mas DECIMAL(p,s) é mais portável e recomendado para sistemas financeiros sérios.</div>
+      <div class="card-detail">
+        MSSQL MONEY: <span>8 bytes, ±922 trilhões</span><br>
+        MSSQL SMALLMONEY: <span>4 bytes, ±214 mil</span><br>
+        ⚠ Evite: <span>DECIMAL(19,4) é mais portável</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     JSON / OUTROS
+═══════════════════════════════════════════ -->
+<section class="section" data-cat="json">
+  <div class="section-header">
+    <div class="section-dot" style="background:var(--json)"></div>
+    <span class="section-title" style="color:var(--json)">JSON / Outros</span>
+    <span class="section-count">JSON · XML · Geoespacial</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--json)" data-tags="json javascript objeto semiestruturado">
+      <div class="card-top">
+        <div class="card-name">JSON</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge pgsql">PgSQL</span>
+          <span class="badge mssql">MSSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Armazena dados JSON com validação automática de sintaxe. Permite consultas e índices sobre campos internos do JSON — ótimo para dados semi-estruturados.</div>
+      <div class="card-detail">
+        MySQL: <span>JSON (valida na inserção)</span><br>
+        PgSQL: <span>JSON (texto) ou JSONB (binário, indexável)</span><br>
+        Exemplo: <span>configuracoes JSON</span><br>
+        Consulta: <span>dados->>'campo' (PgSQL)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--json)" data-tags="jsonb json binario postgres indexavel">
+      <div class="card-top">
+        <div class="card-name">JSONB</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">JSON em formato binário no PostgreSQL. Mais rápido para consultas que JSON puro porque já está pré-processado. Suporta índices GIN — o tipo recomendado para JSON no PgSQL.</div>
+      <div class="card-detail">
+        Vantagem: <span>indexável com GIN/GIST</span><br>
+        Desvantagem: <span>leve overhead na escrita</span><br>
+        Exemplo: <span>metadata JSONB DEFAULT '{}'</span><br>
+        Index: <span>CREATE INDEX ON tabela USING GIN (col)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--json)" data-tags="xml markup estruturado sqlserver postgres">
+      <div class="card-top">
+        <div class="card-name">XML</div>
+        <div class="card-badges">
+          <span class="badge mssql">MSSQL</span>
+          <span class="badge pgsql">PgSQL</span>
+          <span class="badge ansi">ANSI</span>
+        </div>
+      </div>
+      <div class="card-desc">Armazena documentos XML com validação de estrutura. Permite consultas XPath e XQuery. Muito usado em sistemas legados e integrações B2B/ERP.</div>
+      <div class="card-detail">
+        MSSQL: <span>Suporte nativo com métodos .query(), .value()</span><br>
+        PgSQL: <span>Funções xpath() e xmltable()</span><br>
+        Exemplo: <span>nota_fiscal XML</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--json)" data-tags="geometry geography geoespacial coordenadas spatial">
+      <div class="card-top">
+        <div class="card-name">GEOMETRY / GEOGRAPHY</div>
+        <div class="card-badges">
+          <span class="badge mysql">MySQL</span>
+          <span class="badge mssql">MSSQL</span>
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Tipos geoespaciais para coordenadas, rotas, polígonos e formas geográficas. Essenciais para apps de mapas, logística e geomarketing.</div>
+      <div class="card-detail">
+        Subtipos: <span>POINT, LINESTRING, POLYGON, MULTIPOLYGON</span><br>
+        PgSQL: <span>extensão PostGIS (mais poderosa)</span><br>
+        Exemplo: <span>localizacao POINT</span><br>
+        MySQL: <span>ST_Distance(), ST_Contains()</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--json)" data-tags="array lista postgres vetor">
+      <div class="card-top">
+        <div class="card-name">ARRAY</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Armazena uma lista de valores do mesmo tipo em uma única coluna. Elimina tabelas de relação para dados simples como tags, telefones, listas de IDs.</div>
+      <div class="card-detail">
+        Sintaxe: <span>TIPO[]</span><br>
+        Exemplos: <span>tags TEXT[], ids INT[]</span><br>
+        Consulta: <span>WHERE 'sql' = ANY(tags)</span><br>
+        Índice: <span>CREATE INDEX ON t USING GIN(col)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--json)" data-tags="hstore chavevalor mapa postgres">
+      <div class="card-top">
+        <div class="card-name">HSTORE</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Armazena pares chave→valor dentro de uma coluna, como um dicionário. Alternativa ao JSON para dados de configuração simples e planos (sem aninhamento).</div>
+      <div class="card-detail">
+        Requer: <span>CREATE EXTENSION hstore</span><br>
+        Exemplo: <span>atributos HSTORE</span><br>
+        Acesso: <span>atributos->'cor'</span><br>
+        Indexável: <span>sim, com GIN/GIST</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     POSTGRESQL EXTRA
+═══════════════════════════════════════════ -->
+<section class="section" data-cat="pg">
+  <div class="section-header">
+    <div class="section-dot" style="background:var(--pg)"></div>
+    <span class="section-title" style="color:var(--pg)">PostgreSQL — Tipos Extras</span>
+    <span class="section-count">Tipos exclusivos e avançados do PgSQL</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--pg)" data-tags="cidr inet macaddr rede network postgres">
+      <div class="card-top">
+        <div class="card-name">INET / CIDR</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Tipos nativos para endereços IP e redes. INET armazena host + rede; CIDR só aceita endereços de rede (bits de host zerados). Permite operadores de rede nativos.</div>
+      <div class="card-detail">
+        INET exemplo: <span>ip_cliente INET — '192.168.1.5'</span><br>
+        CIDR exemplo: <span>rede CIDR — '192.168.1.0/24'</span><br>
+        Operadores: <span>&lt;&lt; (contém), >> (está contido)</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--pg)" data-tags="macaddr mac address rede postgres">
+      <div class="card-top">
+        <div class="card-name">MACADDR / MACADDR8</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Endereço MAC de interface de rede. Aceita formatos como XX:XX:XX:XX:XX:XX. MACADDR8 é para MAC de 8 bytes (EUI-64).</div>
+      <div class="card-detail">
+        Exemplo: <span>mac_device MACADDR</span><br>
+        Função: <span>macaddr_set_bit()</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--pg)" data-tags="range intervalo periodo postgres faixa">
+      <div class="card-top">
+        <div class="card-name">RANGE Types</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Armazena um intervalo de valores com início e fim. Perfeito para reservas de hotel, janelas de tempo, faixas de preço. Suporta operadores de sobreposição nativos.</div>
+      <div class="card-detail">
+        Tipos: <span>INT4RANGE, INT8RANGE, NUMRANGE</span><br>
+        Datas: <span>DATERANGE, TSRANGE, TSTZRANGE</span><br>
+        Exemplo: <span>periodo DATERANGE</span><br>
+        Sobreposição: <span>WHERE periodo && '[2024-01-01,2024-12-31]'</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--pg)" data-tags="tsvector tsquery texto busca fulltext postgres">
+      <div class="card-top">
+        <div class="card-name">TSVECTOR / TSQUERY</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Tipos para busca full-text nativa. TSVECTOR armazena o documento indexado (palavras normalizadas); TSQUERY representa a consulta de busca. Muito mais rápido que LIKE.</div>
+      <div class="card-detail">
+        Exemplo: <span>busca TSVECTOR GENERATED ALWAYS AS (to_tsvector('portuguese', titulo)) STORED</span><br>
+        Consulta: <span>WHERE busca @@ to_tsquery('sql & banco')</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--pg)" data-tags="composite tipo composto estrutura postgres">
+      <div class="card-top">
+        <div class="card-name">Tipos Compostos</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">Cria tipos personalizados com vários campos, como uma struct. Uma coluna pode guardar um objeto complexo com nome, logradouro e CEP, por exemplo.</div>
+      <div class="card-detail">
+        Criação: <span>CREATE TYPE endereco AS (rua TEXT, cep CHAR(8))</span><br>
+        Uso: <span>endereco_entrega endereco</span><br>
+        Acesso: <span>(endereco_entrega).rua</span>
+      </div>
+    </div>
+
+    <div class="card" style="--accent:var(--pg)" data-tags="enum tipo enumerado postgres ansi">
+      <div class="card-top">
+        <div class="card-name">ENUM (PgSQL)</div>
+        <div class="card-badges">
+          <span class="badge pgsql">PgSQL</span>
+        </div>
+      </div>
+      <div class="card-desc">No PostgreSQL, ENUM é um tipo criado explicitamente e registrado no catálogo. Mais robusto que o ENUM do MySQL — tem ordem definida e pode ser expandido com ALTER TYPE.</div>
+      <div class="card-detail">
+        Criação: <span>CREATE TYPE status_pedido AS ENUM ('novo', 'pago', 'enviado')</span><br>
+        Adicionar: <span>ALTER TYPE status_pedido ADD VALUE 'cancelado'</span><br>
+        Uso: <span>status status_pedido</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<div id="no-result">Nenhum tipo encontrado para "<span id="no-term"></span>" — tente outro termo.</div>
+
+<footer>
+  Colinha de Tipos SQL · MySQL · PostgreSQL · SQL Server · ANSI SQL
+</footer>
+
+<script>
+  const search = document.getElementById('search');
+  const noResult = document.getElementById('no-result');
+  const noTerm = document.getElementById('no-term');
+
+  function filterCards(term) {
+    const q = term.toLowerCase().trim();
+    let anyVisible = false;
+
+    document.querySelectorAll('.section').forEach(section => {
+      let sectionVisible = false;
+      section.querySelectorAll('.card').forEach(card => {
+        const name = card.querySelector('.card-name').textContent.toLowerCase();
+        const desc = card.querySelector('.card-desc').textContent.toLowerCase();
+        const tags = (card.dataset.tags || '').toLowerCase();
+        const detail = card.querySelector('.card-detail').textContent.toLowerCase();
+        const match = !q || name.includes(q) || tags.includes(q) || desc.includes(q) || detail.includes(q);
+        card.classList.toggle('hidden', !match);
+        if (match) { sectionVisible = true; anyVisible = true; }
+      });
+      section.classList.toggle('all-hidden', !sectionVisible);
+    });
+
+    noResult.style.display = !anyVisible && q ? 'block' : 'none';
+    noTerm.textContent = term;
+  }
+
+  search.addEventListener('input', e => filterCards(e.target.value));
+
+  // Filtro por categoria (clique na legenda)
+  let activeFilter = null;
+  document.querySelectorAll('.leg-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const cat = item.dataset.filter;
+      if (activeFilter === cat) {
+        activeFilter = null;
+        search.value = '';
+        filterCards('');
+        document.querySelectorAll('.leg-item').forEach(l => l.style.background = '');
+      } else {
+        activeFilter = cat;
+        document.querySelectorAll('.leg-item').forEach(l => l.style.background = '');
+        item.style.background = '#1f2436';
+        document.querySelectorAll('.section').forEach(s => {
+          const visible = s.dataset.cat === cat;
+          s.classList.toggle('all-hidden', !visible);
+        });
+        noResult.style.display = 'none';
+        search.value = '';
+      }
+    });
+  });
+</script>
+</body>
+</html>
