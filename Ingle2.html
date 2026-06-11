@@ -7,14 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f2f4fa;
-    --surface: #16181f;
-    --card: #1e2130;
-    --border: #2a2d3e;
-    --text: #e8eaf0;
-    --muted: #7a7f99;
+    --bg: #ffffff;
+    --surface: #2c2f42;
+    --card: #2e3248;
+    --border: #3d4160;
+    --text: #eceef6;
+    --muted: #9da3bf;
     --num:     #f9a03f;
-    --pro:     #7c6af7;
+    --pro:     #9d8ef9;
     --verb:    #3fb8f9;
     --noun:    #3ff9a0;
     --conn:    #f94f6a;
@@ -33,7 +33,7 @@
 
   /* HEADER */
   header {
-    background: linear-gradient(135deg, #1a1c2e 0%, #0e0f14 100%);
+    background: linear-gradient(135deg, #252840 0%, #1a1c30 100%);
     border-bottom: 1px solid var(--border);
     padding: 28px 20px 20px;
     text-align: center;
@@ -106,7 +106,7 @@
     font-weight: 500;
   }
   .tab:hover { color: var(--text); border-color: #444; }
-  .tab.active { color: #0e0f14; font-weight: 700; }
+  .tab.active { color: #1a1c2e; font-weight: 700; }
   .tab[data-cat="all"].active    { background: #e8eaf0; border-color: #e8eaf0; }
   .tab[data-cat="num"].active    { background: var(--num); border-color: var(--num); }
   .tab[data-cat="pro"].active    { background: var(--pro); border-color: var(--pro); }
@@ -165,9 +165,9 @@
   .card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(0,0,0,.4);
-    border-color: #3a3d50;
+    border-color: #4a4e6a;
   }
-  .card.revealed { border-color: #3a3d50; }
+  .card.revealed { border-color: #4a4e6a; }
 
   .card-en {
     font-family: 'Syne', sans-serif;
@@ -178,13 +178,14 @@
   }
   .card-pt {
     font-size: 0.78rem;
-    color: var(--muted);
+    color: #ffffff;
+    font-weight: 700;
     min-height: 1em;
     transition: color .2s;
     line-height: 1.3;
   }
   .card.revealed .card-pt,
-  .card:hover .card-pt { color: #c8cadf; }
+  .card:hover .card-pt { color: #ffffff; }
 
   .cat-badge {
     position: absolute;
@@ -794,7 +795,7 @@ renderCards();
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e0f14;
+    --bg: #ffffff;
     --surface: #16181f;
     --card: #1e2130;
     --border: #2a2d3e;
@@ -820,7 +821,7 @@ renderCards();
 
   /* HEADER */
   header {
-    background: linear-gradient(135deg, #1a1c2e 0%, #0e0f14 100%);
+    background: linear-gradient(135deg, #252840 0%, #1a1c30 100%);
     border-bottom: 1px solid var(--border);
     padding: 28px 20px 20px;
     text-align: center;
@@ -893,7 +894,7 @@ renderCards();
     font-weight: 500;
   }
   .tab:hover { color: var(--text); border-color: #444; }
-  .tab.active { color: #0e0f14; font-weight: 700; }
+  .tab.active { color: #1a1c2e; font-weight: 700; }
   .tab[data-cat="all"].active    { background: #e8eaf0; border-color: #e8eaf0; }
   .tab[data-cat="num"].active    { background: var(--num); border-color: var(--num); }
   .tab[data-cat="pro"].active    { background: var(--pro); border-color: var(--pro); }
@@ -952,9 +953,9 @@ renderCards();
   .card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 24px rgba(0,0,0,.4);
-    border-color: #3a3d50;
+    border-color: #4a4e6a;
   }
-  .card.revealed { border-color: #3a3d50; }
+  .card.revealed { border-color: #4a4e6a; }
 
   .card-en {
     font-family: 'Syne', sans-serif;
@@ -965,13 +966,14 @@ renderCards();
   }
   .card-pt {
     font-size: 0.78rem;
-    color: var(--muted);
+    color: #ffffff;
+    font-weight: 700;
     min-height: 1em;
     transition: color .2s;
     line-height: 1.3;
   }
   .card.revealed .card-pt,
-  .card:hover .card-pt { color: #c8cadf; }
+  .card:hover .card-pt { color: #ffffff; }
 
   .cat-badge {
     position: absolute;
@@ -1572,4 +1574,3 @@ renderCards();
 </script>
 </body>
 </html>
-
