@@ -168,7 +168,7 @@
 
   .card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
     border-color: #3a3d50;
   }
   .card.revealed { border-color: #3a3d50; }
@@ -226,7 +226,7 @@
 }
 
 .audio-btn:hover {
-  background: rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.05);
   transform: scale(1.05);
 }
 
@@ -799,9 +799,9 @@ renderCards();
 <style>
   :root {
     --bg: #0e0f14;
-    --surface: #16181f;
+    --surface: #ffffff;
     --card: #ffffff;
-    --border: #2a2d3e;
+    --border: #d7dde8;
     --text: #e8eaf0;
     --muted: #7a7f99;
     --num:     #f9a03f;
@@ -866,7 +866,7 @@ renderCards();
     outline: none;
     transition: border-color .2s;
   }
-  .search-wrap input:focus { border-color: #7c6af7; }
+  .search-wrap input:focus { border-color: #c9d2e0; }
   .search-wrap input::placeholder { color: var(--muted); }
 
   /* TABS */
