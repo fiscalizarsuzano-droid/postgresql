@@ -1,0 +1,180 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:0.75rem 0 1rem}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:6px 12px;font-size:12px;font-weight:500;border-radius:999px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer}
+.tab.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:transparent}
+.section{display:none}
+.section.active{display:block}
+.note{font-size:11px;color:var(--color-text-secondary);margin:8px 0 10px;padding:6px 10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead tr{background:var(--color-background-secondary)}
+th{padding:7px 10px;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:6px 10px;font-size:13px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:top;word-break:break-word}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:500;width:48%}
+td:last-child{color:var(--color-text-secondary);width:52%}
+.phrase-list{display:flex;flex-direction:column;gap:6px}
+.phrase{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px}
+.phrase .en{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.phrase .pt{font-size:12px;color:var(--color-text-secondary)}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;font-weight:500;margin-bottom:8px}
+.b-blue{background:#E6F1FB;color:#0C447C}
+.b-teal{background:#E1F5EE;color:#085041}
+.b-amber{background:#FAEEDA;color:#633806}
+.b-purple{background:#EEEDFE;color:#3C3489}
+.b-coral{background:#FAECE7;color:#712B13}
+</style>
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <button class="tab active" onclick="show('palavras',this)">Palavras</button>
+    <button class="tab" onclick="show('verbos',this)">Verbos</button>
+    <button class="tab" onclick="show('adjetivos',this)">Adjetivos</button>
+    <button class="tab" onclick="show('ligacoes',this)">Ligações</button>
+    <button class="tab" onclick="show('conectores',this)">Conectores</button>
+  </div>
+
+  <div class="section active" id="palavras">
+    <span class="badge b-blue">33 palavras</span>
+    <table>
+      <thead><tr><th>Inglês</th><th>Português</th></tr></thead>
+      <tbody>
+        <tr><td>name</td><td>nome</td></tr>
+        <tr><td>old</td><td>velho / idade</td></tr>
+        <tr><td>year</td><td>ano</td></tr>
+        <tr><td>work</td><td>trabalhar</td></tr>
+        <tr><td>city hall</td><td>prefeitura</td></tr>
+        <tr><td>study</td><td>estudar</td></tr>
+        <tr><td>student</td><td>estudante</td></tr>
+        <tr><td>music</td><td>música</td></tr>
+        <tr><td>song</td><td>música (canção)</td></tr>
+        <tr><td>cook</td><td>cozinhar</td></tr>
+        <tr><td>rice</td><td>arroz</td></tr>
+        <tr><td>beans</td><td>feijão</td></tr>
+        <tr><td>meat</td><td>carne</td></tr>
+        <tr><td>pork</td><td>porco</td></tr>
+        <tr><td>ribs</td><td>costelas</td></tr>
+        <tr><td>food</td><td>comida</td></tr>
+        <tr><td>life</td><td>vida</td></tr>
+        <tr><td>time</td><td>tempo</td></tr>
+        <tr><td>future</td><td>futuro</td></tr>
+        <tr><td>past</td><td>passado</td></tr>
+        <tr><td>choice</td><td>escolha</td></tr>
+        <tr><td>goal</td><td>objetivo</td></tr>
+        <tr><td>challenge</td><td>desafio</td></tr>
+        <tr><td>technology</td><td>tecnologia</td></tr>
+        <tr><td>database</td><td>banco de dados</td></tr>
+        <tr><td>skill</td><td>habilidade</td></tr>
+        <tr><td>knowledge</td><td>conhecimento</td></tr>
+        <tr><td>exam</td><td>prova</td></tr>
+        <tr><td>career</td><td>carreira</td></tr>
+        <tr><td>mind</td><td>mente</td></tr>
+        <tr><td>well-being</td><td>bem-estar</td></tr>
+        <tr><td>flavor</td><td>sabor</td></tr>
+        <tr><td>barbecue</td><td>churrasco</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" id="verbos">
+    <span class="badge b-teal">16 verbos</span>
+    <table>
+      <thead><tr><th>Inglês</th><th>Português</th></tr></thead>
+      <tbody>
+        <tr><td>be (am/is/are)</td><td>ser / estar</td></tr>
+        <tr><td>work</td><td>trabalhar</td></tr>
+        <tr><td>study</td><td>estudar</td></tr>
+        <tr><td>listen</td><td>ouvir</td></tr>
+        <tr><td>cook</td><td>cozinhar</td></tr>
+        <tr><td>think</td><td>pensar</td></tr>
+        <tr><td>learn</td><td>aprender</td></tr>
+        <tr><td>improve</td><td>melhorar</td></tr>
+        <tr><td>avoid</td><td>evitar</td></tr>
+        <tr><td>waste</td><td>desperdiçar</td></tr>
+        <tr><td>build</td><td>construir</td></tr>
+        <tr><td>like</td><td>gostar</td></tr>
+        <tr><td>love</td><td>adorar</td></tr>
+        <tr><td>understand</td><td>entender</td></tr>
+        <tr><td>pass</td><td>passar (em prova)</td></tr>
+        <tr><td>feel</td><td>sentir</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" id="adjetivos">
+    <span class="badge b-amber">9 adjetivos</span>
+    <table>
+      <thead><tr><th>Inglês</th><th>Português</th></tr></thead>
+      <tbody>
+        <tr><td>fine</td><td>bem</td></tr>
+        <tr><td>good</td><td>bom</td></tr>
+        <tr><td>great</td><td>ótimo</td></tr>
+        <tr><td>delicious</td><td>delicioso</td></tr>
+        <tr><td>easy</td><td>fácil</td></tr>
+        <tr><td>upbeat</td><td>animado</td></tr>
+        <tr><td>mental</td><td>mental</td></tr>
+        <tr><td>psychological</td><td>psicológico</td></tr>
+        <tr><td>biggest</td><td>maior</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" id="ligacoes">
+    <span class="badge b-purple">21 frases</span>
+    <p class="note">Memorize como blocos completos.</p>
+    <div class="phrase-list">
+      <div class="phrase"><div class="en">My name is...</div><div class="pt">Meu nome é...</div></div>
+      <div class="phrase"><div class="en">I am ... years old</div><div class="pt">Eu tenho ... anos</div></div>
+      <div class="phrase"><div class="en">I work at city hall</div><div class="pt">Eu trabalho na prefeitura</div></div>
+      <div class="phrase"><div class="en">In my free time</div><div class="pt">No meu tempo livre</div></div>
+      <div class="phrase"><div class="en">I like music</div><div class="pt">Eu gosto de música</div></div>
+      <div class="phrase"><div class="en">I like listening to music</div><div class="pt">Eu gosto de ouvir música</div></div>
+      <div class="phrase"><div class="en">I like cooking</div><div class="pt">Eu gosto de cozinhar</div></div>
+      <div class="phrase"><div class="en">I usually cook</div><div class="pt">Eu normalmente cozinho</div></div>
+      <div class="phrase"><div class="en">My favorite song is...</div><div class="pt">Minha música favorita é...</div></div>
+      <div class="phrase"><div class="en">My favorite food is...</div><div class="pt">Minha comida favorita é...</div></div>
+      <div class="phrase"><div class="en">Because it is...</div><div class="pt">Porque é...</div></div>
+      <div class="phrase"><div class="en">I think about my life</div><div class="pt">Eu penso sobre minha vida</div></div>
+      <div class="phrase"><div class="en">I think about the future</div><div class="pt">Eu penso sobre o futuro</div></div>
+      <div class="phrase"><div class="en">I don't want to waste my time</div><div class="pt">Eu não quero perder meu tempo</div></div>
+      <div class="phrase"><div class="en">I would like to learn</div><div class="pt">Eu gostaria de aprender</div></div>
+      <div class="phrase"><div class="en">I would like to improve</div><div class="pt">Eu gostaria de melhorar</div></div>
+      <div class="phrase"><div class="en">Nice to meet you</div><div class="pt">Prazer em conhecê-lo</div></div>
+      <div class="phrase"><div class="en">What about you?</div><div class="pt">E você?</div></div>
+      <div class="phrase"><div class="en">How about you?</div><div class="pt">E você?</div></div>
+      <div class="phrase"><div class="en">Thank you</div><div class="pt">Obrigado</div></div>
+      <div class="phrase"><div class="en">I understand</div><div class="pt">Eu entendo</div></div>
+    </div>
+  </div>
+
+  <div class="section" id="conectores">
+    <span class="badge b-coral">10 conectores</span>
+    <p class="note">Essas palavras unem ideias na conversa.</p>
+    <table>
+      <thead><tr><th>Inglês</th><th>Português</th></tr></thead>
+      <tbody>
+        <tr><td>and</td><td>e</td></tr>
+        <tr><td>because</td><td>porque</td></tr>
+        <tr><td>but</td><td>mas</td></tr>
+        <tr><td>however</td><td>porém</td></tr>
+        <tr><td>while</td><td>enquanto</td></tr>
+        <tr><td>when</td><td>quando</td></tr>
+        <tr><td>what</td><td>o que</td></tr>
+        <tr><td>why</td><td>por que</td></tr>
+        <tr><td>how</td><td>como</td></tr>
+        <tr><td>too</td><td>também</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
