@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🧠 Jogo da Memória</title>
+
+<style>
+
+:root{
+    --bg:#111827;
+    --card:#1f2937;
+    --card-open:#374151;
+    --success:#22c55e;
+    --danger:#ef4444;
+    --primary:#3b82f6;
+    --text:#ffffff;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial, Helvetica, sans-serif;
+    min-height:100vh;
+}
+
+header{
+    text-align:center;
+    padding:20px;
+    background:#0f172a;
+    border-bottom:2px solid #1e293b;
+}
+
+h1{
+    font-size:2rem;
+}
+
+.stats{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+    padding:15px;
+    font-size:1.1rem;
+}
+
+.controls{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:10px;
+}
+
+select,button{
+    padding:12px 18px;
+    border:none;
+    border-radius:10px;
+    font-size:1rem;
+}
+
+button{
+    background:var(--primary);
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.board{
+    width:min(1200px,95%);
+    margin:auto;
+    padding:20px;
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:12px;
+}
+
+.card{
+    aspect-ratio:1/1;
+
+    background:var(--card);
+    border-radius:14px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    text-align:center;
+
+    font-size:1.1rem;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    user-select:none;
+}
+
+.card:hover{
+    transform:scale(1.03);
+}
+
+.hidden{
+    color:transparent;
+}
+
+.open{
+    background:var(--card-open);
+}
+
+.match{
+    background:var(--success);
+}
+
+.wrong{
+    background:var(--danger);
+}
+
+.win-screen{
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.9);
+
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+.win-box{
+    background:#1f2937;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+    width:90%;
+    max-width:400px;
+}
+
+.win-box h2{
+    margin-bottom:15px;
+}
+
+.win-box p{
+    margin:10px 0;
+}
+
+.win-box button{
+    width:100%;
+    margin-top:15px;
+}
+
+@media(max-width:600px){
+
+    h1{
+        font-size:1.5rem;
+    }
+
+    .card{
+        font-size:1rem;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<header>
+
+<h1>🧠 Jogo da Memória Inglês</h1>
+
+</header>
+
+<div class="stats">
+
+<div>⭐ Pontos: <span id="score">0</span></div>
+
+<div>✅ Acertos: <span id="hits">0</span></div>
+
+<div>❌ Erros: <span id="errors">0</span></div>
+
+<div>⏱️ Tempo: <span id="time">00:00</span></div>
+
+</div>
+
+<div class="controls">
+
+<select id="difficulty">
+<option value="10">Fácil (10 pares)</option>
+<option value="15">Médio (15 pares)</option>
+<option value="20">Difícil (20 pares)</option>
+</select>
+
+<button onclick="startGame()">🔄 Novo Jogo</button>
+
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="win-screen" id="win">
+
+<div class="win-box">
+
+<h2>🏆 Parabéns!</h2>
+
+<p id="result"></p>
+
+<button onclick="startGame()">
+Jogar Novamente
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const words = [
+
+["house","casa"],
+["book","livro"],
+["water","água"],
+["dog","cachorro"],
+["cat","gato"],
+["food","comida"],
+["friend","amigo"],
+["school","escola"],
+["money","dinheiro"],
+["time","tempo"],
+["car","carro"],
+["city","cidade"],
+["work","trabalho"],
+["day","dia"],
+["night","noite"],
+["mother","mãe"],
+["father","pai"],
+["love","amor"],
+["game","jogo"],
+["door","porta"],
+["window","janela"],
+["computer","computador"],
+["phone","telefone"],
+["chair","cadeira"],
+["table","mesa"]
+
+];
+
+let score=0;
+let hits=0;
+let errors=0;
+
+let firstCard=null;
+let secondCard=null;
+let lock=false;
+
+let totalPairs=0;
+
+let seconds=0;
+let timer;
+
+function shuffle(arr){
+    return arr.sort(()=>Math.random()-0.5);
+}
+
+function updateStats(){
+
+    scoreEl.textContent=score;
+    hitsEl.textContent=hits;
+    errorsEl.textContent=errors;
+
+}
+
+function startTimer(){
+
+    clearInterval(timer);
+
+    seconds=0;
+
+    timer=setInterval(()=>{
+
+        seconds++;
+
+        const min=Math.floor(seconds/60)
+            .toString()
+            .padStart(2,"0");
+
+        const sec=(seconds%60)
+            .toString()
+            .padStart(2,"0");
+
+        timeEl.textContent=`${min}:${sec}`;
+
+    },1000);
+
+}
+
+function startGame(){
+
+    score=0;
+    hits=0;
+    errors=0;
+
+    updateStats();
+
+    board.innerHTML="";
+
+    document.getElementById("win").style.display="none";
+
+    startTimer();
+
+    const amount =
+        Number(
+            document.getElementById("difficulty").value
+        );
+
+    totalPairs=amount;
+
+    const selected=
+        shuffle([...words])
+        .slice(0,amount);
+
+    const cards=[];
+
+    selected.forEach(pair=>{
+
+        cards.push({
+            id:pair[0],
+            text:pair[0]
+        });
+
+        cards.push({
+            id:pair[0],
+            text:pair[1]
+        });
+
+    });
+
+    shuffle(cards);
+
+    cards.forEach(item=>{
+
+        const card=document.createElement("div");
+
+        card.className="card hidden";
+
+        card.dataset.id=item.id;
+
+        card.textContent=item.text;
+
+        card.addEventListener(
+            "click",
+            ()=>flip(card)
+        );
+
+        board.appendChild(card);
+
+    });
+
+}
+
+function flip(card){
+
+    if(lock) return;
+
+    if(card.classList.contains("match"))
+        return;
+
+    if(card===firstCard)
+        return;
+
+    card.classList.remove("hidden");
+    card.classList.add("open");
+
+    if(!firstCard){
+
+        firstCard=card;
+        return;
+
+    }
+
+    secondCard=card;
+
+    lock=true;
+
+    if(
+        firstCard.dataset.id===
+        secondCard.dataset.id
+    ){
+
+        firstCard.classList.add("match");
+        secondCard.classList.add("match");
+
+        hits++;
+
+        score+=10;
+
+        speak(firstCard.dataset.id);
+
+        resetTurn();
+
+        if(hits===totalPairs){
+
+            clearInterval(timer);
+
+            setTimeout(showWin,500);
+
+        }
+
+    }else{
+
+        errors++;
+
+        score=Math.max(0,score-2);
+
+        firstCard.classList.add("wrong");
+        secondCard.classList.add("wrong");
+
+        setTimeout(()=>{
+
+            firstCard.classList.remove(
+                "wrong",
+                "open"
+            );
+
+            secondCard.classList.remove(
+                "wrong",
+                "open"
+            );
+
+            firstCard.classList.add("hidden");
+            secondCard.classList.add("hidden");
+
+            resetTurn();
+
+        },1000);
+
+    }
+
+    updateStats();
+
+}
+
+function resetTurn(){
+
+    firstCard=null;
+    secondCard=null;
+    lock=false;
+
+    updateStats();
+
+}
+
+function speak(text){
+
+    speechSynthesis.cancel();
+
+    const utter=
+        new SpeechSynthesisUtterance(text);
+
+    utter.lang="en-US";
+
+    utter.rate=.8;
+
+    speechSynthesis.speak(utter);
+
+}
+
+function showWin(){
+
+    const accuracy =
+    Math.round(
+        (hits/(hits+errors))*100
+    ) || 100;
+
+    document.getElementById("result")
+        .innerHTML=`
+
+        ⭐ Pontos: ${score}<br><br>
+
+        ✅ Acertos: ${hits}<br>
+
+        ❌ Erros: ${errors}<br><br>
+
+        🎯 Precisão: ${accuracy}%<br><br>
+
+        ⏱️ Tempo: ${
+            document.getElementById("time").textContent
+        }
+
+    `;
+
+    document.getElementById("win")
+        .style.display="flex";
+
+}
+
+const scoreEl=document.getElementById("score");
+const hitsEl=document.getElementById("hits");
+const errorsEl=document.getElementById("errors");
+const timeEl=document.getElementById("time");
+const board=document.getElementById("board");
+
+startGame();
+
+</script>
+
+</body>
+</html>
