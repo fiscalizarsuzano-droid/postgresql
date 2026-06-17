@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constraints PostgreSQL — Colinha de Estudo</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #ffffff;
+  --surface:  #f5f7fb;
+  --card:     #ffffff;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --text:     #1e293b;
+  --muted:    #64748b;
+  --dim:      #94a3b8;
+  --sans:     'DM Sans', sans-serif;
+  --mono:     'IBM Plex Mono', monospace;
+
+  --pk:   #b45309;   /* âmbar escuro  — primary key   */
+  --fk:   #0369a1;   /* azul escuro   — foreign key   */
+  --uq:   #0e7490;   /* teal escuro   — unique        */
+  --nn:   #c2410c;   /* laranja escuro — not null     */
+  --ck:   #6d28d9;   /* roxo escuro   — check         */
+  --df:   #15803d;   /* verde escuro  — default       */
+  --ex:   #be123c;   /* rosa escuro   — exclusion     */
+  --idx:  #1d4ed8;   /* azul royal    — index         */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 3.5rem 2rem 2.5rem;
+  text-align: center;
+  border-bottom: 2px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+}
+header::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 0%, #dbeafe 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-label {
+  font-family: var(--mono);
+  font-size: .7rem; letter-spacing: .15em;
+  color: var(--muted); text-transform: uppercase;
+  margin-bottom: .8rem;
+}
+header h1 {
+  font-size: clamp(1.8rem, 4.5vw, 2.9rem);
+  font-weight: 600;
+  letter-spacing: -.5px;
+  color: var(--text);
+}
+header h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--pk) 0%, var(--fk) 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+header p {
+  color: var(--muted);
+  font-size: .88rem;
+  margin-top: .6rem;
+  font-family: var(--mono);
+}
+.def-box {
+  display: inline-block;
+  margin-top: 1.4rem;
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: .65rem 1.2rem;
+  font-size: .82rem;
+  color: #475569;
+  font-family: var(--mono);
+  max-width: 640px;
+  text-align: left;
+  line-height: 1.7;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.def-box strong { color: var(--fk); font-weight: 600; }
+
+/* ── CONTROLES ── */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.8rem 1.5rem 1.2rem;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+}
+.search-box {
+  width: min(560px, 100%);
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: .88rem;
+  padding: .7rem 1.1rem .7rem 2.6rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: .7rem center;
+}
+.search-box::placeholder { color: var(--dim); }
+.search-box:focus { border-color: var(--fk); box-shadow: 0 0 0 3px rgba(3,105,161,.1); }
+
+.pills {
+  display: flex; flex-wrap: wrap; gap: .45rem; justify-content: center;
+}
+.pill {
+  font-family: var(--mono); font-size: .7rem;
+  padding: .3rem .75rem; border-radius: 20px;
+  border: 1.5px solid var(--border2);
+  color: var(--muted); cursor: pointer;
+  transition: all .18s; user-select: none;
+  display: flex; align-items: center; gap: .35rem;
+  background: var(--surface);
+}
+.pill-dot { width: 7px; height: 7px; border-radius: 50%; }
+.pill:hover { border-color: var(--dim); color: var(--text); background: #fff; }
+.pill.active { border-color: currentColor; color: var(--text); background: #fff; font-weight: 600; }
+
+/* ── MAIN ── */
+main { max-width: 1380px; margin: 0 auto; padding: 1.5rem 1.5rem 5rem; }
+
+/* ── SEÇÃO ── */
+.section { margin-bottom: 3.5rem; }
+.section.hidden { display: none; }
+.sec-head {
+  display: flex; align-items: center; gap: .75rem;
+  margin-bottom: 1.2rem; padding-bottom: .8rem;
+  border-bottom: 2px solid var(--border);
+}
+.sec-bar { width: 4px; height: 1.4rem; border-radius: 3px; flex-shrink: 0; }
+.sec-title { font-size: 1rem; font-weight: 700; letter-spacing: .2px; }
+.sec-sub { margin-left: auto; font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+
+/* ── GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1rem;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 13px;
+  padding: 1.15rem 1.2rem 1.1rem;
+  transition: border-color .18s, transform .15s, box-shadow .15s;
+  display: flex; flex-direction: column; gap: .6rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.09);
+}
+.card.hidden { display: none; }
+
+.card-head { display: flex; align-items: flex-start; gap: .6rem; }
+.card-accent {
+  width: 3px; height: 100%; min-height: 2rem;
+  border-radius: 2px; flex-shrink: 0;
+  background: var(--c, #94a3b8);
+  align-self: stretch; margin-top: .1rem;
+}
+.card-name {
+  font-family: var(--mono); font-size: .98rem; font-weight: 700;
+  color: var(--c, var(--text)); line-height: 1.3; flex: 1;
+}
+.tag {
+  font-family: var(--mono); font-size: .6rem; font-weight: 600;
+  padding: .15rem .5rem; border-radius: 5px;
+  border: 1.5px solid var(--c, #94a3b8);
+  color: var(--c, #64748b);
+  flex-shrink: 0; align-self: flex-start; margin-top: .1rem;
+  white-space: nowrap;
+  background: transparent;
+}
+
+.card-when {
+  font-size: .82rem; color: #475569; line-height: 1.65;
+}
+
+.code-block {
+  background: #f8fafc;
+  border: 1.5px solid var(--border);
+  border-left: 3px solid var(--c, var(--border2));
+  border-radius: 7px;
+  padding: .75rem .9rem;
+  font-family: var(--mono);
+  font-size: .73rem;
+  line-height: 1.85;
+  color: #334155;
+  overflow-x: auto;
+}
+.code-block .kw  { color: var(--fk); font-weight: 600; }
+.code-block .cn  { color: var(--pk); font-weight: 500; }
+.code-block .tp  { color: var(--df); font-weight: 500; }
+.code-block .cm  { color: #94a3b8; font-style: italic; }
+.code-block .st  { color: #c2410c; }
+.code-block .op  { color: var(--c, #1e293b); font-weight: 700; }
+
+.tip {
+  font-family: var(--mono); font-size: .69rem; color: #475569;
+  background: #f1f5f9; border-radius: 6px;
+  padding: .5rem .75rem; line-height: 1.7;
+  border-left: 3px solid var(--dim);
+}
+.tip strong { color: var(--nn); font-weight: 600; }
+.tip em { color: var(--df); font-style: normal; font-weight: 500; }
+
+/* ── SEÇÃO EXEMPLO COMPLETO ── */
+.full-example {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 16px;
+  padding: 1.8rem;
+  margin-bottom: 3.5rem;
+}
+.fe-title {
+  font-size: .95rem; font-weight: 700; margin-bottom: 1rem;
+  color: var(--text);
+  display: flex; align-items: center; gap: .6rem;
+}
+.fe-title::before {
+  content: ''; display: block;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--pk), var(--fk));
+}
+.fe-code {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4rem 1.5rem;
+  font-family: var(--mono);
+  font-size: .74rem;
+  line-height: 2;
+  color: #334155;
+  overflow-x: auto;
+  white-space: pre;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.fe-code .kw  { color: var(--fk); font-weight: 600; }
+.fe-code .cn  { color: var(--pk); font-weight: 700; }
+.fe-code .tp  { color: var(--df); font-weight: 500; }
+.fe-code .cst { color: var(--ck); font-weight: 600; }
+.fe-code .cm  { color: #94a3b8; font-style: italic; }
+.fe-code .st  { color: var(--nn); }
+.fe-code .nm  { color: var(--fk); }
+.fe-code .op  { color: #0f172a; font-weight: 700; }
+
+/* ── AÇÕES FKEY TABLE ── */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: .8rem;
+  margin-top: 1rem;
+}
+.action-card {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: .9rem 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.action-name {
+  font-family: var(--mono); font-size: .82rem; font-weight: 700;
+  color: var(--fk); margin-bottom: .4rem;
+}
+.action-desc { font-size: .79rem; color: #475569; line-height: 1.6; }
+
+/* ── NO RESULT ── */
+#no-result {
+  display: none; text-align: center;
+  padding: 4rem; color: var(--muted);
+  font-family: var(--mono); font-size: .85rem;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center; padding: 1.5rem;
+  font-family: var(--mono); font-size: .68rem;
+  color: var(--dim); border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">PostgreSQL · Referência de Estudo</div>
+  <h1>Constraints — <em>Regras de Tabela</em></h1>
+  <p>Como criar e usar restrições ao modelar seu banco de dados</p>
+  <div class="def-box">
+    <strong>O que é uma constraint?</strong> É uma regra aplicada a uma coluna ou tabela que o banco de dados
+    garante automaticamente. Se um INSERT ou UPDATE violar a regra, o banco rejeita a operação e
+    devolve um erro — sem precisar de validação no código da aplicação.
+  </div>
+</header>
+
+<div class="controls">
+  <input class="search-box" type="text" id="search" placeholder="Buscar... ex: PRIMARY KEY, CHECK, FOREIGN" autocomplete="off" spellcheck="false">
+  <div class="pills">
+    <div class="pill" data-cat="pk"><div class="pill-dot" style="background:var(--pk)"></div>Primary Key</div>
+    <div class="pill" data-cat="fk"><div class="pill-dot" style="background:var(--fk)"></div>Foreign Key</div>
+    <div class="pill" data-cat="uq"><div class="pill-dot" style="background:var(--uq)"></div>Unique</div>
+    <div class="pill" data-cat="nn"><div class="pill-dot" style="background:var(--nn)"></div>Not Null</div>
+    <div class="pill" data-cat="ck"><div class="pill-dot" style="background:var(--ck)"></div>Check</div>
+    <div class="pill" data-cat="df"><div class="pill-dot" style="background:var(--df)"></div>Default</div>
+    <div class="pill" data-cat="ex"><div class="pill-dot" style="background:var(--ex)"></div>Exclusion</div>
+    <div class="pill" data-cat="idx"><div class="pill-dot" style="background:var(--idx)"></div>Index</div>
+  </div>
+</div>
+
+<main>
+
+<!-- ══════════════════════════════════════
+     EXEMPLO COMPLETO NO TOPO
+══════════════════════════════════════ -->
+<div class="full-example" id="exemplo-completo">
+  <div class="fe-title">Exemplo completo — CREATE TABLE com todas as constraints</div>
+  <div class="fe-code"><span class="cm">-- Tabela de referência: categorias</span>
+<span class="kw">CREATE TABLE</span> <span class="cn">categorias</span> (
+    id          <span class="tp">SERIAL</span>          <span class="op">PRIMARY KEY</span>,
+    nome        <span class="tp">VARCHAR(80)</span>     <span class="op">NOT NULL UNIQUE</span>
+);
+
+<span class="cm">-- Tabela principal: produtos com várias constraints</span>
+<span class="kw">CREATE TABLE</span> <span class="cn">produtos</span> (
+    <span class="cm">-- Coluna com PRIMARY KEY gerada automaticamente</span>
+    id              <span class="tp">SERIAL</span>,
+
+    <span class="cm">-- NOT NULL garante que o campo sempre tenha valor</span>
+    nome            <span class="tp">VARCHAR(120)</span>        <span class="op">NOT NULL</span>,
+
+    <span class="cm">-- CHECK valida a regra de negócio: preço maior que zero</span>
+    preco           <span class="tp">DECIMAL(10,2)</span>       <span class="op">NOT NULL</span>
+                    <span class="cst">CHECK</span> (preco > 0),
+
+    <span class="cm">-- DEFAULT preenche o estoque com 0 se não informado</span>
+    estoque         <span class="tp">INT</span>                 <span class="op">NOT NULL</span>
+                    <span class="cst">DEFAULT</span> 0,
+
+    <span class="cm">-- FOREIGN KEY liga ao id da tabela categorias</span>
+    categoria_id    <span class="tp">INT</span>                 <span class="op">NOT NULL</span>,
+
+    ativo           <span class="tp">BOOLEAN</span>             <span class="cst">DEFAULT</span> <span class="st">TRUE</span>,
+    criado_em       <span class="tp">TIMESTAMPTZ</span>         <span class="cst">DEFAULT</span> <span class="nm">NOW()</span>,
+
+    <span class="cm">-- PRIMARY KEY nomeada como constraint de tabela</span>
+    <span class="cst">CONSTRAINT</span> pk_produtos
+        <span class="op">PRIMARY KEY</span> (id),
+
+    <span class="cm">-- FOREIGN KEY com ação ON DELETE e nomeada</span>
+    <span class="cst">CONSTRAINT</span> fk_produtos_categoria
+        <span class="op">FOREIGN KEY</span> (categoria_id)
+        <span class="kw">REFERENCES</span> <span class="cn">categorias</span>(id)
+        <span class="kw">ON DELETE RESTRICT</span>
+        <span class="kw">ON UPDATE CASCADE</span>,
+
+    <span class="cm">-- UNIQUE garante que dois produtos não tenham o mesmo nome</span>
+    <span class="cst">CONSTRAINT</span> uq_produto_nome
+        <span class="op">UNIQUE</span> (nome),
+
+    <span class="cm">-- CHECK de tabela pode verificar múltiplas colunas</span>
+    <span class="cst">CONSTRAINT</span> ck_estoque_ativo
+        <span class="op">CHECK</span> (ativo = <span class="st">FALSE</span> OR estoque >= 0)
+);
+
+<span class="cm">-- INDEX para acelerar buscas por categoria (não é constraint, mas anda junto)</span>
+<span class="kw">CREATE INDEX</span> idx_produtos_categoria
+    <span class="kw">ON</span> <span class="cn">produtos</span> (categoria_id);</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PRIMARY KEY
+══════════════════════════════════════ -->
+<section class="section" data-cat="pk">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--pk)"></div>
+    <span class="sec-title" style="color:var(--pk)">PRIMARY KEY</span>
+    <span class="sec-sub">Identificador único da linha</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--pk)" data-tags="primary key chave primaria id serial">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">PRIMARY KEY simples</div>
+        <div class="tag">coluna</div>
+      </div>
+      <div class="card-when">Identifica cada linha de forma única. Automaticamente cria um índice. Não aceita NULL. Cada tabela pode ter apenas uma PK.</div>
+      <div class="code-block">
+<span class="cn">id</span>  <span class="tp">SERIAL</span>  <span class="op">PRIMARY KEY</span>
+
+<span class="cm">-- ou com tipo inteiro explícito</span>
+<span class="cn">id</span>  <span class="tp">INT</span>  <span class="op">GENERATED ALWAYS AS IDENTITY</span>
+         <span class="op">PRIMARY KEY</span>
+      </div>
+      <div class="tip"><strong>SERIAL</strong> = alias antigo para INT + SEQUENCE. Use <em>GENERATED ALWAYS AS IDENTITY</em> (padrão SQL moderno) para novos projetos.</div>
+    </div>
+
+    <div class="card" style="--c:var(--pk)" data-tags="primary key composta multiplas colunas">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">PRIMARY KEY composta</div>
+        <div class="tag">tabela</div>
+      </div>
+      <div class="card-when">Quando a unicidade é definida pela combinação de duas ou mais colunas — tabelas de relacionamento N:N são o caso mais comum.</div>
+      <div class="code-block">
+<span class="kw">CREATE TABLE</span> pedido_produtos (
+  pedido_id   <span class="tp">INT</span>  <span class="op">NOT NULL</span>,
+  produto_id  <span class="tp">INT</span>  <span class="op">NOT NULL</span>,
+  quantidade  <span class="tp">INT</span>  <span class="op">NOT NULL DEFAULT</span> 1,
+
+  <span class="op">PRIMARY KEY</span> (pedido_id, produto_id)
+);
+      </div>
+      <div class="tip">A combinação pedido_id + produto_id deve ser única. Cada campo individualmente pode repetir.</div>
+    </div>
+
+    <div class="card" style="--c:var(--pk)" data-tags="primary key nomeada constraint nome">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">PRIMARY KEY nomeada</div>
+        <div class="tag">CONSTRAINT</div>
+      </div>
+      <div class="card-when">Nomear a constraint facilita identificá-la em erros e ao fazer ALTER TABLE. Boas práticas recomendam sempre nomear constraints explicitamente.</div>
+      <div class="code-block">
+<span class="kw">CONSTRAINT</span> <span class="st">pk_usuarios</span>
+    <span class="op">PRIMARY KEY</span> (id)
+      </div>
+      <div class="tip">Padrão de nome sugerido: <em>pk_nome_tabela</em> — fica fácil identificar em logs de erro.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOREIGN KEY
+══════════════════════════════════════ -->
+<section class="section" data-cat="fk">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--fk)"></div>
+    <span class="sec-title" style="color:var(--fk)">FOREIGN KEY</span>
+    <span class="sec-sub">Integridade referencial entre tabelas</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--fk)" data-tags="foreign key chave estrangeira referencia tabela">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">FOREIGN KEY básica</div>
+        <div class="tag">referência</div>
+      </div>
+      <div class="card-when">Garante que o valor da coluna existe na tabela referenciada. Se tentar inserir um ID que não existe na tabela pai, o banco recusa.</div>
+      <div class="code-block">
+<span class="cn">usuario_id</span>  <span class="tp">INT</span>
+    <span class="op">REFERENCES</span> usuarios(id)
+
+<span class="cm">-- forma expandida com nome</span>
+<span class="kw">CONSTRAINT</span> <span class="st">fk_pedidos_usuario</span>
+    <span class="op">FOREIGN KEY</span> (usuario_id)
+    <span class="op">REFERENCES</span> usuarios(id)
+      </div>
+      <div class="tip">A coluna referenciada na tabela pai <strong>deve ser PRIMARY KEY ou UNIQUE</strong>.</div>
+    </div>
+
+    <div class="card" style="--c:var(--fk)" data-tags="foreign key on delete cascade restrict set null">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">ON DELETE / ON UPDATE</div>
+        <div class="tag">ação</div>
+      </div>
+      <div class="card-when">Define o que acontece com os registros filhos quando o registro pai é deletado ou atualizado. É a decisão mais importante de uma FK.</div>
+      <div class="code-block">
+<span class="kw">CONSTRAINT</span> <span class="st">fk_exemplo</span>
+    <span class="op">FOREIGN KEY</span> (col_id)
+    <span class="op">REFERENCES</span> tabela_pai(id)
+    <span class="kw">ON DELETE</span>  CASCADE   <span class="cm">-- apaga filhos junto</span>
+    <span class="kw">ON UPDATE</span>  CASCADE   <span class="cm">-- atualiza filhos junto</span>
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--fk)" data-tags="foreign key deferrable diferida transacao">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">DEFERRABLE</div>
+        <div class="tag">avançado</div>
+      </div>
+      <div class="card-when">Adia a verificação da FK para o final da transação, não na linha do INSERT. Útil quando duas tabelas se referenciam mutuamente (dependência circular).</div>
+      <div class="code-block">
+<span class="kw">CONSTRAINT</span> <span class="st">fk_circular</span>
+    <span class="op">FOREIGN KEY</span> (col_id)
+    <span class="op">REFERENCES</span> outra_tabela(id)
+    <span class="kw">DEFERRABLE INITIALLY DEFERRED</span>
+
+<span class="cm">-- na transação:</span>
+<span class="op">BEGIN</span>;
+<span class="op">SET CONSTRAINTS</span> fk_circular <span class="kw">DEFERRED</span>;
+<span class="cm">-- inserts que criariam violação temporária...</span>
+<span class="op">COMMIT</span>; <span class="cm">-- verifica tudo aqui</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:1.2rem">
+    <div style="font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-bottom:.7rem;">Opções de ação para ON DELETE e ON UPDATE:</div>
+    <div class="actions-grid">
+      <div class="action-card">
+        <div class="action-name">CASCADE</div>
+        <div class="action-desc">Propaga a ação para os filhos. Se o pai é deletado, todos os filhos são deletados também. Se o pai tem o ID atualizado, todos os filhos são atualizados.</div>
+      </div>
+      <div class="action-card">
+        <div class="action-name">RESTRICT</div>
+        <div class="action-desc">Impede a deleção/atualização do pai se existirem filhos. Verificado imediatamente — o banco bloqueia na hora. Comportamento padrão se nada for especificado.</div>
+      </div>
+      <div class="action-card">
+        <div class="action-name">SET NULL</div>
+        <div class="action-desc">Quando o pai é removido, a coluna FK nos filhos é definida como NULL. A coluna precisa aceitar NULL para isso funcionar.</div>
+      </div>
+      <div class="action-card">
+        <div class="action-name">SET DEFAULT</div>
+        <div class="action-desc">Quando o pai é removido, a coluna FK nos filhos recebe o valor DEFAULT da coluna. O DEFAULT precisa referenciar um pai válido existente.</div>
+      </div>
+      <div class="action-card">
+        <div class="action-name">NO ACTION</div>
+        <div class="action-desc">Similar ao RESTRICT, mas pode ser adiado com DEFERRABLE. A verificação ocorre no final da transação, não imediatamente.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     UNIQUE
+══════════════════════════════════════ -->
+<section class="section" data-cat="uq">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--uq)"></div>
+    <span class="sec-title" style="color:var(--uq)">UNIQUE</span>
+    <span class="sec-sub">Sem valores duplicados</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--uq)" data-tags="unique unicidade email cpf duplicado">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">UNIQUE simples</div>
+        <div class="tag">coluna</div>
+      </div>
+      <div class="card-when">Garante que nenhum outro registro tenha o mesmo valor nesta coluna. Diferente da PK, aceita NULL (e múltiplos NULLs são permitidos).</div>
+      <div class="code-block">
+<span class="cn">email</span>  <span class="tp">VARCHAR(255)</span>  <span class="op">UNIQUE</span>
+<span class="cn">cpf</span>    <span class="tp">CHAR(11)</span>      <span class="op">UNIQUE NOT NULL</span>
+<span class="cn">slug</span>   <span class="tp">VARCHAR(120)</span>  <span class="op">UNIQUE</span>
+      </div>
+      <div class="tip">UNIQUE cria automaticamente um índice B-tree na coluna, acelerando buscas por aquele campo.</div>
+    </div>
+
+    <div class="card" style="--c:var(--uq)" data-tags="unique composta combinacao colunas">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">UNIQUE composta</div>
+        <div class="tag">tabela</div>
+      </div>
+      <div class="card-when">A combinação das colunas deve ser única — cada coluna individualmente pode ter repetições. Útil para regras como "um usuário só pode seguir cada outro uma vez".</div>
+      <div class="code-block">
+<span class="cm">-- usuário não pode seguir alguém duas vezes</span>
+<span class="kw">CONSTRAINT</span> <span class="st">uq_seguidor</span>
+    <span class="op">UNIQUE</span> (seguidor_id, seguido_id)
+
+<span class="cm">-- produto único por loja</span>
+<span class="kw">CONSTRAINT</span> <span class="st">uq_produto_loja</span>
+    <span class="op">UNIQUE</span> (produto_id, loja_id)
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--uq)" data-tags="unique parcial condicional index where">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">UNIQUE parcial (com WHERE)</div>
+        <div class="tag">índice</div>
+      </div>
+      <div class="card-when">Aplica a unicidade apenas em um subconjunto de linhas. Precisa ser feito via índice único parcial — não existe como constraint pura no PostgreSQL.</div>
+      <div class="code-block">
+<span class="cm">-- e-mail único só para usuários ativos</span>
+<span class="kw">CREATE UNIQUE INDEX</span> uq_email_ativo
+    <span class="kw">ON</span> usuarios (email)
+    <span class="kw">WHERE</span> ativo = <span class="tp">TRUE</span>;
+
+<span class="cm">-- slug único por tipo de conteúdo</span>
+<span class="kw">CREATE UNIQUE INDEX</span> uq_slug_tipo
+    <span class="kw">ON</span> conteudos (slug, tipo);
+      </div>
+      <div class="tip">Usuários inativos podem ter e-mails que conflitem entre si, mas não com ativos. Padrão muito útil para soft delete.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     NOT NULL
+══════════════════════════════════════ -->
+<section class="section" data-cat="nn">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--nn)"></div>
+    <span class="sec-title" style="color:var(--nn)">NOT NULL</span>
+    <span class="sec-sub">Campo obrigatório</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--nn)" data-tags="not null nulo obrigatorio campo vazio">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">NOT NULL</div>
+        <div class="tag">coluna</div>
+      </div>
+      <div class="card-when">Obriga que o campo sempre tenha um valor. Qualquer INSERT ou UPDATE que tente colocar NULL nesta coluna é rejeitado pelo banco.</div>
+      <div class="code-block">
+<span class="cn">nome</span>       <span class="tp">VARCHAR(100)</span>  <span class="op">NOT NULL</span>
+<span class="cn">email</span>      <span class="tp">VARCHAR(255)</span>  <span class="op">NOT NULL</span>
+<span class="cn">criado_em</span>  <span class="tp">TIMESTAMPTZ</span>   <span class="op">NOT NULL DEFAULT NOW()</span>
+      </div>
+      <div class="tip">NOT NULL e DEFAULT combinados garantem: campo obrigatório, mas com valor automático se o INSERT não informar.</div>
+    </div>
+
+    <div class="card" style="--c:var(--nn)" data-tags="not null adicionar remover alter table">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Adicionar / Remover via ALTER</div>
+        <div class="tag">alter table</div>
+      </div>
+      <div class="card-when">Permite incluir ou retirar NOT NULL de uma coluna já existente sem recriar a tabela.</div>
+      <div class="code-block">
+<span class="cm">-- adicionar NOT NULL em coluna existente</span>
+<span class="kw">ALTER TABLE</span> usuarios
+    <span class="op">ALTER COLUMN</span> telefone
+    <span class="kw">SET NOT NULL</span>;
+
+<span class="cm">-- remover NOT NULL (tornar opcional)</span>
+<span class="kw">ALTER TABLE</span> usuarios
+    <span class="op">ALTER COLUMN</span> telefone
+    <span class="kw">DROP NOT NULL</span>;
+      </div>
+      <div class="tip"><strong>Atenção:</strong> para SET NOT NULL funcionar, a coluna não pode ter valores NULL já existentes na tabela.</div>
+    </div>
+
+    <div class="card" style="--c:var(--nn)" data-tags="coalesce null valor padrao tratamento">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Trabalhando com NULL</div>
+        <div class="tag">dica</div>
+      </div>
+      <div class="card-when">Colunas sem NOT NULL podem conter NULL. Usar as funções certas evita bugs silenciosos em consultas.</div>
+      <div class="code-block">
+<span class="cm">-- COALESCE: retorna o primeiro valor não-NULL</span>
+<span class="kw">SELECT</span> <span class="op">COALESCE</span>(apelido, nome, <span class="st">'Anônimo'</span>)
+<span class="kw">FROM</span> usuarios;
+
+<span class="cm">-- IS NULL / IS NOT NULL para comparar</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> usuarios
+<span class="kw">WHERE</span> telefone <span class="op">IS NULL</span>;
+
+<span class="cm">-- NULLIF: retorna NULL se os valores são iguais</span>
+<span class="op">NULLIF</span>(estoque, 0)  <span class="cm">-- retorna NULL se estoque = 0</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CHECK
+══════════════════════════════════════ -->
+<section class="section" data-cat="ck">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--ck)"></div>
+    <span class="sec-title" style="color:var(--ck)">CHECK</span>
+    <span class="sec-sub">Regra de negócio na tabela</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--ck)" data-tags="check validacao regra negocio preco idade">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">CHECK de coluna</div>
+        <div class="tag">coluna</div>
+      </div>
+      <div class="card-when">Valida uma condição booleana antes de aceitar o valor. Se a condição for FALSE, o banco rejeita a operação. NULL passa sem erro (IS TRUE seria NULL).</div>
+      <div class="code-block">
+<span class="cn">preco</span>       <span class="tp">DECIMAL(10,2)</span>
+    <span class="kw">CHECK</span> (preco > 0)
+
+<span class="cn">desconto</span>    <span class="tp">DECIMAL(5,2)</span>
+    <span class="kw">CHECK</span> (desconto <span class="op">BETWEEN</span> 0 <span class="op">AND</span> 100)
+
+<span class="cn">quantidade</span>  <span class="tp">INT</span>
+    <span class="kw">CHECK</span> (quantidade >= 0)
+
+<span class="cn">status</span>      <span class="tp">TEXT</span>
+    <span class="kw">CHECK</span> (status <span class="op">IN</span> (<span class="st">'ativo'</span>,<span class="st">'inativo'</span>,<span class="st">'pendente'</span>))
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--ck)" data-tags="check tabela multiplas colunas comparacao">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">CHECK de tabela</div>
+        <div class="tag">tabela</div>
+      </div>
+      <div class="card-when">CHECK declarado no nível da tabela pode comparar múltiplas colunas entre si — coisa que o CHECK de coluna não consegue fazer.</div>
+      <div class="code-block">
+<span class="kw">CONSTRAINT</span> <span class="st">ck_datas_validas</span>
+    <span class="op">CHECK</span> (data_fim > data_inicio),
+
+<span class="kw">CONSTRAINT</span> <span class="st">ck_preco_desconto</span>
+    <span class="op">CHECK</span> (preco_final <= preco_original),
+
+<span class="kw">CONSTRAINT</span> <span class="st">ck_entrega_pago</span>
+    <span class="op">CHECK</span> (
+        status_entrega <span class="op">=</span> <span class="st">'pendente'</span>
+        <span class="op">OR</span> status_pagamento <span class="op">=</span> <span class="st">'pago'</span>
+    )
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--ck)" data-tags="check expressao regex email formato validar">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">CHECK com expressões</div>
+        <div class="tag">expressão</div>
+      </div>
+      <div class="card-when">Qualquer expressão SQL que retorne boolean é válida no CHECK — funções, operadores de string, regex, comparações com LENGTH.</div>
+      <div class="code-block">
+<span class="cm">-- comprimento mínimo de senha</span>
+<span class="kw">CHECK</span> (<span class="op">LENGTH</span>(senha_hash) >= 60)
+
+<span class="cm">-- e-mail com formato básico (regex)</span>
+<span class="kw">CHECK</span> (email <span class="op">~</span> <span class="st">'^[^@]+@[^@]+\.[^@]+$'</span>)
+
+<span class="cm">-- CPF com 11 dígitos numéricos</span>
+<span class="kw">CHECK</span> (cpf <span class="op">~</span> <span class="st">'^[0-9]{11}$'</span>)
+
+<span class="cm">-- latitude válida</span>
+<span class="kw">CHECK</span> (lat <span class="op">BETWEEN</span> -90 <span class="op">AND</span> 90)
+      </div>
+      <div class="tip"><strong>Atenção:</strong> CHECKs com funções não determinísticas (como <em>NOW()</em>) podem ter comportamento inesperado.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     DEFAULT
+══════════════════════════════════════ -->
+<section class="section" data-cat="df">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--df)"></div>
+    <span class="sec-title" style="color:var(--df)">DEFAULT</span>
+    <span class="sec-sub">Valor automático quando não informado</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--df)" data-tags="default valor padrao automatico campo">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">DEFAULT estático</div>
+        <div class="tag">coluna</div>
+      </div>
+      <div class="card-when">Define um valor fixo usado quando o INSERT não informa aquela coluna. Pode ser qualquer literal do tipo da coluna.</div>
+      <div class="code-block">
+<span class="cn">ativo</span>      <span class="tp">BOOLEAN</span>       <span class="kw">DEFAULT</span> <span class="tp">TRUE</span>
+<span class="cn">estoque</span>    <span class="tp">INT</span>           <span class="kw">DEFAULT</span> 0
+<span class="cn">pais</span>       <span class="tp">CHAR(2)</span>       <span class="kw">DEFAULT</span> <span class="st">'BR'</span>
+<span class="cn">desconto</span>   <span class="tp">DECIMAL(5,2)</span>  <span class="kw">DEFAULT</span> 0.00
+<span class="cn">permissoes</span> <span class="tp">TEXT[]</span>        <span class="kw">DEFAULT</span> <span class="st">'{}'</span>
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--df)" data-tags="default funcao now timestamp uuid gerado">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">DEFAULT com função</div>
+        <div class="tag">dinâmico</div>
+      </div>
+      <div class="card-when">O DEFAULT pode ser o resultado de qualquer função SQL. Muito útil para timestamps de criação, UUIDs automáticos e sequências.</div>
+      <div class="code-block">
+<span class="cn">criado_em</span>    <span class="tp">TIMESTAMPTZ</span>  <span class="kw">DEFAULT</span> <span class="op">NOW()</span>
+<span class="cn">atualizado_em</span> <span class="tp">TIMESTAMPTZ</span>  <span class="kw">DEFAULT</span> <span class="op">CURRENT_TIMESTAMP</span>
+<span class="cn">id</span>            <span class="tp">UUID</span>         <span class="kw">DEFAULT</span> <span class="op">gen_random_uuid()</span>
+<span class="cn">token</span>         <span class="tp">TEXT</span>         <span class="kw">DEFAULT</span> <span class="op">MD5(random()::text)</span>
+<span class="cn">data_hoje</span>     <span class="tp">DATE</span>         <span class="kw">DEFAULT</span> <span class="op">CURRENT_DATE</span>
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--df)" data-tags="generated always stored computed coluna gerada calculada">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">GENERATED (coluna calculada)</div>
+        <div class="tag">gerado</div>
+      </div>
+      <div class="card-when">Colunas cujo valor é sempre calculado a partir de outras colunas. O banco mantém automaticamente — você não pode inserir valor manualmente.</div>
+      <div class="code-block">
+<span class="cn">preco_unit</span>  <span class="tp">DECIMAL(10,2)</span>  <span class="op">NOT NULL</span>,
+<span class="cn">quantidade</span>  <span class="tp">INT</span>            <span class="op">NOT NULL</span>,
+
+<span class="cm">-- coluna calculada (sempre atualizada)</span>
+<span class="cn">total</span>       <span class="tp">DECIMAL(10,2)</span>
+    <span class="op">GENERATED ALWAYS AS</span>
+    (preco_unit * quantidade) <span class="kw">STORED</span>,
+
+<span class="cm">-- busca full-text gerada automaticamente</span>
+<span class="cn">busca</span>       <span class="tp">TSVECTOR</span>
+    <span class="op">GENERATED ALWAYS AS</span>
+    (<span class="op">to_tsvector</span>(<span class="st">'portuguese'</span>, titulo)) <span class="kw">STORED</span>
+      </div>
+      <div class="tip"><strong>STORED</strong> = valor salvo em disco (PostgreSQL só suporta este modo atualmente).</div>
+    </div>
+
+    <div class="card" style="--c:var(--df)" data-tags="default alterar mudar alter table set default">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Alterar DEFAULT via ALTER</div>
+        <div class="tag">alter table</div>
+      </div>
+      <div class="card-when">Modifica ou remove o valor padrão de uma coluna existente. Não afeta dados já inseridos.</div>
+      <div class="code-block">
+<span class="cm">-- definir um DEFAULT em coluna existente</span>
+<span class="kw">ALTER TABLE</span> produtos
+    <span class="op">ALTER COLUMN</span> ativo
+    <span class="kw">SET DEFAULT</span> <span class="tp">TRUE</span>;
+
+<span class="cm">-- remover o DEFAULT</span>
+<span class="kw">ALTER TABLE</span> produtos
+    <span class="op">ALTER COLUMN</span> ativo
+    <span class="kw">DROP DEFAULT</span>;
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     EXCLUSION
+══════════════════════════════════════ -->
+<section class="section" data-cat="ex">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--ex)"></div>
+    <span class="sec-title" style="color:var(--ex)">EXCLUSION</span>
+    <span class="sec-sub">Constraint avançada — sem sobreposição</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--ex)" data-tags="exclusion exclusao sobreposicao reserva periodo range">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">EXCLUDE USING GIST</div>
+        <div class="tag">PostgreSQL</div>
+      </div>
+      <div class="card-when">Garante que não haverá dois registros que se "sobreponham" segundo um operador definido. O exemplo clássico é reserva de sala: um horário não pode estar ocupado duas vezes.</div>
+      <div class="code-block">
+<span class="cm">-- requer a extensão btree_gist</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> btree_gist;
+
+<span class="kw">CREATE TABLE</span> reservas (
+    sala_id     <span class="tp">INT</span>          <span class="op">NOT NULL</span>,
+    periodo     <span class="tp">TSTZRANGE</span>    <span class="op">NOT NULL</span>,
+
+    <span class="cm">-- mesma sala não pode ter períodos que se sobreponham</span>
+    <span class="kw">CONSTRAINT</span> <span class="st">ex_reserva_sala</span>
+        <span class="op">EXCLUDE USING GIST</span> (
+            sala_id  <span class="kw">WITH =</span>,
+            periodo  <span class="kw">WITH &amp;&amp;</span>
+        )
+);
+      </div>
+      <div class="tip"><em>&&</em> = operador "se sobrepõe" para tipos RANGE. <strong>GIST</strong> é o tipo de índice que suporta este operador no PostgreSQL.</div>
+    </div>
+
+    <div class="card" style="--c:var(--ex)" data-tags="exclusion exclusao circulo geometria spatial">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">EXCLUDE com geometria</div>
+        <div class="tag">espacial</div>
+      </div>
+      <div class="card-when">Impede que dois registros referenciem áreas geográficas que se sobrepõem. Útil para zoneamentos, territórios de vendedores, áreas de entrega.</div>
+      <div class="code-block">
+<span class="cm">-- com extensão PostGIS</span>
+<span class="kw">CREATE TABLE</span> zonas_entrega (
+    entregador_id  <span class="tp">INT</span>       <span class="op">NOT NULL</span>,
+    area           <span class="tp">CIRCLE</span>    <span class="op">NOT NULL</span>,
+
+    <span class="kw">CONSTRAINT</span> <span class="st">ex_areas_unicas</span>
+        <span class="op">EXCLUDE USING GIST</span> (
+            area <span class="kw">WITH &amp;&amp;</span>
+        )
+);
+      </div>
+      <div class="tip">EXCLUSION é exclusiva do PostgreSQL — nenhum outro banco relacional popular tem esse recurso nativo.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     INDEX
+══════════════════════════════════════ -->
+<section class="section" data-cat="idx">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--idx)"></div>
+    <span class="sec-title" style="color:var(--idx)">INDEX</span>
+    <span class="sec-sub">Performance de consulta (não é constraint, mas anda junto)</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:var(--idx)" data-tags="index indice btree performance busca">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">CREATE INDEX (B-tree)</div>
+        <div class="tag">padrão</div>
+      </div>
+      <div class="card-when">Acelera buscas, filtros e ordenação em colunas muito consultadas. B-tree é o tipo padrão — funciona para =, &lt;, &gt;, BETWEEN e ORDER BY.</div>
+      <div class="code-block">
+<span class="cm">-- índice simples na coluna email</span>
+<span class="kw">CREATE INDEX</span> idx_usuarios_email
+    <span class="kw">ON</span> usuarios (email);
+
+<span class="cm">-- índice composto (ordem importa!)</span>
+<span class="kw">CREATE INDEX</span> idx_pedidos_usuario_data
+    <span class="kw">ON</span> pedidos (usuario_id, criado_em <span class="op">DESC</span>);
+
+<span class="cm">-- ver se um índice está sendo usado</span>
+<span class="kw">EXPLAIN ANALYZE</span>
+    <span class="kw">SELECT</span> * <span class="kw">FROM</span> usuarios
+    <span class="kw">WHERE</span> email = <span class="st">'a@b.com'</span>;
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--idx)" data-tags="index gin gist fulltext json array busca texto">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Índice GIN / GIST</div>
+        <div class="tag">avançado</div>
+      </div>
+      <div class="card-when">GIN é ideal para JSONB, ARRAY e full-text search. GIST é para tipos geométricos, ranges e EXCLUSION constraints.</div>
+      <div class="code-block">
+<span class="cm">-- GIN para JSONB (busca dentro do JSON)</span>
+<span class="kw">CREATE INDEX</span> idx_meta_gin
+    <span class="kw">ON</span> produtos <span class="op">USING GIN</span> (metadata);
+
+<span class="cm">-- GIN para full-text search</span>
+<span class="kw">CREATE INDEX</span> idx_busca_gin
+    <span class="kw">ON</span> artigos <span class="op">USING GIN</span> (busca);
+
+<span class="cm">-- GIST para RANGE (necessário p/ EXCLUDE)</span>
+<span class="kw">CREATE INDEX</span> idx_periodo_gist
+    <span class="kw">ON</span> reservas <span class="op">USING GIST</span> (periodo);
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--idx)" data-tags="index parcial condicional where performance">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Índice parcial</div>
+        <div class="tag">WHERE</div>
+      </div>
+      <div class="card-when">Indexa apenas um subconjunto das linhas. Muito menor e mais rápido que indexar a tabela inteira quando a consulta é sempre filtrada.</div>
+      <div class="code-block">
+<span class="cm">-- só indexa pedidos não entregues (minoria ativa)</span>
+<span class="kw">CREATE INDEX</span> idx_pedidos_pendentes
+    <span class="kw">ON</span> pedidos (usuario_id, criado_em)
+    <span class="kw">WHERE</span> status <span class="op">!=</span> <span class="st">'entregue'</span>;
+
+<span class="cm">-- só usuários ativos</span>
+<span class="kw">CREATE INDEX</span> idx_usuarios_ativos
+    <span class="kw">ON</span> usuarios (email)
+    <span class="kw">WHERE</span> ativo = <span class="tp">TRUE</span>;
+      </div>
+    </div>
+
+    <div class="card" style="--c:var(--idx)" data-tags="index concurrently sem lock producao">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">CONCURRENTLY</div>
+        <div class="tag">produção</div>
+      </div>
+      <div class="card-when">Cria o índice sem travar a tabela para leituras e escritas. Essencial em tabelas de produção com tráfego. Demora mais, mas não bloqueia usuários.</div>
+      <div class="code-block">
+<span class="cm">-- cria sem lock (mais lento, não bloqueia)</span>
+<span class="kw">CREATE INDEX CONCURRENTLY</span>
+    idx_logs_criado
+    <span class="kw">ON</span> logs (criado_em);
+
+<span class="cm">-- remover índice sem lock</span>
+<span class="kw">DROP INDEX CONCURRENTLY</span>
+    idx_logs_criado;
+      </div>
+      <div class="tip"><strong>Nunca</strong> crie índices sem CONCURRENTLY em tabelas ativas — o lock pode derrubar a aplicação.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     GERENCIAR CONSTRAINTS
+══════════════════════════════════════ -->
+<section class="section" data-cat="all">
+  <div class="sec-head">
+    <div class="sec-bar" style="background:var(--muted)"></div>
+    <span class="sec-title" style="color:var(--text)">Gerenciar Constraints — ALTER TABLE</span>
+    <span class="sec-sub">Adicionar, remover e listar constraints existentes</span>
+  </div>
+  <div class="grid">
+
+    <div class="card" style="--c:#b0b8cc" data-tags="alter table add constraint adicionar">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Adicionar constraint</div>
+        <div class="tag">ALTER</div>
+      </div>
+      <div class="card-when">Acrescenta qualquer tipo de constraint a uma tabela que já existe, sem precisar recriá-la.</div>
+      <div class="code-block">
+<span class="cm">-- adicionar NOT NULL</span>
+<span class="kw">ALTER TABLE</span> produtos
+    <span class="op">ALTER COLUMN</span> nome <span class="kw">SET NOT NULL</span>;
+
+<span class="cm">-- adicionar UNIQUE</span>
+<span class="kw">ALTER TABLE</span> usuarios
+    <span class="op">ADD CONSTRAINT</span> uq_cpf <span class="kw">UNIQUE</span> (cpf);
+
+<span class="cm">-- adicionar CHECK</span>
+<span class="kw">ALTER TABLE</span> produtos
+    <span class="op">ADD CONSTRAINT</span> ck_preco
+    <span class="kw">CHECK</span> (preco > 0);
+
+<span class="cm">-- adicionar FOREIGN KEY</span>
+<span class="kw">ALTER TABLE</span> pedidos
+    <span class="op">ADD CONSTRAINT</span> fk_usuario
+    <span class="kw">FOREIGN KEY</span> (usuario_id)
+    <span class="kw">REFERENCES</span> usuarios(id);
+      </div>
+    </div>
+
+    <div class="card" style="--c:#b0b8cc" data-tags="alter table drop constraint remover deletar">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Remover constraint</div>
+        <div class="tag">ALTER</div>
+      </div>
+      <div class="card-when">Remove uma constraint existente pelo nome. Por isso nomear as constraints é tão importante — fica muito mais fácil gerenciá-las depois.</div>
+      <div class="code-block">
+<span class="cm">-- remover qualquer constraint pelo nome</span>
+<span class="kw">ALTER TABLE</span> produtos
+    <span class="op">DROP CONSTRAINT</span> ck_preco;
+
+<span class="kw">ALTER TABLE</span> pedidos
+    <span class="op">DROP CONSTRAINT</span> fk_usuario;
+
+<span class="kw">ALTER TABLE</span> usuarios
+    <span class="op">DROP CONSTRAINT</span> uq_cpf;
+
+<span class="cm">-- remover NOT NULL</span>
+<span class="kw">ALTER TABLE</span> produtos
+    <span class="op">ALTER COLUMN</span> nome <span class="kw">DROP NOT NULL</span>;
+      </div>
+    </div>
+
+    <div class="card" style="--c:#b0b8cc" data-tags="listar constraints information schema pg catalog">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Listar constraints existentes</div>
+        <div class="tag">catálogo</div>
+      </div>
+      <div class="card-when">Consulta o catálogo do PostgreSQL para ver quais constraints existem em uma tabela — muito útil para descobrir nomes e depurar erros.</div>
+      <div class="code-block">
+<span class="cm">-- listar todas as constraints de uma tabela</span>
+<span class="kw">SELECT</span>
+    conname   <span class="kw">AS</span> nome,
+    contype   <span class="kw">AS</span> tipo,  <span class="cm">-- p=PK f=FK u=UQ c=CHECK</span>
+    pg_get_constraintdef(oid) <span class="kw">AS</span> definicao
+<span class="kw">FROM</span> pg_constraint
+<span class="kw">WHERE</span> conrelid = <span class="st">'produtos'</span>::<span class="tp">regclass</span>;
+
+<span class="cm">-- via information_schema (mais portável)</span>
+<span class="kw">SELECT</span> constraint_name, constraint_type
+<span class="kw">FROM</span>  information_schema.table_constraints
+<span class="kw">WHERE</span> table_name = <span class="st">'produtos'</span>;
+      </div>
+    </div>
+
+    <div class="card" style="--c:#b0b8cc" data-tags="disable enable constraint desabilitar habilitar validar">
+      <div class="card-head">
+        <div class="card-accent"></div>
+        <div class="card-name">Desabilitar / Reabilitar constraint</div>
+        <div class="tag">manutenção</div>
+      </div>
+      <div class="card-when">Durante migrações ou importações massivas de dados, pode ser útil desabilitar temporariamente FKs e triggers para ganhar velocidade.</div>
+      <div class="code-block">
+<span class="cm">-- desabilitar todos os triggers e FKs da tabela</span>
+<span class="kw">ALTER TABLE</span> pedidos
+    <span class="op">DISABLE TRIGGER ALL</span>;
+
+<span class="cm">-- reabilitar</span>
+<span class="kw">ALTER TABLE</span> pedidos
+    <span class="op">ENABLE TRIGGER ALL</span>;
+
+<span class="cm">-- revalidar FK após importação</span>
+<span class="kw">ALTER TABLE</span> pedidos
+    <span class="op">VALIDATE CONSTRAINT</span> fk_usuario;
+
+<span class="cm">-- adicionar FK sem validar dados existentes</span>
+<span class="kw">ALTER TABLE</span> pedidos
+    <span class="op">ADD CONSTRAINT</span> fk_usuario
+    <span class="kw">FOREIGN KEY</span> (usuario_id)
+    <span class="kw">REFERENCES</span> usuarios(id)
+    <span class="op">NOT VALID</span>;
+      </div>
+      <div class="tip"><strong>NOT VALID</strong> adiciona a FK sem verificar linhas existentes — muito mais rápido em tabelas grandes. Valide depois com VALIDATE CONSTRAINT.</div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<div id="no-result">Nenhum resultado para "<span id="no-term"></span>"</div>
+
+<footer>
+  Constraints PostgreSQL — Colinha de Estudo · DDL · Integridade de Dados
+</footer>
+
+<script>
+  const searchEl = document.getElementById('search');
+  const noResult = document.getElementById('no-result');
+  const noTerm   = document.getElementById('no-term');
+  const pills    = document.querySelectorAll('.pill');
+  const sections = document.querySelectorAll('.section[data-cat]');
+  const cards    = document.querySelectorAll('.card');
+
+  let activeCat = null;
+
+  function applySearch(q) {
+    q = q.toLowerCase().trim();
+    let any = false;
+    cards.forEach(c => {
+      const txt = c.textContent.toLowerCase();
+      const tags = (c.dataset.tags || '').toLowerCase();
+      const show = !q || txt.includes(q) || tags.includes(q);
+      c.classList.toggle('hidden', !show);
+      if (show) any = true;
+    });
+    sections.forEach(s => {
+      const vis = [...s.querySelectorAll('.card')].some(c => !c.classList.contains('hidden'));
+      s.classList.toggle('hidden', !vis);
+    });
+    noResult.style.display = (!any && q) ? 'block' : 'none';
+    noTerm.textContent = q;
+  }
+
+  function applyCategory(cat) {
+    cards.forEach(c => c.classList.remove('hidden'));
+    sections.forEach(s => {
+      if (cat === null || s.dataset.cat === cat || s.dataset.cat === 'all') {
+        s.classList.remove('hidden');
+      } else {
+        s.classList.add('hidden');
+      }
+    });
+    noResult.style.display = 'none';
+  }
+
+  searchEl.addEventListener('input', e => {
+    activeCat = null;
+    pills.forEach(p => p.classList.remove('active'));
+    applySearch(e.target.value);
+  });
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const cat = pill.dataset.cat;
+      if (activeCat === cat) {
+        activeCat = null;
+        pill.classList.remove('active');
+        applyCategory(null);
+      } else {
+        activeCat = cat;
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        searchEl.value = '';
+        applyCategory(cat);
+      }
+    });
+  });
+</script>
+</body>
+</html>
