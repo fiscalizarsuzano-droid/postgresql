@@ -1,0 +1,330 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Sintaxe basica de atributo SQL PostgreSQL</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin:auto;
+    padding:20px;
+    background:#f5f5f5;
+}
+
+h1,h2{
+    color:#1f4e79;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:20px;
+    background:white;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:left;
+}
+
+th{
+    background:#d9eaf7;
+}
+
+code{
+    background:#eee;
+    padding:2px 5px;
+}
+
+.bloco{
+    background:white;
+    padding:15px;
+    margin-bottom:20px;
+    border-left:5px solid #1f4e79;
+}
+</style>
+
+</head>
+<body>
+
+<h1>📚 Guia Rápido PostgreSQL</h1>
+
+<div class="bloco">
+<h2>Estrutura Básica</h2>
+
+<pre>
+nome_coluna TIPO REGRAS
+</pre>
+
+Exemplo:
+
+<pre>
+nome VARCHAR(100) NOT NULL
+</pre>
+
+<ul>
+<li>nome = coluna</li>
+<li>VARCHAR(100) = tipo</li>
+<li>NOT NULL = regra</li>
+</ul>
+</div>
+
+<h2>Tipos de Dados</h2>
+
+<table>
+<tr>
+<th>Tipo</th>
+<th>Uso</th>
+<th>Exemplo</th>
+</tr>
+
+<tr>
+<td>SMALLINT</td>
+<td>Números pequenos</td>
+<td>andar</td>
+</tr>
+
+<tr>
+<td>INTEGER / INT</td>
+<td>Números inteiros</td>
+<td>idade</td>
+</tr>
+
+<tr>
+<td>BIGINT</td>
+<td>Números grandes</td>
+<td>população</td>
+</tr>
+
+<tr>
+<td>CHAR(11)</td>
+<td>Tamanho fixo</td>
+<td>CPF</td>
+</tr>
+
+<tr>
+<td>VARCHAR(100)</td>
+<td>Texto limitado</td>
+<td>Nome</td>
+</tr>
+
+<tr>
+<td>TEXT</td>
+<td>Texto longo</td>
+<td>Descrição</td>
+</tr>
+
+<tr>
+<td>BOOLEAN</td>
+<td>Verdadeiro/Falso</td>
+<td>ativo</td>
+</tr>
+
+<tr>
+<td>DATE</td>
+<td>Data</td>
+<td>2026-06-23</td>
+</tr>
+
+<tr>
+<td>TIMESTAMP</td>
+<td>Data e hora</td>
+<td>2026-06-23 10:00</td>
+</tr>
+
+<tr>
+<td>TIMESTAMPTZ</td>
+<td>Data, hora e fuso</td>
+<td>created_at</td>
+</tr>
+
+<tr>
+<td>INET</td>
+<td>Endereço IP</td>
+<td>192.168.1.10</td>
+</tr>
+
+<tr>
+<td>MACADDR</td>
+<td>MAC Address</td>
+<td>00:11:22:33:44:55</td>
+</tr>
+
+<tr>
+<td>JSONB</td>
+<td>Dados estruturados</td>
+<td>Logs</td>
+</tr>
+
+</table>
+
+<h2>Constraints (Regras)</h2>
+
+<table>
+
+<tr>
+<th>Regra</th>
+<th>Função</th>
+</tr>
+
+<tr>
+<td>PRIMARY KEY</td>
+<td>Identificador único</td>
+</tr>
+
+<tr>
+<td>FOREIGN KEY</td>
+<td>Liga tabelas</td>
+</tr>
+
+<tr>
+<td>UNIQUE</td>
+<td>Não permite repetição</td>
+</tr>
+
+<tr>
+<td>NOT NULL</td>
+<td>Obrigatório preencher</td>
+</tr>
+
+<tr>
+<td>DEFAULT</td>
+<td>Valor padrão</td>
+</tr>
+
+<tr>
+<td>CHECK</td>
+<td>Validação personalizada</td>
+</tr>
+
+</table>
+
+<h2>Tabela Modelo</h2>
+
+<pre>
+CREATE TABLE usuarios (
+
+    id SERIAL PRIMARY KEY,
+
+    nome VARCHAR(100) NOT NULL,
+
+    cpf CHAR(11) NOT NULL UNIQUE,
+
+    email VARCHAR(255) UNIQUE,
+
+    ativo BOOLEAN DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ DEFAULT NOW()
+
+);
+</pre>
+
+<h2>Modelo Mental para Criar Tabelas</h2>
+
+<pre>
+1. O que vou guardar?
+
+Usuário
+Dispositivo
+Chamado
+Produto
+
+↓
+
+2. Quais atributos?
+
+Nome
+CPF
+Email
+
+↓
+
+3. Qual tipo?
+
+Nome → VARCHAR
+CPF → CHAR(11)
+
+↓
+
+4. Quais regras?
+
+Obrigatório?
+Único?
+Relaciona com outra tabela?
+</pre>
+
+<h2>Relacionamentos</h2>
+
+<h3>1 para Muitos (1:N)</h3>
+
+<pre>
+setores
+   |
+   |---- funcionarios
+</pre>
+
+Um setor possui vários funcionários.
+
+<hr>
+
+<h3>Muitos para Muitos (N:N)</h3>
+
+<pre>
+usuarios
+    |
+usuarios_dispositivos
+    |
+dispositivos
+</pre>
+
+Um usuário acessa vários dispositivos.
+
+Um dispositivo possui vários usuários.
+
+<h2>Perguntas Antes de Criar uma Tabela</h2>
+
+<pre>
+Qual é a PK?
+
+Quais campos são obrigatórios?
+
+Quais campos não podem repetir?
+
+Existe relacionamento?
+
+Preciso de histórico?
+
+Preciso de created_at?
+
+Preciso de updated_at?
+</pre>
+
+<h2>Consulta JOIN</h2>
+
+<pre>
+SELECT d.hostname,
+       t.nome_dispositivo,
+       a.nome
+
+FROM dispositivos d
+
+JOIN tipos_dispositivos t
+ON d.tipo_id = t.id
+
+JOIN andares_salas a
+ON d.localizacao_id = a.id;
+</pre>
+
+Tradução:
+
+"Pegue o hostname do dispositivo,
+o nome do tipo,
+e o nome da sala."
+
+</body>
+</html>
+```
